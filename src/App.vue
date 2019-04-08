@@ -17,24 +17,24 @@
 
             <div class="main-balance">
                 <img src="./assets/images/balance.png" class="main-balance_img" />
-                <div class="main-balance_text">余额： 1.0345</div>
+                <div class="main-balance_text">余额： {{balance}}</div>
             </div>
 
             <div class="main-dashboard">
                 <div class="dashboard-item">
-                    <div class="dashboard-item_hd">96</div>
-                    <div class="dashboard-item_ft">小于次数获胜</div>
+                    <div class="dashboard-item_hd">{{num}}</div>
+                    <div class="dashboard-item_ft">小于此数获胜</div>
                 </div>
                 <div class="dashboard-item">
-                    <div class="dashboard-item_hd">1.032<small>x</small></div>
+                    <div class="dashboard-item_hd">{{lossPer}}<small>x</small></div>
                     <div class="dashboard-item_ft">赔率</div>
                 </div>
                 <div class="dashboard-item">
-                    <div class="dashboard-item_hd">95%</div>
+                    <div class="dashboard-item_hd">{{num}}%</div>
                     <div class="dashboard-item_ft">中奖概率</div>
                 </div>
                 <div class="dashboard-item">
-                    <div class="dashboard-item_hd">1.03</div>
+                    <div class="dashboard-item_hd">{{bonus}}</div>
                     <div class="dashboard-item_ft">获胜金额</div>
                     <div class="dashboard-item_desc">ETH</div>
                 </div>
@@ -43,20 +43,21 @@
             <div class="main-slider">
                 <div class="main-slider_hd">1</div>
                 <div class="main-slider_bd">
-                    <vue-slider :height="24" :dot-size="55" v-model="num">
-                        <template v-slot:dot>
-                            <img src="./assets/images/move.png" class="custom-dot"/>
-                        </template>
-                        <template v-slot:tooltip="{ num }">
-                            <div class="custom-tooltip">{{ num }}</div>
-                        </template>
-
-                        <template v-slot:process="{ start, end, style }">
-                            <div class="vue-slider-process custom-class" :style="style">
-                            <!-- Can add custom elements here -->
-                            </div>
-                        </template>
-                    </vue-slider>
+                    <img src="./assets/images/slider.png" alt="" class="main-slider_bg">
+                    <div class="main-slider_wrapper">
+                        <vue-slider  :width="655" :dot-size="55" v-model="num" :tooltip="'always'" :min="min" :max="max" >
+                            <template v-slot:dot>
+                                <img src="./assets/images/move.png" class="custom-dot"/>
+                            </template>
+                            <template v-slot:tooltip="{ num }">
+                                <div class="custom-tooltip">{{ num }}</div>
+                            </template>
+                            <template v-slot:tooltip="{ value, focus }">
+                                <div :class="['custom-tooltip', { focus }]">{{ value }}</div>
+                            </template>
+                        </vue-slider>
+                    </div>
+                    
                 </div>
                 <div class="main-slider_hd">100</div>
             </div>
@@ -64,18 +65,19 @@
             <div class="main-gas">建议的汽油价格(Gas Price): 9</div>
 
             <div class="main-btns">
-                <img class="minus-btn" src="./assets/images/reduce.png" alt="">
+                <img class="minus-btn" @click="decrease"  src="./assets/images/reduce.png" alt="">
                 <div class="amount-input">
-                    <input class="amount-input_input" type="number">
+                    <input class="amount-input_input" v-model="amount" @blur="fixAmount" type="number">
                     <img src="./assets/images/input.png" alt="" class="amount-input_img">
                 </div>
-                <img class="plus-btn" src="./assets/images/plus.png" alt="">
+                <img class="plus-btn" @click="increase" src="./assets/images/plus.png" alt="">
 
                 <div class="multi-btn">
-                    <div class="multi-btn_item">0.5x</div>
+                    <div @click="" class="multi-btn_item">0.5x</div>
                     <div class="multi-btn_item">1x</div>
                     <div class="multi-btn_item">2x</div>
                     <div class="multi-btn_item">MAX</div>
+                    
                     <div class="multi-btn_active">1x</div>
                 </div>
 
@@ -143,16 +145,75 @@
 <script>
 import VueSlider from 'vue-slider-component'
 import 'vue-slider-component/theme/default.css'
+import { Buffer } from 'buffer'
+
 
 export default {
     name: "app",
     data () {
         return {
-            num: 50
+            min: 1,
+            max: 97,
+            num: 50,
+            balance: 0,
+            amount: 0.01,
+            power: 1
         }
     },
     components: {
         VueSlider
+    },
+    computed: {
+        lossPer () {
+            return ((this.min + this.max) / this.num).toFixed(2)
+        },
+        bonus () {
+            return (this.lossPer * this.amount).toFixed(4)
+        }
+    },
+    created () {
+         if (typeof window.ethereum === "undefined") {
+            console.log("请安装metamask");
+        } else {
+            ethereum.enable().catch(reason => {
+                console.log(reason);
+            }).then(accounts => {
+                web3.eth.getBalance(accounts[0], (error, result) =>{
+                    if(!error) {
+                        const res = JSON.parse(result)
+                        this.balance = web3.fromWei(res, 'ether')
+                        
+                    }else {
+                        console.error(error);
+                    }
+                })
+            })
+        }
+    },
+    methods: {
+        
+        decrease () {
+            if (this.amount <= 0.01) return;
+            const amount = parseFloat(this.amount).toFixed(2)
+            const digits = (amount.toString().split('.')[1] || '').length
+            this.amount = ((amount * Math.pow(10, digits) - 1) / Math.pow(10, digits)).toFixed(2)
+        },
+
+        increase () {
+            const amount = parseFloat(this.amount).toFixed(2)
+            const digits = (amount.toString().split('.')[1] || '').length
+            this.amount = ((amount * Math.pow(10, digits) + 1) / Math.pow(10, digits)).toFixed(2)
+        },
+
+        fixAmount () {
+            const num = parseFloat(this.amount)
+            if (isNaN(num)) {
+                this.amount = '0.01'
+            } else {
+                this.amount = parseFloat(this.amount).toFixed(2)
+            }
+            
+        }
     }
 };
 </script>
@@ -276,7 +337,7 @@ export default {
         .dashboard-item_hd{
             height: 180px;
             line-height: 180px;
-            font-size:50px;
+            font-size:40px;
             font-weight:bold;
             color:rgba(255,255,255,1);
         }
@@ -315,14 +376,27 @@ export default {
             align-items: center;
         }
         .vue-slider-process{
-            background: url(./assets/images/slider.png) no-repeat;
+            background: none;
             height: 24px;
             border-radius: 0px;
         }
         .vue-slider-rail{
-            background: url(./assets/images/slider.png) no-repeat;
+            background: none;
             border-radius: 0px
-            
+        }
+
+        .main-slider_wrapper{
+            position: absolute;
+            z-index: 9;
+            top: -19px;
+            left: 29px;
+        }
+
+        .custom-tooltip {
+            transform: translateY(5px);
+            font-weight: bold;
+            color: #fff;
+            font-size: 24px
         }
         .main-slider_hd, .main-slider_ft{
             width: 56px;
@@ -331,7 +405,8 @@ export default {
             color: #80d8ff
         }
         .main-slider_bd{
-            flex:1
+            flex:1;
+            position: relative;
         }
 
         .main-gas{
@@ -382,6 +457,7 @@ export default {
 
         .plus-btn{
             margin-left: 4px;
+            cursor: pointer;
         }
 
         .multi-btn{
