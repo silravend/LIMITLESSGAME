@@ -1,0 +1,28 @@
+html, body{
+    height: 100%;
+}
+
+body{
+    
+    font-family: system,-apple-system, ArialMT, "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Heiti SC", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+input{
+    outline: none;
+    padding: 0px;
+}
+
+textarea{
+    resize: none;
+    outline: none;
+}
+
+a{
+    text-decoration: none;
+}
+
+
+[v-cloak]{
+    display: none
+}
