@@ -150,8 +150,7 @@ import "vue-slider-component/theme/default.css";
 import { Buffer } from "buffer";
 import { getGasPrice, getRandomNumber, getPlaceBetParams } from "@/api";
 import getContract from "@/js/getContract";
-import Web3 from "web3"
-const web3 = new Web3(Web3.givenProvider);
+import web3 from "@/js/web3"
 
 export default {
     name: "app",
