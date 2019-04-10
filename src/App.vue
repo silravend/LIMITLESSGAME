@@ -17,7 +17,7 @@
 
             <div class="main-balance">
                 <img src="./assets/images/balance.png" class="main-balance_img" />
-                <div class="main-balance_text">余额： {{balance}}</div>
+                <div class="main-balance_text">[1]余额： {{balance}}</div>
             </div>
 
             <div class="main-dashboard">
