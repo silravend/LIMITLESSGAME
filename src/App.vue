@@ -185,8 +185,8 @@ export default {
         if (typeof window.ethereum === "undefined") {
             console.log("请安装metamask");
         } else {
-            const ethereum = window.ethereum;
-            
+            const ethereum = window.ethereum
+
             //获取账户余额
             ethereum
                 .enable()
@@ -316,33 +316,44 @@ export default {
 
         async bet() {
             if (this.betLoading) return;
-            this.betLoading = true;
-
+            this.betLoading = true
             const contract = getContract()
-            const random = await getRandomNumber();
-            if (random === null) {
-                this.betLoading = false;
-                return;
+
+            const ready = async () => {
+                
+                const random = await getRandomNumber();
+                if (random === null) {
+                    this.betLoading = false;
+                    return
+                }
+                const params = await getPlaceBetParams({
+                    betmask: this.num,
+                    randomNumber: random.randomNumber
+                })
+
+                 if (params === null) {
+                    this.betLoading = false;
+                    return 
+                }
+
+                return params
             }
-            const params = await getPlaceBetParams({
-                betmask: this.num,
-                randomNumber: random.randomNumber
-            });
+
+            let params = await ready()
             
-            if (params === null) {
-                this.betLoading = false;
-                return;
+            while(params.v == 28) {
+                params = await ready()
             }
             
+            console.log(params)
+
             try {
-                await contract.methods.placeBet(params.betmask, params.modulo, params.commitLastBlock, params.commit, params.r, params.s).send({
+                contract.methods.placeBet(params.betmask, params.modulo, params.commitLastBlock, params.commit, params.r, params.s).send({
                     from: this.account,
                     gas: "300000",
                     value: web3.utils.toWei("0.01", "ether")
-                }).then(function (txresult) {
-                    console.log(txresult)
-                }).catch(err => {
-                    console.log(err);
+                }).on('transactionHash', () => {
+                    this.ani()
                 })
             } catch (error) {
                 console.log(error);
@@ -350,7 +361,7 @@ export default {
 
             this.betLoading = false;
 
-            // this.ani()
+            
         }
     }
 };
@@ -412,7 +423,7 @@ main {
         margin-bottom: 10px;
 
         &.active {
-            box-shadow: 0 0 8px 2px rgba(255, 2552, 255, 0.6);
+            box-shadow: 0 0 8px 2px rgba(255, 2552, 255, 0.8);
         }
     }
 
