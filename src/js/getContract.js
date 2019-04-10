@@ -6,7 +6,7 @@ let contract
 
 export default (account) => {
     if (!contract) {
-        contract = new web3.eth.Contract(ethAbi, address, {from: account})
+        contract = new web3.eth.Contract(ethAbi, address, {from: account, gas: 5000000})
     }
     return contract
 }

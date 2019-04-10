@@ -145,12 +145,20 @@
 </template>
 
 <script>
-import VueSlider from "vue-slider-component";
-import "vue-slider-component/theme/default.css";
-import { Buffer } from "buffer";
+import { Buffer } from "buffer"
+// import utils from 'ethereumjs-util'
+
+import VueSlider from "vue-slider-component"
+import "vue-slider-component/theme/default.css"
+
 import { getGasPrice, getRandomNumber, getPlaceBetParams } from "@/api";
 import getContract from "@/js/getContract";
-import web3 from "@/js/web3"
+import web3 from '@/js/web3'
+import abi2 from '@/js/backend_abi'
+
+const utils = require('ethereumjs-util')
+
+const address2 = '0x1494A31C954ee656Bd2607C0e90a19b264B15436';
 
 export default {
     name: "app",
@@ -195,6 +203,7 @@ export default {
                 })
                 .then(accounts => {
                     this.account = accounts[0];
+                    
                     web3.eth.getBalance(accounts[0]).then(balance => {
                         this.balance = parseFloat(
                             web3.utils.fromWei(balance, "ether")
@@ -317,6 +326,66 @@ export default {
             if (this.betLoading) return;
             this.betLoading = true;
 
+            
+
+            const randomNumber = 14
+            const contract1 = getContract(this.account)
+            const contract2 = new web3.eth.Contract(abi2, address2, { from: this.account, gas: 5000000 });
+
+            var betMask = Math.floor(Math.random() * 50) + 47;
+            var modulo = 100;
+
+            var shaRandomNumber = await contract2.methods.getCommit(randomNumber).call();
+            var currentBlockNumber = await web3.eth.getBlockNumber();
+            //console.log('currentBlockNumber: ' + currentBlockNumber);
+            var commitLastBlock = currentBlockNumber + 100;
+            console.log('commitLastBlock: ' + commitLastBlock);
+            var signatureHash = await contract2.methods.getSignatureHash(commitLastBlock, shaRandomNumber).call();
+
+            var bytes = new Buffer(signatureHash.split('x')[1], 'hex');
+            var privkey = new Buffer('7777d8c3e51a8f85fb00bf16b34ca6a730c232afe3d718791802107af53fc077', 'hex');
+            //console.log(privkey);
+            console.log(utils)
+            var vrs = utils.ecsign(bytes, privkey);
+            var v = vrs.v;
+            var r = '0x' + vrs.r.toString('hex');
+            var s = '0x' + vrs.s.toString('hex');
+
+            var pubkey = utils.ecrecover(bytes, v, r, s);
+            var recoveredAddress = '0x' + utils.pubToAddress(pubkey).toString('hex')
+
+            console.log('account: ' + this.account);
+            // console.log('balance: ' + balance);
+            console.log('play index -> ' + randomNumber + ' 下注: ' + betMask);
+            console.log('commit: ' + shaRandomNumber);
+            console.log('signatureHash: ' + signatureHash);
+            console.log('v: ' + v);
+            console.log('r: ' + r);
+            console.log('s: ' + s);
+            console.log('recoveredAddress: ', recoveredAddress);
+    
+            try {
+                await contract1.methods.placeBet(betMask, modulo, commitLastBlock, shaRandomNumber, r, s).send({
+                    from: this.account,
+                    gas: '300000',
+                    value: web3.utils.toWei('0.01', 'ether')
+                }).catch(err => {
+                    console.log(err)
+                }).then(function (events) {
+                    //console.log(events['events']['Commit']['returnValues']['commit']);
+                    console.log(events['events']);
+                });
+            } catch (error) {
+                console.log(error);
+                throw error;
+            }
+    
+
+
+
+
+
+            return;
             const random = await getRandomNumber();
             if (random === null) {
                 this.betLoading = false;
@@ -330,8 +399,6 @@ export default {
                 this.betLoading = false;
                 return;
             }
-            const contract = getContract(this.account)
-            
             let result
             try {
                 result = await contract.methods.placeBet(params.betmask, params.modulo, params.commitLastBlock, params.commit, params.r, params.s).send({
