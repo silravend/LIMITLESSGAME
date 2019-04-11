@@ -2,20 +2,15 @@ import io from './io'
 
 // 获取油费
 export const getGasPrice = () => {
-    return io.get('/api/v1.0/getSuggestGasPrice')
-}
-
-// 获取随机数
-export const getRandomNumber = () => {
-    return io.get('/api/v1.0/getRandomNumber')
+    return io.get('/api/v1.0/dice/ethereum/getSuggestGasPrice')
 }
 
 // 获取下注参数
-export const getPlaceBetParams = ({ betmask, modulo = 100, randomNumber }) => {
+export const getParams = ({ betmask, modulo = 100, amount, address }) => {
     return io({
         method: 'get',
-        url: '/api/v1.0/getPlaceBetParams',
-        params: { betmask, modulo, randomNumber }
+        url: '/api/v1.0/dice/ethereum/getPlaceBetParams',
+        params: { betmask, modulo, amount, address }
     })
 }
 
@@ -23,16 +18,24 @@ export const getPlaceBetParams = ({ betmask, modulo = 100, randomNumber }) => {
 export const settleBet = ({ randomNumber, hash }) => {
     return io({
         method: 'get',
-        url: '/api/v1.0/settleBet',
+        url: '/api/v1.0/dice/ethereum/settleBet',
         params: { randomNumber, hash }
     })
 }
 
-// 退款
-export const refundBet = ({ randomNumber }) => {
+// 获取所有投注记录
+export const getRecord = () => {
     return io({
         method: 'get',
-        url: '/api/v1.0/settleBet',
-        params: { randomNumber }
+        url: '/api/v1.0/dice/ethereum/getBetsAll'
+    })
+}
+
+// 获取我的投注记录
+export const getMyRecord = ({ address }) => {
+    return io({
+        method: 'get',
+        url: '/api/v1.0/dice/ethereum/getBetsMe',
+        params: { address }
     })
 }

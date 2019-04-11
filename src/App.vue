@@ -84,14 +84,16 @@
                 </div>
 
                 <div @click="bet" class="bet-btn" :class="{active: betLoading}">
-                    下注
+                    <span v-if="!betLoading">下注</span>
+                    <beat-loader  :loading="betLoading" color="rgba(255, 255, 255, .5)"></beat-loader>
+                    <!-- <scale-loader color="rgba(255, 255, 255, .7)" ></scale-loader> -->
                 </div>
             </div>
         </main>
 
         <div class="tab">
-            <div class="tab-item active">所有投注</div>
-            <div class="tab-item">我的投注</div>
+            <div class="tab-item" :class="{active: tabActive == 0}" @click="tabActive = 0">所有投注</div>
+            <div class="tab-item" :class="{active: tabActive == 1}" @click="tabActive = 1">我的投注</div>
         </div>
 
         <section class="table">
@@ -100,43 +102,38 @@
                 <div class="table-header_item">用户</div>
                 <div class="table-header_item">投注</div>
                 <div class="table-header_item">预测数</div>
-                <div class="table-header_item">开奖数</div>
+                <div class="table-header_item">结果</div>
                 <div class="table-header_item">奖金</div>
+                <div class="table-header_item">幸运号码</div>
                 <div class="table-header_item">验证</div>
             </div>
 
-            <div class="table-list">
-                <div class="table-cell success">
-                    <div class="cell-item">16:22:14</div>
-                    <div class="cell-item">0x85b8f124ec1ed9c877af3535d9a3f87790510d4f</div>
-                    <div class="cell-item">0.01</div>
-                    <div class="cell-item">28</div>
+            <div v-if="tabActive == 0" class="table-list">
+                <div v-for="(item, index) in recordList" :key="index" class="table-cell success">
+                    <div class="cell-item">{{item._update}}</div>
+                    <div class="cell-item">{{item.address}}</div>
+                    <div class="cell-item">{{item.betAmount}}</div>
+                    <div class="cell-item">{{item.betMask}}</div>
                     <div class="cell-item">
-                        <div class="result-num">15</div>
+                        <div class="result-num">{{item.sha3Mod100}}</div>
                     </div>
-                    <div class="cell-item">+1.3051ETH</div>
+                    <div class="cell-item">+{{item.wins}}ETH</div>
+                    <div class="cell-item">{{item.jackpot}}</div>
                     <div class="cell-item">查看</div>
                 </div>
-                <div class="table-cell success">
-                    <div class="cell-item">16:22:14</div>
-                    <div class="cell-item">0x85b8f124ec1ed9c877af3535d9a3f87790510d4f</div>
-                    <div class="cell-item">0.01</div>
-                    <div class="cell-item">28</div>
+            </div>
+
+            <div v-if="tabActive == 1" class="table-list">
+                <div v-for="(item, index) in myRecordList" :key="index" class="table-cell success">
+                    <div class="cell-item">{{item._update}}</div>
+                    <div class="cell-item">{{item.address}}</div>
+                    <div class="cell-item">{{item.betAmount}}</div>
+                    <div class="cell-item">{{item.betMask}}</div>
                     <div class="cell-item">
-                        <div class="result-num">15</div>
+                        <div class="result-num">{{item.sha3Mod100}}</div>
                     </div>
-                    <div class="cell-item">+1.3051ETH</div>
-                    <div class="cell-item">查看</div>
-                </div>
-                <div class="table-cell">
-                    <div class="cell-item">16:22:14</div>
-                    <div class="cell-item">0x85b8f124ec1ed9c877af3535d9a3f87790510d4f</div>
-                    <div class="cell-item">0.01</div>
-                    <div class="cell-item">28</div>
-                    <div class="cell-item">
-                        <div class="result-num">15</div>
-                    </div>
-                    <div class="cell-item">+1.3051ETH</div>
+                    <div class="cell-item">+{{item.wins}}ETH</div>
+                    <div class="cell-item">{{item.jackpot}}</div>
                     <div class="cell-item">查看</div>
                 </div>
             </div>
@@ -148,9 +145,10 @@
 import VueSlider from "vue-slider-component"
 import "vue-slider-component/theme/default.css"
 
-import { getGasPrice, getRandomNumber, getPlaceBetParams } from "@/api";
+import { getGasPrice, getParams, settleBet, getRecord, getMyRecord } from "@/api";
 import getContract from "@/js/getContract";
 import web3 from '@/js/web3'
+import BeatLoader from 'vue-spinner/src/BeatLoader.vue'
 
 export default {
     name: "app",
@@ -167,11 +165,15 @@ export default {
             power: 1,
             gas: "",
             betLoading: false,
-            account: ""
+            account: "",
+            recordList: [],
+            myRecordList: [],
+            tabActive: 0
         };
     },
     components: {
-        VueSlider
+        VueSlider,
+        BeatLoader
     },
     computed: {
         lossPer() {
@@ -182,30 +184,27 @@ export default {
         }
     },
     async created() {
+        this.getRecord()
+
         if (typeof window.ethereum === "undefined") {
             console.log("请安装metamask");
         } else {
             const ethereum = window.ethereum
 
             //获取账户余额
-            ethereum
-                .enable()
-                .catch(reason => {
-                    console.log(reason);
+            ethereum.enable().catch(reason => {
+                console.log(reason);
+            }).then(accounts => {
+                this.account = accounts[0]
+                this.getMyRecord()
+                web3.eth.getBalance(accounts[0]).then(balance => {
+                    this.balance = parseFloat(web3.utils.fromWei(balance, "ether")).toFixed(4)
                 })
-                .then(accounts => {
-                    this.account = accounts[0];
-                    
-                    web3.eth.getBalance(accounts[0]).then(balance => {
-                        this.balance = parseFloat(
-                            web3.utils.fromWei(balance, "ether")
-                        ).toFixed(4);
-                    });
-                });
+            })
 
             //获取油费
-            const gasRes = await getGasPrice();
-            this.gas = gasRes.gasPrice;
+            const gasRes = await getGasPrice()
+            this.gas = gasRes.gasPrice
         }
     },
     methods: {
@@ -245,6 +244,7 @@ export default {
 
         async ani() {
             const step1 = () => {
+                const inter = Math.ceil(  (Math.random() * 10 + 2) * 1000 / this.aniLength )
                 return new Promise((resolve) => {
                     let timer = setInterval(() => {
                         this.activeIndex += 1;
@@ -253,11 +253,12 @@ export default {
                             this.activeIndex = -1;
                             resolve();
                         }
-                    }, 20);
+                    }, inter);
                 });
             };
 
             const step2 = () => {
+                const inter = Math.ceil((Math.random() * 10 + 2) * 1000 / this.aniLength )
                 return new Promise((resolve) => {
                     let timer = setInterval(() => {
                         this.activeIndex += 1;
@@ -266,11 +267,12 @@ export default {
                             this.activeIndex = -1;
                             resolve();
                         }
-                    }, 15);
+                    }, inter);
                 });
             };
 
             const step3 = () => {
+                const inter = Math.ceil((Math.random() * 10 + 2) * 1000 / this.aniLength )
                 this.activeIndex = this.aniLength;
 
                 return new Promise((resolve) => {
@@ -283,11 +285,12 @@ export default {
                             this.activeIndex = -1;
                             resolve();
                         }
-                    }, 15);
+                    }, inter);
                 });
             };
 
             const step4 = () => {
+                const inter = Math.ceil((Math.random() * 10 + 2) * 1000 / this.aniLength )
                 this.activeIndex2 = this.aniLength;
 
                 return new Promise((resolve) => {
@@ -302,66 +305,112 @@ export default {
                             this.activeIndex2 = -1;
                             resolve();
                         }
-                    }, 15);
+                    }, inter);
                 });
-            };
+            }
+
+            const aniRandom = fn => {
+                const time = (Math.random() * 5 + 1) * 1000
+                return new Promise(resolve => {
+                    setTimeout(async () => {
+                        await fn()
+                        resolve()
+                    }, time)
+                })
+                
+            }
 
             await step1();
-            await step2();
-            await step3();
-            await step4();
-            await step4();
-            await step4();
+            await aniRandom(step2)
+            await aniRandom(step3)
+            await aniRandom(step4)
+            await aniRandom(step4)
+            await aniRandom(step4)
         },
 
         async bet() {
             if (this.betLoading) return;
             this.betLoading = true
+            
+            // this.$notify()
+            // this.ani()
+            // return
             const contract = getContract()
 
             const ready = async () => {
-                
-                const random = await getRandomNumber();
-                if (random === null) {
-                    this.betLoading = false;
-                    return
-                }
-                const params = await getPlaceBetParams({
+                const res = await getParams({
                     betmask: this.num,
-                    randomNumber: random.randomNumber
+                    amount:  this.amount,
+                    address: this.account
                 })
 
-                 if (params === null) {
+                if (res === null) {
                     this.betLoading = false;
                     return 
                 }
 
-                return params
+                return res
             }
 
             let params = await ready()
             
+            // 如果v的值为28，则重新请求
             while(params.v == 28) {
                 params = await ready()
             }
-            
-            console.log(params)
 
-            try {
-                contract.methods.placeBet(params.betmask, params.modulo, params.commitLastBlock, params.commit, params.r, params.s).send({
-                    from: this.account,
-                    gas: "300000",
-                    value: web3.utils.toWei("0.01", "ether")
-                }).on('transactionHash', () => {
-                    this.ani()
+            contract.methods.placeBet(params.betmask, params.modulo, params.commitLastBlock, params.commit, params.r, params.s).send({
+                from: this.account,
+                gas: "300000",
+                value: web3.utils.toWei("0.01", "ether")
+            }).on('error', error => {
+                console.log('on error')
+                console.log(error)
+                console.log(error.name)
+                console.log(error.message)
+            })
+
+            contract.events.Commit({
+                
+            }, async (error, event) => {
+                console.log(event)
+                const res = await settleBet({
+                    randomNumber: params.randomNumber,
+                    hash: event.blockHash
                 })
-            } catch (error) {
-                console.log(error);
-            }
+                console.log(res)
+            })
+           
 
             this.betLoading = false;
+        },
 
+        async getRecord () {
+            const res =  await getRecord()
+            if (res === null) return;
+
+            res.forEach(item => {
+                item._update = this.formatDate(item.updatedAt)
+            })
             
+            this.recordList = res
+        },
+
+        async getMyRecord () {
+            const res =  await getMyRecord({
+                address: this.account
+            })
+            if (res === null) return;
+            res.forEach(item => {
+                item._update = this.formatDate(item.updatedAt)
+            })
+            this.myRecordList = res
+        },
+
+        formatDate(dateString) {
+            let date = new Date(dateString)
+            let s = `${date.getHours()}:${date.getMinutes()}:${date.getMinutes()}`
+            return s.replace(/(\b\d\b)/g, '0$1')
         }
     }
 };
@@ -423,7 +472,7 @@ main {
         margin-bottom: 10px;
 
         &.active {
-            box-shadow: 0 0 8px 2px rgba(255, 2552, 255, 0.8);
+            box-shadow: 0 0 3px 2px rgba(255, 2552, 255, 0.6);
         }
     }
 
@@ -673,7 +722,7 @@ main {
 .tab {
     display: flex;
     justify-content: center;
-    margin-top: 140px;
+    margin-top: 70px;
 
     .tab-item {
         width: 120px;
@@ -687,6 +736,7 @@ main {
         color: rgba(255, 255, 255, 1);
 
         background: #6c0db9;
+        cursor: pointer;
 
         &.active {
             background: #ffad39;
