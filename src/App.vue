@@ -256,8 +256,9 @@ export default {
         async getJackpot () {
             this.jackpotStart = this.jackpotEnd
             const res = await contract.methods.jackpotSize().call()
+            console.log(res)
             const bn = web3.utils.toBN(res)
-
+            console.log(bn)
             this.jackpotEnd = sliceNumber(web3.utils.fromWei(bn))
         },
 
