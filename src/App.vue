@@ -17,7 +17,7 @@
 
             <div class="main-balance">
                 <img src="./assets/images/balance.png" class="main-balance_img" />
-                <div class="main-balance_text">[1]余额： {{balance}}</div>
+                <div class="main-balance_text">余额： {{balance}}</div>
             </div>
 
             <div class="main-dashboard">
@@ -59,12 +59,19 @@
                             </template>
                         </vue-slider>
                     </div>
-
                 </div>
                 <div class="main-slider_hd">100</div>
             </div>
 
-            <div class="main-gas">建议的汽油价格(Gas Price): {{this.gas}}</div>
+            <div class="main-gas">
+                建议的汽油价格(Gas Price): {{gas}} 
+                <span class="main-gas_jackpot">
+                    奖池： <b class="main-gas_primary">
+                        <countTo :startVal='jackpotStart' :decimals="4" :endVal='jackpotEnd' :duration='1500'></countTo>
+                    </b>
+                    ETH
+                </span>
+            </div>
 
             <div class="main-btns">
                 <img class="minus-btn" @click="decrease" src="./assets/images/reduce.png" alt="">
@@ -75,9 +82,9 @@
                 <img class="plus-btn" @click="increase" src="./assets/images/plus.png" alt="">
 
                 <div class="multi-btn">
-                    <div @click="amount = '0.05'" class="multi-btn_item">0.05</div>
-                    <div @click="amount = '0.10'" class="multi-btn_item">0.1</div>
-                    <div @click="amount = '0.20'" class="multi-btn_item">0.2</div>
+                    <div @click="half" class="multi-btn_item">1/2</div>
+                    <div @click="double" class="multi-btn_item">2x</div>
+                    <div @click="amount = '0.01'" class="multi-btn_item">MIN</div>
                     <div @click="amount = '10.20'" class="multi-btn_item">MAX</div>
 
                     <div style="display:none" class="multi-btn_active">1x</div>
@@ -86,7 +93,6 @@
                 <div @click="bet" class="bet-btn" :class="{active: betLoading}">
                     <span v-if="!betLoading">下注</span>
                     <beat-loader  :loading="betLoading" color="rgba(255, 255, 255, .5)"></beat-loader>
-                    <!-- <scale-loader color="rgba(255, 255, 255, .7)" ></scale-loader> -->
                 </div>
             </div>
         </main>
@@ -109,7 +115,7 @@
             </div>
 
             <div v-if="tabActive == 0" class="table-list">
-                <div v-for="(item, index) in recordList" :key="index" class="table-cell success">
+                <div v-for="(item, index) in recordList" :key="index" class="table-cell" :class="{success: item._wins > 0}">
                     <div class="cell-item">{{item._update}}</div>
                     <div class="cell-item">{{item.address}}</div>
                     <div class="cell-item">{{item.betAmount}}</div>
@@ -117,14 +123,16 @@
                     <div class="cell-item">
                         <div class="result-num">{{item.sha3Mod100}}</div>
                     </div>
-                    <div class="cell-item">+{{item.wins}}ETH</div>
+                    <div class="cell-item">
+                        <span v-if="item._wins > 0">+ {{item._wins}} ETH</span>
+                    </div>
                     <div class="cell-item">{{item.jackpot}}</div>
                     <div class="cell-item">查看</div>
                 </div>
             </div>
 
             <div v-if="tabActive == 1" class="table-list">
-                <div v-for="(item, index) in myRecordList" :key="index" class="table-cell success">
+                <div v-for="(item, index) in myRecordList" :key="index" class="table-cell" :class="{success: item._wins > 0}">
                     <div class="cell-item">{{item._update}}</div>
                     <div class="cell-item">{{item.address}}</div>
                     <div class="cell-item">{{item.betAmount}}</div>
@@ -132,7 +140,9 @@
                     <div class="cell-item">
                         <div class="result-num">{{item.sha3Mod100}}</div>
                     </div>
-                    <div class="cell-item">+{{item.wins}}ETH</div>
+                    <div class="cell-item">
+                        <span v-if="item._wins > 0">+ {{item._wins}} ETH</span>
+                    </div>
                     <div class="cell-item">{{item.jackpot}}</div>
                     <div class="cell-item">查看</div>
                 </div>
@@ -149,12 +159,17 @@ import { getGasPrice, getParams, settleBet, getRecord, getMyRecord } from "@/api
 import getContract from "@/js/getContract";
 import web3 from '@/js/web3'
 import BeatLoader from 'vue-spinner/src/BeatLoader.vue'
+import CountTo from 'vue-count-to'
+import { sliceNumber } from '@/js/utils'
+
+let contract
 
 export default {
     name: "app",
     data() {
         return {
             aniLength: 43,
+            aniPaused: false,
             activeIndex: -1,
             activeIndex2: -1,
             min: 1,
@@ -168,46 +183,84 @@ export default {
             account: "",
             recordList: [],
             myRecordList: [],
-            tabActive: 0
+            tabActive: 0,
+            jackpotStart: 0,
+            jackpotEnd: 0
         };
     },
     components: {
         VueSlider,
-        BeatLoader
+        BeatLoader,
+        CountTo
     },
     computed: {
         lossPer() {
             return ((this.min + this.max) / this.num).toFixed(2);
         },
         bonus() {
-            return (this.lossPer * this.amount).toFixed(3);
+            const res = this.lossPer * this.amount
+            return sliceNumber(res)
+        }
+    },
+
+    watch: {
+        betLoading (newVal) {
+            if (newVal) {
+                this.startAni()
+            } else {
+                this.stopAni()
+            }
         }
     },
     async created() {
         this.getRecord()
+        
+        
 
         if (typeof window.ethereum === "undefined") {
             console.log("请安装metamask");
-        } else {
-            const ethereum = window.ethereum
-
-            //获取账户余额
-            ethereum.enable().catch(reason => {
-                console.log(reason);
-            }).then(accounts => {
-                this.account = accounts[0]
-                this.getMyRecord()
-                web3.eth.getBalance(accounts[0]).then(balance => {
-                    this.balance = parseFloat(web3.utils.fromWei(balance, "ether")).toFixed(4)
-                })
-            })
-
-            //获取油费
-            const gasRes = await getGasPrice()
-            this.gas = gasRes.gasPrice
+            return;
         }
+        const ethereum = window.ethereum
+        
+        //获取账户余额
+        ethereum.enable().catch(reason => {
+            console.log(reason);
+        }).then(accounts => {
+            this.account = accounts[0]
+            this.getMyRecord()
+            this.recordWs()
+            
+            contract = getContract(this.account)
+            
+            this.getJackpot()
+            setInterval(() => {
+                this.getJackpot()
+            }, 10000)
+
+            this.getBalance()
+        })
+
+        //获取油费
+        const gasRes = await getGasPrice()
+        this.gas = gasRes.gasPrice
     },
+
     methods: {
+        getBalance () {
+            web3.eth.getBalance(this.account).then(balance => {
+                this.balance = sliceNumber(web3.utils.fromWei(balance, "ether"))
+            })
+        },
+        
+        async getJackpot () {
+            this.jackpotStart = this.jackpotEnd
+            const res = await contract.methods.jackpotSize().call()
+            const bn = web3.utils.toBN(res)
+
+            this.jackpotEnd = sliceNumber(web3.utils.fromWei(bn))
+        },
+
         decrease() {
             if (this.amount <= 0.01) return;
             const amount = parseFloat(this.amount).toFixed(2);
@@ -228,6 +281,16 @@ export default {
             ).toFixed(2);
         },
 
+        half () {
+            this.amount /= 2
+            this.fixAmount() 
+        },
+
+        double () {
+            this.amount *= 2
+            this.fixAmount()
+        },
+
         fixAmount() {
             let num = parseFloat(this.amount);
             if (isNaN(num)) {
@@ -242,13 +305,14 @@ export default {
             }
         },
 
-        async ani() {
+        async startAni() {
+            this.aniPaused = false
             const step1 = () => {
                 const inter = Math.ceil(  (Math.random() * 10 + 2) * 1000 / this.aniLength )
                 return new Promise((resolve) => {
                     let timer = setInterval(() => {
                         this.activeIndex += 1;
-                        if (this.activeIndex >= this.aniLength) {
+                        if (this.activeIndex >= this.aniLength || this.aniPaused) {
                             clearInterval(timer);
                             this.activeIndex = -1;
                             resolve();
@@ -262,7 +326,7 @@ export default {
                 return new Promise((resolve) => {
                     let timer = setInterval(() => {
                         this.activeIndex += 1;
-                        if (this.activeIndex >= this.aniLength) {
+                        if (this.activeIndex >= this.aniLength || this.aniPaused) {
                             clearInterval(timer);
                             this.activeIndex = -1;
                             resolve();
@@ -279,7 +343,7 @@ export default {
                     let timer = setInterval(() => {
                         this.activeIndex -= 1;
 
-                        if (this.activeIndex == -1) {
+                        if (this.activeIndex == -1 || this.aniPaused) {
                             clearInterval(timer);
 
                             this.activeIndex = -1;
@@ -298,7 +362,7 @@ export default {
                         this.activeIndex += 1;
                         this.activeIndex2 -= 1;
 
-                        if (this.activeIndex >= this.aniLength) {
+                        if (this.activeIndex >= this.aniLength || this.aniPaused) {
                             clearInterval(timer);
 
                             this.activeIndex = -1;
@@ -310,6 +374,7 @@ export default {
             }
 
             const aniRandom = fn => {
+                if (this.aniPaused) return;
                 const time = (Math.random() * 5 + 1) * 1000
                 return new Promise(resolve => {
                     setTimeout(async () => {
@@ -323,20 +388,16 @@ export default {
             await step1();
             await aniRandom(step2)
             await aniRandom(step3)
-            await aniRandom(step4)
-            await aniRandom(step4)
-            await aniRandom(step4)
+            while(!this.aniPaused) {
+                await aniRandom(step4)
+            }
         },
 
-        async bet() {
-            if (this.betLoading) return;
-            this.betLoading = true
-            
-            // this.$notify()
-            // this.ani()
-            // return
-            const contract = getContract()
+        stopAni () {
+            this.aniPaused = true
+        },
 
+        async getParams () {
             const ready = async () => {
                 const res = await getParams({
                     betmask: this.num,
@@ -359,30 +420,45 @@ export default {
                 params = await ready()
             }
 
-            contract.methods.placeBet(params.betmask, params.modulo, params.commitLastBlock, params.commit, params.r, params.s).send({
+            return params
+        },
+
+        async bet() {
+            if (this.betLoading) return;
+            this.betLoading = true
+
+            const params = await this.getParams()
+            
+            contract.methods.placeBet(params.betMask, params.modulo, params.commitLastBlock, params.commit, params.r, params.s).send({
                 from: this.account,
                 gas: "300000",
-                value: web3.utils.toWei("0.01", "ether")
-            }).on('error', error => {
-                console.log('on error')
-                console.log(error)
-                console.log(error.name)
-                console.log(error.message)
+                value: web3.utils.toWei(this.amount + '', "ether")
+            }).catch(err => {
+                if (err.message.indexOf('-32603') > -1) {
+                    this.$error('用户拒绝了Metamask')
+                }
+                this.betLoading = false
             })
 
-            contract.events.Commit({
+            contract.once('Commit', {
                 
             }, async (error, event) => {
-                console.log(event)
                 const res = await settleBet({
-                    randomNumber: params.randomNumber,
+                    randomNumber: params.id,
                     hash: event.blockHash
                 })
-                console.log(res)
-            })
-           
+                if (res === null) {
+                    this.betLoading = false
+                    return;
+                }
 
-            this.betLoading = false;
+                if (res.wins > 0) {
+                    this.$success(`恭喜您赢得 ${res.wins} ETH`)
+                } else {
+                    this.$success(`很遗憾没中奖，再接再厉~`)
+                }
+                this.betLoading = false
+            })
         },
 
         async getRecord () {
@@ -391,6 +467,7 @@ export default {
 
             res.forEach(item => {
                 item._update = this.formatDate(item.updatedAt)
+                item._wins = sliceNumber(item.wins)
             })
             
             this.recordList = res
@@ -403,8 +480,27 @@ export default {
             if (res === null) return;
             res.forEach(item => {
                 item._update = this.formatDate(item.updatedAt)
+                item._wins = sliceNumber(item.wins)
             })
+
             this.myRecordList = res
+        },
+
+        recordWs () {
+            var ws = new WebSocket(process.env.VUE_APP_WS, 'echo-protocol');
+
+            ws.onopen = function(evt) { 
+                console.log("Connection open ..."); 
+                ws.send("Hello WebSockets!");
+            };
+
+            ws.onmessage = function(evt) {
+                console.log( "Received Message: " + evt.data);
+            };
+
+            ws.onclose = function(evt) {
+                console.log("Connection closed.");
+            }; 
         },
 
         formatDate(dateString) {
@@ -538,7 +634,7 @@ main {
     .dashboard-item_hd {
         height: 180px;
         line-height: 180px;
-        font-size: 40px;
+        font-size: 32px;
         font-weight: bold;
         color: rgba(255, 255, 255, 1);
     }
@@ -615,12 +711,19 @@ main {
         position: absolute;
         z-index: 10;
         left: 50%;
-        bottom: 145px;
+        bottom: 140px;
         transform: translate(-50%, 0);
-
         font-size: 14px;
-        color: rgba(255, 255, 255, 1);
-        opacity: 0.41;
+        color: rgba(255, 255, 255, .41);
+    }
+
+    .main-gas_jackpot{
+        margin-left: 20px;
+    }
+
+    .main-gas_primary{
+        color: rgba(255, 255, 255, .8);
+        font-size: 16px;
     }
 
     .main-btns {

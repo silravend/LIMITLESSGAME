@@ -5,7 +5,6 @@ const io = axios.create({
 })
 
 io.interceptors.response.use(response => {    
-    console.log(response)
     if (response.status == 200) {
         const res = response.data
         if (res.code == 200) {
