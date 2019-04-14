@@ -125,6 +125,7 @@
                     </div>
                     <div class="cell-item">
                         <span v-if="item._wins > 0">+ {{item._wins}} ETH</span>
+                        <span v-else> - - </span>
                     </div>
                     <div class="cell-item">{{item.jackpot}}</div>
                     <div class="cell-item">查看</div>
@@ -142,6 +143,7 @@
                     </div>
                     <div class="cell-item">
                         <span v-if="item._wins > 0">+ {{item._wins}} ETH</span>
+                        <span v-else> -- </span>
                     </div>
                     <div class="cell-item">{{item.jackpot}}</div>
                     <div class="cell-item">查看</div>
@@ -215,8 +217,6 @@ export default {
     async created() {
         this.getRecord()
         
-        
-
         if (typeof window.ethereum === "undefined") {
             console.log("请安装metamask");
             return;
@@ -228,6 +228,7 @@ export default {
             console.log(reason);
         }).then(accounts => {
             this.account = accounts[0]
+            this.getBalance()
             this.getMyRecord()
             this.recordWs()
             
@@ -237,8 +238,6 @@ export default {
             setInterval(() => {
                 this.getJackpot()
             }, 10000)
-
-            this.getBalance()
         })
 
         //获取油费
@@ -249,6 +248,7 @@ export default {
     methods: {
         getBalance () {
             web3.eth.getBalance(this.account).then(balance => {
+                
                 this.balance = sliceNumber(web3.utils.fromWei(balance, "ether"))
             })
         },
@@ -256,7 +256,7 @@ export default {
         async getJackpot () {
             this.jackpotStart = this.jackpotEnd
             const res = await contract.methods.jackpotSize().call()
-            
+
             this.jackpotEnd = sliceNumber(web3.utils.fromWei(res))
         },
 
@@ -488,18 +488,28 @@ export default {
         recordWs () {
             var ws = new WebSocket(process.env.VUE_APP_WS, 'echo-protocol');
 
-            ws.onopen = function(evt) { 
-                console.log("Connection open ..."); 
+            ws.onopen = evt => { 
+                
                 ws.send("Hello WebSockets!");
-            };
+            }
 
-            ws.onmessage = function(evt) {
-                console.log( "Received Message: " + evt.data);
-            };
+            ws.onmessage = evt => {
+                try{
+                    const res = JSON.parse(evt.data)
+                    res._update = this.formatDate(res.updatedAt)
+                    res._wins = sliceNumber(res.wins)
+                    this.recordList.unshift(res)
+                    if (res.address == this.account) {
+                        this.myRecordList.unshift(res)
+                    }
+                } catch (err) {
+                    
+                }
+            }
 
-            ws.onclose = function(evt) {
-                console.log("Connection closed.");
-            }; 
+            ws.onclose = evt => {
+                
+            }
         },
 
         formatDate(dateString) {
@@ -768,7 +778,6 @@ main {
         background: url(./assets/images/gas-slide.png) no-repeat;
         width: 298px;
         height: 66px;
-        line-height: 66px;
         display: flex;
         align-items: center;
         padding: 0 4px;
@@ -779,12 +788,20 @@ main {
 
     .multi-btn_item {
         flex: 1;
-        height: 100%;
+        
         text-align: center;
         color: #fff;
         font-size: 16px;
+        height: 30px;
+        line-height: 30px;
+        border-radius: 6px;
         font-weight: 400;
         cursor: pointer;
+        margin: 0 5px;
+
+        &:hover{
+            background: #075778
+        }
     }
 
     .multi-btn_active {
