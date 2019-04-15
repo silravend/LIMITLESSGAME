@@ -691,6 +691,10 @@ main {
         border-radius: 0px;
     }
 
+    .vue-slider-dot{
+        cursor: pointer;
+    }
+
     .main-slider_wrapper {
         position: absolute;
         z-index: 9;
