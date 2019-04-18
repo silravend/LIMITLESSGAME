@@ -553,7 +553,7 @@ export default {
 
         // 中奖后的庆祝效果
         celebrate() {
-            var end = Date.now() + 3.5 * 1000;
+            var end = Date.now() + 5 * 1000;
 
             var interval = setInterval(function() {
                 if (Date.now() > end) {

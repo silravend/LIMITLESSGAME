@@ -78,7 +78,7 @@ export default {
             return;
         }
         const ethereum = window.ethereum
-        
+
         if (!ethereum.selectedAddress) {
             this.$warn('请在metamask登录您的账户', 5000)
         }
@@ -190,7 +190,7 @@ export default {
             setTimeout(() => {
                 this.state = 'bet'
                 this.betLoading = false
-            }, 2000)
+            }, 3500)
             
         },
 
