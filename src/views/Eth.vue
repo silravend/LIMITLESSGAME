@@ -15,6 +15,7 @@
             :jackpotStart="jackpotStart"
             :jackpotEnd="jackpotEnd"
             :state="state"
+            :result="result"
             @bet="betSubmit"
         >
         </layout>
@@ -47,6 +48,7 @@ export default {
             minAmount: 0.01,
             maxAmount: 10.02,
             amountStep: 0.01,
+            result: '',
             state:"bet"
         };
     },
@@ -173,22 +175,26 @@ export default {
                 return;
             }
 
-            console.log(res)
-        
+            this.getBalance()
+            this.state = 'result'
+            this.result = res.sh3Mod100
+            
             if (res.wins > 0) {
                 this.$success(`恭喜您赢得 ${res.wins} ETH`, 3000)
                 this.$refs['app'].celebrate()
+                
             } else {
                 this.$success(`很遗憾没中奖，再接再厉~`)
             }
-            this.getBalance()
 
-            this.betLoading = false
+            setTimeout(() => {
+                this.state = 'bet'
+                this.betLoading = false
+            }, 2000)
+            
         },
 
         async betSubmit() {
-            // this.state = 'result'
-            // return;
              if (!ethereum.selectedAddress) {
                 this.$warn('请在metamask登录您的账户')
                 return;
@@ -210,12 +216,13 @@ export default {
                 if (err.message.indexOf('User denied') > -1) {
                     this.$error('用户拒绝了Metamask')
                 }
+
                 this.betLoading = false
             })
 
             contract.once('Commit', {
             }, async (error, event) => {
-                console.log(event)
+                this.state = 'wait'    
                 this.settle( params.id, event.blockHash)
             })
         },

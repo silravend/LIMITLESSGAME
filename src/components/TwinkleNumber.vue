@@ -76,7 +76,7 @@ export default {
 
 <style lang="scss" scoped>
     .twinkle-number-comp{
-        font-size: 120px;
+        font-size: 240px;
         text-align: center;
         font-weight: bold
     }

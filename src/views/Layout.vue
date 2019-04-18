@@ -3,12 +3,12 @@
         <header>
             <img src="../assets/images/logo.png" alt="" class="logo">
             <nav>
-                <a href="" class="nav-item">ETH</a>
+                <a href="" class="nav-item">Ethereum</a>
                 <a href="" class="nav-item">Tron</a>
                 <div class="nav-primary"></div>
                 <a @click="fairnessVisible = true" class="nav-item">公平性</a>
                 <a @click="inviteVisible = true" class="nav-item">邀请好友</a>
-                <a @click="vipVisible = true" class="nav-item">VIP系统</a>
+                
                 <a @click="rechargeVisible = true" class="nav-item">充值</a>
             </nav>
         </header>
@@ -57,7 +57,7 @@
             </div>
 
             <div class="bg-cover">
-                <div class="bg-cover-wrapper" :class="{result: state == 'result'}">
+                <div class="bg-cover-wrapper" :class="{result: state != 'bet'}">
                     <div class="bg-cover_item">
                         <div class="bg-cover_result">
                             
@@ -78,10 +78,10 @@
             </div>
 
             <div class="bet-cover">
-                <div class="bet-cover-wrapper" :class="{result: state == 'result'}">
+                <div class="bet-cover-wrapper" :class="{result: state != 'bet'}">
                     <div class="bet-cover_item">
                         <div class="result-num">
-                            <TwinkleNumber :start="state == 'result'" :val="result" />
+                            <TwinkleNumber :start="state == 'wait'" :val="result" />
                         </div>
                         
                     </div>
@@ -349,10 +349,10 @@ export default {
             default: 0
         },
         result: {
-            default: 0
+            default: ''
         },
         state: {
-            default: 'result' // 'result' 
+            default: '' // 'result' 
         }
     },
 
