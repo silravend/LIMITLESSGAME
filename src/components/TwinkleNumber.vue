@@ -10,8 +10,8 @@ export default {
     data () {
         return {
             compVal: 0,
-            color: ['#fff', 'red', '#6c0db9', '#6137da', '#ffad39'],
-            currentColor: '#fff'
+            color: ['#570A56', 'red', '#6c0db9', '#6137da', '#ffad39'],
+            currentColor: '#570A56'
         }
     },
     props: {

@@ -80,11 +80,18 @@ export default {
         const ethereum = window.ethereum
         
         if (!ethereum.selectedAddress) {
-            this.$warn('请在metamask登录您的账户', 5000)
+            this.$warn('请在Metamask登录您的账户', 5000)
         }
 
          //获取账户余额
-        const accounts = await ethereum.enable()
+        const accounts = await ethereum.enable().catch(err => {
+            if (err.code == 4001) {
+                this.$warn('用户拒绝了Metamask')
+            }
+            return null
+        })
+        if (accounts === null) return;
+
         this.account = accounts[0]
         this.getBalance()
         this.getMyRecord()
@@ -151,7 +158,6 @@ export default {
                     this.betLoading = false;
                     return 
                 }
-
                 return res
             }
 
@@ -172,6 +178,7 @@ export default {
             })
             if (res === null) {
                 this.betLoading = false
+                this.state = 'bet'
                 return;
             }
 
