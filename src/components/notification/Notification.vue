@@ -10,7 +10,7 @@
             <svg v-if="type == 'warning' "  class="icon" aria-hidden="true">
                 <use xlink:href="#icon-jinggao"></use>
             </svg>
-            <span>{{text}}</span>
+            <span class="comp-text">{{text}}</span>
         </div>
     </transition>
 </template>
@@ -41,9 +41,12 @@ export default {
             this.visible = true
         })
         
-        setTimeout(() => {
-            this.visible = false
-        }, this.duration)
+        if (this.duration ){
+            setTimeout(() => {
+                this.visible = false
+            }, this.duration)
+        }
+        
     }
 }
 </script>
@@ -74,6 +77,10 @@ export default {
 
         &.warning{
             color: #ffad39
+        }
+
+        .comp-text{
+            vertical-align: middle
         }
     }
 

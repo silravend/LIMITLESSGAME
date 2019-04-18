@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import App from './App.vue'
+import App from './views/Eth.vue'
 import Notification from '@/components/notification'
 import "@/fonts/iconfont.js"
 

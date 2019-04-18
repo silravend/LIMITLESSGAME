@@ -12,7 +12,7 @@ export default {
             document.querySelector('body').appendChild(vm.$el)
         }
 
-        Vue.prototype.$success = function ( text = '',  duration ) {
+        Vue.prototype.$success = function ( text = '',  duration = 2500 ) {
             this.$notify({
                 type: 'success',
                 text,
@@ -20,7 +20,7 @@ export default {
             })
         }
 
-        Vue.prototype.$error = function ( text = '',  duration ) {
+        Vue.prototype.$error = function ( text = '',  duration = 2500 ) {
             this.$notify({
                 type: 'error',
                 text,
@@ -28,7 +28,7 @@ export default {
             })
         }
 
-        Vue.prototype.$warn = function ( text = '',  duration ) {
+        Vue.prototype.$warn = function ( text = '',  duration = 2500 ) {
             this.$notify({
                 type: 'warning',
                 text,

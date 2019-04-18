@@ -1,22 +1,28 @@
 <template>
     <div id="app">
         <header>
-            <img src="./assets/images/logo.png" alt="" class="logo">
+            <img src="../assets/images/logo.png" alt="" class="logo">
             <nav>
-                <a href="" class="nav-item"></a>
+                
+                <div class="nav-primary"></div>
+                <a href="" class="nav-item">公平性</a>
+                <a href="" class="nav-item">邀请好友</a>
+                <a href="" class="nav-item">VIP系统</a>
+                <a href="" class="nav-item">充值</a>
+                
             </nav>
         </header>
 
         <main>
-            <img src="./assets/images/main-bg.png" alt="" class="main-bg">
+            <img src="../assets/images/main-bg.png" alt="" class="main-bg">
             <div class="main-ani">
                 <div class="main-ani_item" v-for="i in aniLength" :class="{active: i == activeIndex || i == activeIndex2}" :key="i"></div>
             </div>
-            <img src="./assets/images/main-wrapper.png" alt="" class="main-wrapper">
+            <img src="../assets/images/main-wrapper.png" alt="" class="main-wrapper">
             <div class="main-mask"></div>
 
             <div class="main-balance">
-                <img src="./assets/images/balance.png" class="main-balance_img" />
+                <img src="../assets/images/balance.png" class="main-balance_img" />
                 <div class="main-balance_text">余额： {{balance}}</div>
             </div>
 
@@ -45,11 +51,11 @@
             <div class="main-slider">
                 <div class="main-slider_hd">1</div>
                 <div class="main-slider_bd">
-                    <img src="./assets/images/slider.png" alt="" class="main-slider_bg">
+                    <img src="../assets/images/slider.png" alt="" class="main-slider_bg">
                     <div class="main-slider_wrapper">
                         <vue-slider :width="655" :dot-size="55" v-model="num" :tooltip="'always'" :min="min" :max="max">
                             <template v-slot:dot>
-                                <img src="./assets/images/move.png" class="custom-dot" />
+                                <img src="../assets/images/move.png" class="custom-dot" />
                             </template>
                             <template v-slot:tooltip="{ num }">
                                 <div class="custom-tooltip">{{ num }}</div>
@@ -74,12 +80,12 @@
             </div>
 
             <div class="main-btns">
-                <img class="minus-btn" @click="decrease" src="./assets/images/reduce.png" alt="">
+                <img class="minus-btn" @click="decrease" src="../assets/images/reduce.png" alt="">
                 <div class="amount-input">
                     <input class="amount-input_input" v-model="amount" @blur="fixAmount" type="number">
-                    <img src="./assets/images/input.png" alt="" class="amount-input_img">
+                    <img src="../assets/images/input.png" alt="" class="amount-input_img">
                 </div>
-                <img class="plus-btn" @click="increase" src="./assets/images/plus.png" alt="">
+                <img class="plus-btn" @click="increase" src="../assets/images/plus.png" alt="">
 
                 <div class="multi-btn">
                     <div @click="half" class="multi-btn_item">1/2</div>
@@ -128,7 +134,9 @@
                         <span v-else> - - </span>
                     </div>
                     <div class="cell-item">{{item.jackpot}}</div>
-                    <div class="cell-item">查看</div>
+                    <div class="cell-item">
+                        <a class="cell-item_link" :href="'https://ropsten.etherscan.io/tx/' + item.betTrx" target="_blank">查看</a>
+                    </div>
                 </div>
             </div>
 
@@ -146,7 +154,9 @@
                         <span v-else> -- </span>
                     </div>
                     <div class="cell-item">{{item.jackpot}}</div>
-                    <div class="cell-item">查看</div>
+                    <div class="cell-item">
+                        <a class="cell-item_link" :href="'https://ropsten.etherscan.io/tx/' + item.betTrx" target="_blank">查看</a>
+                    </div>
                 </div>
             </div>
         </section>
@@ -157,12 +167,13 @@
 import VueSlider from "vue-slider-component"
 import "vue-slider-component/theme/default.css"
 
-import { getGasPrice, getParams, settleBet, getRecord, getMyRecord } from "@/api";
+import { getGasPrice, getParams, settleBet, getRecord, getMyRecord, getBetAmount } from "@/api";
 import getContract from "@/js/getContract";
 import web3 from '@/js/web3'
 import BeatLoader from 'vue-spinner/src/BeatLoader.vue'
 import CountTo from 'vue-count-to'
 import { sliceNumber } from '@/js/utils'
+import Confetti from 'canvas-confetti'
 
 let contract
 
@@ -216,6 +227,8 @@ export default {
     },
     async created() {
         this.getRecord()
+
+        getBetAmount()
         
         if (typeof window.ethereum === "undefined") {
             console.log("请安装metamask");
@@ -422,6 +435,27 @@ export default {
             return params
         },
 
+        // 中奖后的庆祝效果
+        celebrate () {
+            var end = Date.now() + (3.5 * 1000);
+
+            var interval = setInterval(function() {
+                if (Date.now() > end) {
+                    return clearInterval(interval);
+                }
+
+                Confetti({
+                    startVelocity: 30,
+                    spread: 360,
+                    ticks: 60,
+                    origin: {
+                        x: Math.random(),
+                        y: Math.random() - 0.2
+                    }
+                });
+            }, 200);
+        },
+
         async bet() {
             if (this.betLoading) return;
             this.betLoading = true
@@ -432,12 +466,13 @@ export default {
                 from: this.account,
                 gas: "300000",
                 value: web3.utils.toWei(this.amount + '', "ether")
-            }).catch(err => {
-                if (err.message.indexOf('-32603') > -1) {
+            }).catch( err => {
+                if (err.message.indexOf('User denied') > -1) {
                     this.$error('用户拒绝了Metamask')
                 }
                 this.betLoading = false
             })
+
 
             contract.once('Commit', {
                 
@@ -452,7 +487,8 @@ export default {
                 }
 
                 if (res.wins > 0) {
-                    this.$success(`恭喜您赢得 ${res.wins} ETH`)
+                    this.celebrate()
+                    this.$success(`恭喜您赢得 ${res.wins} ETH`, 3000)
                 } else {
                     this.$success(`很遗憾没中奖，再接再厉~`)
                 }
@@ -526,7 +562,7 @@ export default {
 @import "@/css/layout.scss";
 
 body {
-    background: #0e002d url(./assets/images/bg.jpg) no-repeat;
+    background: #0e002d url(../assets/images/bg.jpg) no-repeat;
     background-size: 100% auto;
 }
 
@@ -543,6 +579,23 @@ header {
         left: 50%;
         top: 0px;
         transform: translate(-50%, 0);
+    }
+
+    nav{
+        display: flex;
+        align-items: center;
+        width: 1100px;
+        margin: 0 auto;
+    }
+
+    .nav-item{
+        font-size: 14px;
+        color: #fff;
+        margin-left: 30px;
+    }
+
+    .nav-primary{
+        flex: 1
     }
 }
 
@@ -630,7 +683,7 @@ main {
     }
 
     .dashboard-item {
-        background: url(./assets/images/item.png) no-repeat;
+        background: url(../assets/images/item.png) no-repeat;
         width: 162px;
         height: 233px;
         position: relative;
@@ -779,7 +832,7 @@ main {
     }
 
     .multi-btn {
-        background: url(./assets/images/gas-slide.png) no-repeat;
+        background: url(../assets/images/gas-slide.png) no-repeat;
         width: 298px;
         height: 66px;
         display: flex;
@@ -809,7 +862,7 @@ main {
     }
 
     .multi-btn_active {
-        background: url(./assets/images/gas-slider-item.png) no-repeat;
+        background: url(../assets/images/gas-slider-item.png) no-repeat;
         width: 72px;
         height: 70px;
         line-height: 70px;
@@ -823,7 +876,7 @@ main {
     }
 
     .bet-btn {
-        background: url(./assets/images/bet.png) no-repeat;
+        background: url(../assets/images/bet.png) no-repeat;
         width: 229px;
         height: 80px;
         line-height: 62px;
@@ -836,7 +889,7 @@ main {
         cursor: pointer;
 
         &.active {
-            background: url(./assets/images/bet_actived.png) no-repeat;
+            background: url(../assets/images/bet_actived.png) no-repeat;
             background-size: 100% 100%;
         }
     }
@@ -921,6 +974,14 @@ main {
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+    }
+
+    .cell-item_link{
+        color: #fff;
+    }
+
+    .cell-item_link:hover{
+        text-decoration: underline
     }
 
     .result-num {

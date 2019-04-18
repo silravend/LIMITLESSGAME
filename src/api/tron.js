@@ -2,14 +2,14 @@ import io from './io'
 
 // 获取油费
 export const getGasPrice = () => {
-    return io.get('/api/v1.0/dice/ethereum/getSuggestGasPrice')
+    return io.get('/api/v1.0/dice/tron/getSuggestGasPrice')
 }
 
 // 获取下注参数
 export const getBetParams = ({ betmask, modulo = 100, amount, address }) => {
     return io({
         method: 'get',
-        url: '/api/v1.0/dice/ethereum/getPlaceBetParams',
+        url: '/api/v1.0/dice/tron/getPlaceBetParams',
         params: { betmask, modulo, amount, address }
     })
 }
@@ -18,7 +18,7 @@ export const getBetParams = ({ betmask, modulo = 100, amount, address }) => {
 export const settleBet = (params) => {
     return io({
         method: 'get',
-        url: '/api/v1.0/dice/ethereum/settleBet',
+        url: '/api/v1.0/dice/tron/settleBet',
         params
     })
 }
@@ -27,7 +27,7 @@ export const settleBet = (params) => {
 export const getRecord = () => {
     return io({
         method: 'get',
-        url: '/api/v1.0/dice/ethereum/getBetsAll'
+        url: '/api/v1.0/dice/tron/getBetsAll'
     })
 }
 
@@ -35,12 +35,12 @@ export const getRecord = () => {
 export const getMyRecord = ({ address }) => {
     return io({
         method: 'get',
-        url: '/api/v1.0/dice/ethereum/getBetsMe',
+        url: '/api/v1.0/dice/tron/getBetsMe',
         params: { address }
     })
 }
 
 // 获取下注系数
 export const getAmountParams = () => {
-    return io.get('/api/v1.0/dice/ethereum/getSuggestBetAmount')
+    return io.get('/api/v1.0/dice/tron/getSuggestBetAmount')
 }
