@@ -906,6 +906,7 @@ main {
         transform: translate(-50%, 0);
         font-size: 14px;
         color: rgba(255, 255, 255, 0.41);
+        white-space: nowrap;
     }
 
     .main-gas_jackpot {

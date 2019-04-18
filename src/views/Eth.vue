@@ -177,8 +177,8 @@ export default {
 
             this.getBalance()
             this.state = 'result'
-            this.result = res.sh3Mod100
-            
+            this.result = res.sha3Mod100
+
             if (res.wins > 0) {
                 this.$success(`恭喜您赢得 ${res.wins} ETH`, 3000)
                 this.$refs['app'].celebrate()
