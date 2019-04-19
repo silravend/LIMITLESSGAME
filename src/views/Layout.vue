@@ -3,8 +3,21 @@
         <header>
             <img src="../assets/images/logo.png" alt="" class="logo">
             <nav>
-                <a href="" class="nav-item">Ethereum</a>
-                <a href="" class="nav-item">Tron</a>
+                <a href="" class="nav-item" :class="{active: symbol == 'ETH'}">
+                    <svg class="icon" aria-hidden="true">
+                        <use xlink:href="#icon-ethereum"></use>
+                    </svg>
+                    <span class="icon-symbol">Ethereum</span>
+                    
+                </a>
+                <a href="" class="nav-item" :class="{active: symbol == 'TRX'}">
+                    <svg class="icon" aria-hidden="true">
+                        <use xlink:href="#icon-icon_TRX"></use>
+                    </svg>
+                    <span class="icon-symbol">Tron</span>
+                    
+                   
+                </a>
                 <div class="nav-primary"></div>
                 <a @click="fairnessVisible = true" class="nav-item">公平性</a>
                 <a @click="inviteVisible = true" class="nav-item">邀请好友</a>
@@ -22,14 +35,10 @@
                 </div>
 
                 <div class="main-lamp left">
-                    <div class="main-lamp_item"></div>
-                    <div class="main-lamp_item"></div>
-                    <div class="main-lamp_item"></div>
+                    <div v-for="(item, index) in 3" :key="index" class="main-lamp_item" :class="{active: lampActive == index}"></div>
                 </div>
                 <div class="main-lamp right">
-                    <div class="main-lamp_item"></div>
-                    <div class="main-lamp_item"></div>
-                    <div class="main-lamp_item"></div>
+                    <div v-for="(item, index) in 3" :key="index" class="main-lamp_item" :class="{active: lampActive == index}"></div>
                 </div>
 
                 <div class="main-btns">
@@ -206,6 +215,31 @@
 
         <section class="footer">
             <div class="footer-bg"><img src="@/assets/images/footer-bg.png" class="footer-bg_img"></div>
+            <div class="footer-link">
+                <a href="" class="link-item">
+                    <svg class="icon" aria-hidden="true">
+                        <use xlink:href="#icon-facebook"></use>
+                    </svg>
+                </a>
+
+                <a href="" class="link-item">
+                    <svg class="icon" aria-hidden="true">
+                        <use xlink:href="#icon-telegram"></use>
+                    </svg>
+                </a>
+
+                <a href="" class="link-item">
+                    <svg class="icon" aria-hidden="true">
+                        <use xlink:href="#icon-medium"></use>
+                    </svg>
+                </a>
+
+                <a href="" class="link-item">
+                    <svg class="icon" aria-hidden="true">
+                        <use xlink:href="#icon-twitter"></use>
+                    </svg>
+                </a>
+            </div>
             <div class="footer-desc">
                 <div class="footer-desc_title">免责声明</div>
                 <div>LIMITLESS目前不支持来自以下国家或地区的用户：中国大陆、美国（包括所有美国领土）。</div>
@@ -216,7 +250,7 @@
             <div class="footer-copyright">Copyright © 2019 limitless.game | All rights reserved</div>
         </section>
 
-        <modal v-if="introVisible" :visible.sync="introVisible" title="说明" btnText="确定">
+        <modal v-if="introVisible" :visible.sync="introVisible" title="帮助说明" btnText="确定">
             <div class="modal-text">
                 <p>请使用Chrome浏览器并安装插件钱包</p>
                 <p>如果您还没有在Chrome浏览器上安装Metamask或者TronLink钱包，请点击以下链接进行下载（两款钱包均为Chrome浏览器上的免费插件）：</p>
@@ -231,7 +265,7 @@
                     <br> 如果您无法访问Google应用商店，可点击以下链接进行下载及观看安装教程。
                 </p>
                 <p>
-                    <a href="https://s3.amazonaws.com/trondice/Chromewallet/TRONlink.zip" target="_blank">https://s3.amazonaws.com/trondice/Chromewallet/TRONlink.zip</a>
+                    <a href="https://api1.limitless.vip/download?url=plugins_and_tuorials.zip" target="_blank">https://api1.limitless.vip/download?url=plugins_and_tuorials.zip</a>
                 </p>
             </div>
         </modal>
@@ -303,12 +337,14 @@ export default {
             max: 97,
             power: 1,
             tabActive: 0,
-
             introVisible: false,
             fairnessVisible: false,
             inviteVisible: false,
             vipVisible: false,
-            rechargeVisible: false
+            rechargeVisible: false,
+
+            lampActive: -1,
+            lampTimer: null,
         };
     },
 
@@ -352,7 +388,7 @@ export default {
             default: ''
         },
         state: {
-            default: '' // 'result' 
+            default: '' // 'bet wait result' 
         }
     },
 
@@ -375,11 +411,11 @@ export default {
 
     watch: {
         betLoading(newVal) {
-            if (newVal) {
-                this.startAni();
-            } else {
-                this.stopAni();
-            }
+            // if (newVal) {
+            //     this.startAni();
+            // } else {
+            //     this.stopAni();
+            // }
         },
         lossPer() {
             return ((this.min + this.max) / this.num).toFixed(2);
@@ -387,10 +423,32 @@ export default {
         bonus() {
             const res = this.lossPer * this.amount;
             return sliceNumber(res);
+        },
+        state (newVal) {
+            if (newVal == 'wait') {
+                this.startLampAni()
+            } else {
+                this.stopLampAni()
+            }
         }
     },
 
     methods: {
+        startLampAni () {
+            this.lampTimer = setInterval(() => {
+                if (this.lampActive >= 2) {
+                    this.lampActive = -1
+                }
+                this.lampActive += 1
+                
+            }, 500)
+        },
+
+        stopLampAni () {
+            clearInterval(this.lampTimer)
+            this.lampActive = -1
+        },
+
         bet() {
             if (this.betLoading) return;
 
@@ -586,7 +644,7 @@ body {
 
 header {
     height: 70px;
-    line-height: 70px;
+    
     background: rgba(27, 20, 97, 1);
     opacity: 0.9;
     position: relative;
@@ -604,6 +662,7 @@ header {
         align-items: center;
         width: 1100px;
         margin: 0 auto;
+        height: 100%;
     }
 
     .nav-item {
@@ -611,6 +670,22 @@ header {
         color: #fff;
         margin-left: 30px;
         cursor: pointer;
+        text-align: center;
+
+        &.active{
+            color: rgba(11, 234, 106, 0.8)
+        }
+
+        .icon{
+            font-size: 20px;
+            
+            vertical-align: middle;
+            margin-right: 5px;
+        }
+
+        .icon-symbol{
+            vertical-align: middle
+        }
     }
 
     .nav-primary {
@@ -750,6 +825,11 @@ main {
             .main-lamp_item {
                 background: url(../assets/images/lamp_l.png) no-repeat;
                 background-size: 100% 100%;
+
+                &.active{
+                    background: url(../assets/images/lamp_l_active.png) no-repeat;
+                    background-size: 100% 100%;
+                }
             }
         }
 
@@ -758,6 +838,11 @@ main {
             .main-lamp_item {
                 background: url(../assets/images/lamp_r.png) no-repeat;
                 background-size: 100% 100%;
+
+                &.active{
+                    background: url(../assets/images/lamp_r_active.png) no-repeat;
+                    background-size: 100% 100%;
+                }
             }
         }
 
@@ -1122,13 +1207,14 @@ main {
 
 .footer {
     background: rgba(9, 1, 34, 1);
-    height: 240px;
+    
     font-size: 14px;
     color: rgba(255, 255, 255, 0.7);
     font-weight: 400;
     text-align: center;
     position: relative;
-    margin-top: 120px;
+    margin-top: 300px;
+    padding-bottom: 30px;
     &:before {
         content: "";
         display: table;
@@ -1148,15 +1234,41 @@ main {
         vertical-align: middle;
     }
 
+    .footer-link{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 30px
+    }
+
+    .link-item{
+        background: #fff;
+        font-size: 30px;
+        width: 60px;
+        height: 60px;
+        text-align: center;
+        line-height: 60px;
+        border-radius: 50%;
+
+        &:not(:first-child){
+            margin-left: 40px;
+        }
+    }
+
     .footer-desc {
         width: 1100px;
         text-align: center;
-        margin: 20px auto;
+        margin: 20px auto 40px;
         line-height: 2;
     }
 
     .footer-desc_title {
         margin-bottom: 15px;
+        font-size: 20px;
+    }
+
+    .footer-copyright{
+        color: rgba(255, 255, 255, 0.5);
     }
 }
 

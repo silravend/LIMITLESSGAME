@@ -73,17 +73,18 @@ export default {
     },
 
     async mounted () {
+        
          if (typeof window.ethereum === "undefined") {
             this.$refs['app'].showIntro()
             return;
         }
         const ethereum = window.ethereum
+        
+        // if (!ethereum.selectedAddress) {
+        //     this.$warn('请在Metamask登录您的账户', 5000)
+        // }
 
-        if (!ethereum.selectedAddress) {
-            this.$warn('请在Metamask登录您的账户', 5000)
-        }
-
-         //获取账户余额
+        //获取账户余额
         const accounts = await ethereum.enable().catch(err => {
             if (err.code == 4001) {
                 this.$warn('用户拒绝了Metamask')
@@ -102,7 +103,7 @@ export default {
         setInterval(() => {
             this.getJackpot()
         }, 10000)
-
+        
     },
 
     methods: {
@@ -118,6 +119,8 @@ export default {
 
         getBalance () {
             web3.eth.getBalance(this.account).then(balance => {
+                console.log(balance)
+                console.log(sliceNumber(web3.utils.fromWei(balance, "ether")))
                 this.balance = sliceNumber(web3.utils.fromWei(balance, "ether"))
             })
         },
@@ -182,7 +185,6 @@ export default {
                 return;
             }
 
-            this.getBalance()
             this.state = 'result'
             this.result = res.sha3Mod100
 
@@ -195,6 +197,7 @@ export default {
             }
 
             setTimeout(() => {
+                this.getBalance()
                 this.state = 'bet'
                 this.betLoading = false
             }, 3500)
@@ -202,6 +205,7 @@ export default {
         },
 
         async betSubmit() {
+
              if (!ethereum.selectedAddress) {
                 this.$warn('请在metamask登录您的账户')
                 return;

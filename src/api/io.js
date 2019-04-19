@@ -1,7 +1,8 @@
 import axios from 'axios'
 
 const io = axios.create({
-    baseURL: process.env.VUE_APP_API
+    baseURL: process.env.VUE_APP_API,
+    timeout: 180000
 })
 
 io.interceptors.response.use(response => {    

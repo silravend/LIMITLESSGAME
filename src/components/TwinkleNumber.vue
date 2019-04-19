@@ -1,6 +1,8 @@
 <template>
     <div class="twinkle-number-comp" :style="{color: currentColor}">
-        {{compVal}}
+        <svg v-for="(item, index) in icons" :key="index" class="icon" aria-hidden="true">
+            <use :xlink:href="'#icon-shuzi' + item"></use>
+        </svg>
     </div>
 </template>
 
@@ -45,9 +47,17 @@ export default {
         }
     },
 
+    computed : {
+        icons () {
+            return (this.compVal + '').split('')
+        }
+    },
+
     created () {
         this.compVal = this.val
     },
+
+    
 
     mounted () {
         if (this.start) {
@@ -76,7 +86,7 @@ export default {
 
 <style lang="scss" scoped>
     .twinkle-number-comp{
-        font-size: 240px;
+        font-size: 200px;
         text-align: center;
         font-weight: bold
     }
