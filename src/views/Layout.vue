@@ -7,7 +7,7 @@
                     <svg class="icon" aria-hidden="true">
                         <use xlink:href="#icon-ethereum"></use>
                     </svg>
-                    <span class="icon-symbol">Ethereum</span>
+                    <span class="icon-symbol">ETHEREUM</span>
                     
                 </a>
                 <a style="display:none" href="" class="nav-item" :class="{active: symbol == 'TRX'}">
@@ -676,7 +676,7 @@ header {
         text-align: center;
 
         &.active{
-            color: rgba(11, 234, 106, 0.8)
+            color: #ffad39
         }
 
         .icon{
