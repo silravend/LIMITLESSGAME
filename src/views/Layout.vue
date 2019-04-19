@@ -215,6 +215,15 @@
 
         <section class="footer">
             <div class="footer-bg"><img src="@/assets/images/footer-bg.png" class="footer-bg_img"></div>
+            
+            <div class="footer-desc">
+                <div class="footer-desc_title">免责声明</div>
+                <div>LIMITLESS目前不支持来自以下国家或地区的用户：中国大陆、美国（包括所有美国领土）。</div>
+                <div>LIMITLESS禁止未满18岁的用户参与游戏。LIMITLESS是一款区块链游戏，包括一定程度的财务风险。玩家应该意识到这种风险并相应地进行自我管理。</div>
+                <div>我们无意诱使任何人违反任何地方、州或国家的法律。玩家的唯一责任是参与自身管辖范围内的法律条款，以确定行为的合法性。</div>
+                <div>如果您有任何的疑问，欢迎加入官方的电报群寻求帮助。</div>
+            </div>
+            
             <div class="footer-link">
                 <a href="" class="link-item">
                     <svg class="icon" aria-hidden="true">
@@ -240,13 +249,7 @@
                     </svg>
                 </a>
             </div>
-            <div class="footer-desc">
-                <div class="footer-desc_title">免责声明</div>
-                <div>LIMITLESS目前不支持来自以下国家或地区的用户：中国大陆、美国（包括所有美国领土）。</div>
-                <div>LIMITLESS禁止未满18岁的用户参与游戏。LIMITLESS是一款区块链游戏，包括一定程度的财务风险。玩家应该意识到这种风险并相应地进行自我管理。</div>
-                <div>我们无意诱使任何人违反任何地方、州或国家的法律。玩家的唯一责任是参与自身管辖范围内的法律条款，以确定行为的合法性。</div>
-                <div>如果您有任何的疑问，欢迎加入官方的电报群寻求帮助。</div>
-            </div>
+
             <div class="footer-copyright">Copyright © 2019 limitless.game | All rights reserved</div>
         </section>
 
@@ -265,7 +268,7 @@
                     <br> 如果您无法访问Google应用商店，可点击以下链接进行下载及观看安装教程。
                 </p>
                 <p>
-                    <a href="https://api1.limitless.vip/download?url=plugins_and_tuorials.zip" target="_blank">https://api1.limitless.vip/download?url=plugins_and_tuorials.zip</a>
+                    <a href="https://api1.limitless.vip/download?url=plugins_and_tutorials.zip" target="_blank">https://api1.limitless.vip/download?url=plugins_and_tutorials.zip</a>
                 </p>
             </div>
         </modal>
@@ -441,7 +444,7 @@ export default {
                 }
                 this.lampActive += 1
                 
-            }, 500)
+            }, 200)
         },
 
         stopLampAni () {
@@ -1238,7 +1241,8 @@ main {
         display: flex;
         align-items: center;
         justify-content: center;
-        margin-top: 30px
+        margin-top: 30px;
+        margin-bottom: 40px;
     }
 
     .link-item{
