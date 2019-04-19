@@ -122,8 +122,6 @@ export default {
 
         getBalance () {
             web3.eth.getBalance(this.account).then(balance => {
-                console.log(balance)
-                console.log(sliceNumber(web3.utils.fromWei(balance, "ether")))
                 this.balance = sliceNumber(web3.utils.fromWei(balance, "ether"))
             })
         },
@@ -226,8 +224,11 @@ export default {
                 gas: "300000",
                 value: web3.utils.toWei(this.amount + '', "ether")
             }).catch( err => {
+                console.log(err)
                 if (err.message.indexOf('User denied') > -1) {
                     this.$error('用户拒绝了Metamask')
+                } else {
+                    this.$error('投注失败，请稍后再试~')
                 }
 
                 this.betLoading = false

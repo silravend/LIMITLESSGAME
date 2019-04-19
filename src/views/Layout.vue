@@ -741,7 +741,7 @@ main {
 
     .bg-cover_result{
         background: #0e002d;
-        width: 960px;
+        width: 1000px;
         height: 100%;
         position: absolute;
         left: 50%;
