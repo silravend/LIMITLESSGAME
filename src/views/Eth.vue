@@ -80,9 +80,12 @@ export default {
         }
         const ethereum = window.ethereum
         
-        // if (!ethereum.selectedAddress) {
-        //     this.$warn('请在Metamask登录您的账户', 5000)
-        // }
+        setTimeout(() => {
+            if (!ethereum.selectedAddress) {
+                this.$warn('请在Metamask登录您的账户', 5000)
+            }
+        }, 1500)
+        
 
         //获取账户余额
         const accounts = await ethereum.enable().catch(err => {
@@ -191,7 +194,6 @@ export default {
             if (res.wins > 0) {
                 this.$success(`恭喜您赢得 ${res.wins} ETH`, 3000)
                 this.$refs['app'].celebrate()
-                
             } else {
                 this.$success(`很遗憾没中奖，再接再厉~`)
             }

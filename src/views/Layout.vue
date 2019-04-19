@@ -10,7 +10,7 @@
                     <span class="icon-symbol">Ethereum</span>
                     
                 </a>
-                <a href="" class="nav-item" :class="{active: symbol == 'TRX'}">
+                <a style="display:none" href="" class="nav-item" :class="{active: symbol == 'TRX'}">
                     <svg class="icon" aria-hidden="true">
                         <use xlink:href="#icon-icon_TRX"></use>
                     </svg>
