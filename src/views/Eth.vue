@@ -193,7 +193,7 @@ export default {
                 this.$success(`恭喜您赢得 ${res.wins} ETH`, 3000)
                 this.$refs['app'].celebrate()
             } else {
-                this.$success(`很遗憾没中奖，再接再厉~`)
+                this.$error(`很遗憾没中奖，再接再厉~`)
             }
 
             setTimeout(() => {

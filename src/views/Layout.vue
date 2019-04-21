@@ -8,21 +8,18 @@
                         <use xlink:href="#icon-ethereum"></use>
                     </svg>
                     <span class="icon-symbol">ETHEREUM</span>
-                    
                 </a>
                 <a style="display:none" href="" class="nav-item" :class="{active: symbol == 'TRX'}">
                     <svg class="icon" aria-hidden="true">
                         <use xlink:href="#icon-icon_TRX"></use>
                     </svg>
                     <span class="icon-symbol">Tron</span>
-                    
-                   
                 </a>
                 <div class="nav-primary"></div>
                 <a @click="fairnessVisible = true" class="nav-item">公平性</a>
                 <a @click="inviteVisible = true" class="nav-item">邀请好友</a>
                 
-                <a @click="rechargeVisible = true" class="nav-item">充值</a>
+                <a @click="introVisible = true" class="nav-item">使用帮助</a>
             </nav>
         </header>
 
@@ -152,8 +149,11 @@
                     </div>
                 </div>
             </div>
-
         </main>
+
+        <div class="integration-notify">
+            现在投注可获得 2.50x LT
+        </div>
 
         <div class="tab">
             <div class="tab-item" :class="{active: tabActive == 0}" @click="tabActive = 0">所有投注</div>
@@ -1107,6 +1107,18 @@ main {
             background-size: 100% 100%;
         }
     }
+}
+
+.integration-notify{
+    background: rgba(255, 255, 255, .1);
+    text-align: center;
+    height: 75px;
+    line-height: 75px;
+    border-radius: 75px;
+    color: #ffad39;
+    font-size: 24px;
+    width: 400px;
+    margin: 50px auto;
 }
 
 .tab {
