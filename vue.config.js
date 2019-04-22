@@ -17,7 +17,7 @@ module.exports = {
             // page 的入口
             entry: 'src/eth.js',
             // 模板来源
-            template: 'public/eth.html',
+            template: 'public/dice_ethereum.html',
             // 在 dist/eth.html 的输出
             filename: 'dice_ethereum.html',
             // 当使用 title 选项时，
@@ -31,7 +31,7 @@ module.exports = {
             // page 的入口
             entry: 'src/tron.js',
             // 模板来源
-            template: 'public/tron.html',
+            template: 'public/dice_tron.html',
             // 在 dist/tron.html 的输出
             filename: 'dice_tron.html',
             // 当使用 title 选项时，
