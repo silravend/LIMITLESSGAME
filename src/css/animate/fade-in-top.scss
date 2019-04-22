@@ -1,0 +1,7 @@
+.fade-in-top-enter-active, .fade-in-top-leave-active {
+    transition: all .35s;
+  }
+  .fade-in-top-enter, .fade-in-top-leave-to /* .fade-leave-active below version 2.1.8 */ {
+    opacity: 0;
+    transform: translate(0, -20px)
+  }
