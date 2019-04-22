@@ -66,22 +66,12 @@ export default {
 
     async created() {
         this.getRecord()
+        this.recordWs()
         this.getAmoutParams()
         
         console.log(window.tronWeb)
 
-        if (typeof window.tronWeb === "undefined") {
-            this.$refs['app'].showIntro()
-            return;
-        }
-        
-        //等待 troweb 链接完成
-        await tronWeb.isConnected()
-        this.account = tronWeb.defaultAddress.base58   
-        this.getBalance()
-        contract = await this.getContract()
-        console.log(contract)
-        
+       
         
         // ethereum.enable().catch(reason => {
         //     console.log(reason);
@@ -102,6 +92,22 @@ export default {
         //获取油费
         const gasRes = await getGasPrice()
         this.gas = gasRes.gasPrice
+    },
+
+    async mounted () {
+        console.log(window.tronWeb)
+         if (typeof window.tronWeb === "undefined") {
+            this.$refs['app'].showIntro()
+            return;
+        }
+        
+        //等待 troweb 链接完成
+        await tronWeb.isConnected()
+        this.account = tronWeb.defaultAddress.base58   
+        this.getBalance()
+        contract = await this.getContract()
+        console.log(contract)
+        
     },
 
     methods: {
