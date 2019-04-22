@@ -1,6 +1,5 @@
 const path = require('path')
 
-
 module.exports = {
     publicPath: './',
     configureWebpack: config => {
@@ -20,7 +19,7 @@ module.exports = {
             // 模板来源
             template: 'public/eth.html',
             // 在 dist/eth.html 的输出
-            filename: 'dice/ethereum/index.html',
+            filename: 'dice_ethereum.html',
             // 当使用 title 选项时，
             // template 中的 title 标签需要是 <title><%= htmlWebpackPlugin.options.title %></title>
             title: 'eth',
@@ -34,7 +33,7 @@ module.exports = {
             // 模板来源
             template: 'public/tron.html',
             // 在 dist/tron.html 的输出
-            filename: 'dice/tron/index.html',
+            filename: 'dice_tron.html',
             // 当使用 title 选项时，
             // template 中的 title 标签需要是 <title><%= htmlWebpackPlugin.options.title %></title>
             title: 'tron',
@@ -46,8 +45,8 @@ module.exports = {
     devServer: {
         historyApiFallback: {
             rewrites: [
-                { from: /\/eth/, to: '/eth.html' },
-                { from: /\/tron/, to: '/tron.html' },
+                { from: /\/eth/, to: '/dice_ethereum.html' },
+                { from: /\/tron/, to: '/dice_tron.html' },
             ]
         }
     }
