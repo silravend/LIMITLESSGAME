@@ -236,7 +236,7 @@ export default {
             
             contract.methods.placeBet(params.betMask, params.modulo, params.commitLastBlock, params.commit, params.r, params.s).send({
                 gas: '150000',
-                gasPrice: web3.utils.toWei(this.gas, 'gwei'),
+                gasPrice: web3.utils.toWei(this.gas + '', 'gwei'),
                 from: this.account,
                 value: web3.utils.toWei(this.amount + '', "ether")
             }).catch( err => {
