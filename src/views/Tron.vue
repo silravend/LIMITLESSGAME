@@ -69,10 +69,6 @@ export default {
         this.recordWs()
         this.getAmoutParams()
         
-        console.log(window.tronWeb)
-
-       
-        
         // ethereum.enable().catch(reason => {
         //     console.log(reason);
         // }).then(accounts => {

@@ -8,7 +8,7 @@
             :maxAmount="maxAmount"
             :amountStep="amountStep"
             :balance="balance"
-            :gas="gas"
+            :gas="gasPrice"
             :betLoading="betLoading"
             :recordList="recordList"
             :myRecordList="myRecordList"
@@ -62,6 +62,12 @@ export default {
     watch: {
         amount () {
             this.fixAmount()
+        }
+    },
+
+    computed: {
+        gasPrice () {
+            return web3.utils.fromWei(this.gas)
         }
     },
 
@@ -231,7 +237,7 @@ export default {
             const params = await this.getBetParams()
             
             contract.methods.placeBet(params.betMask, params.modulo, params.commitLastBlock, params.commit, params.r, params.s).send({
-                gas: "150000",
+                gas: this.gas,
                 from: this.account,
                 value: web3.utils.toWei(this.amount + '', "ether")
             }).catch( err => {
