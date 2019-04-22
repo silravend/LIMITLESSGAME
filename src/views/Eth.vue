@@ -51,7 +51,7 @@ export default {
             amountStep: 0.01,
             result: '',
             state:"bet",
-            debug: false
+            debug: true
         };
     },
     components: {
@@ -76,17 +76,11 @@ export default {
     },
 
     async mounted () {
-        
-        
         if (typeof window.ethereum === "undefined") {
             this.$refs['app'].showIntro()
             return;
         }
         const ethereum = window.ethereum
-        
-        console.log(ethereum.networkVersion)
-
-        
         
         setTimeout(() => {
             if (ethereum.networkVersion != 1 && !this.debug ){

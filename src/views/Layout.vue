@@ -3,13 +3,13 @@
         <header>
             <img src="../assets/images/logo.png" alt="" class="logo">
             <nav>
-                <a href="" class="nav-item" :class="{active: symbol == 'ETH'}">
+                <a href="https://www.limitless.vip" class="nav-item" :class="{active: symbol == 'ETH'}">
                     <svg class="icon" aria-hidden="true">
                         <use xlink:href="#icon-ethereum"></use>
                     </svg>
                     <span class="icon-symbol">ETHEREUM</span>
                 </a>
-                <a style="display:none" href="" class="nav-item" :class="{active: symbol == 'TRX'}">
+                <a href="" class="nav-item" :class="{active: symbol == 'TRX'}">
                     <svg class="icon" aria-hidden="true">
                         <use xlink:href="#icon-icon_TRX"></use>
                     </svg>
