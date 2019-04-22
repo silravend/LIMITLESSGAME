@@ -10,7 +10,7 @@ export default {
     i: 'PAYOUT AMOUNT',
     j: 'Suggest Gas Price',
     k: 'Jackpot Size',
-    l: 'Bet now for 2.50x LLT reward',
+    l: 'Bet now for 2.50x LT reward',
     m: 'All Bets',
     n: 'My Bets',
     o: 'Time',
@@ -36,7 +36,7 @@ export default {
     ai: 'Before each game is open to players, the smart contract generates a random seed through the current block, which is not controlled by the banker, miner or anyone.This seed is signed by the owner and returned to the smart contract (which can be viewed through the browser) and the player (which can be seen in the game) for verification and comparison after convenience.',
     aj: 'At the end of the game, the server will display the original seed to prove that the system does not control or modify the seed in the whole game process, so as to eliminate the possibility of system cheating.',
     ak: 'The results of all games can be verified by the corresponding seeds and signatures. In rare exceptional cases, betting failures may occur, when the system deducts from the account, and then returns to your wallet after the transaction fails to confirm.',
-    al: 'Best Blockchain Game now is online, play and get reward of LLT. By pledging LLT, the platform Profit Dividend can be obtained. The earlier the platform joins, the greater the revenue. Opportunities are plentiful, not capped.',
+    al: 'Best Blockchain Game now is online, play and get reward of LT. By pledging LT, the platform Profit Dividend can be obtained. The earlier the platform joins, the greater the revenue. Opportunities are plentiful, not capped.',
     am: 'LIMITLESS for Any gambling on the platform will result in additional bonuses. The higher the VIP level, the higher the bonus amount!',
     an: 'NOTICE：VIP bonus is calculated on the basis of irreversible transactions on the ETH block chain. In very few exceptional cases, the block producer may discard your transaction (which will not be deducted from your account), and the VIP bonus for that transaction will not be calculated.',
     ao: 'Cumulative bet 1,000 USD Bonus 0.01%',
@@ -47,5 +47,6 @@ export default {
     at: 'Balance is not enough.',
     au: 'User refuse to login Metamask.',
     av: 'Bet fail, please try it later ~',
-    aw: 'Please login your Metamask account.'
+    aw: 'Please login your Metamask account.',
+    ax: 'Please switch to the main network.'
 }

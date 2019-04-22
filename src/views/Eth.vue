@@ -50,7 +50,8 @@ export default {
             maxAmount: 10.02,
             amountStep: 0.01,
             result: '',
-            state:"bet"
+            state:"bet",
+            debug: false
         };
     },
     components: {
@@ -75,15 +76,17 @@ export default {
     },
 
     async mounted () {
+        
+        
         if (typeof window.ethereum === "undefined") {
             this.$refs['app'].showIntro()
             return;
         }
         const ethereum = window.ethereum
         
-
-        if (ethereum.networkVersion != 1 ){
-            this.$error('测试网不支持，请切换到主网', 5000)
+        if (ethereum.networkVersion != 1 && !this.debug ){
+            this.$error(this.$t('ax'), 5000)
+            return;
         }
         
         setTimeout(() => {
@@ -211,8 +214,8 @@ export default {
         },
 
         async betSubmit() {
-            if (ethereum.networkVersion != 1) {
-                this.$error('测试网不支持，请切换到主网', 5000)
+            if (ethereum.networkVersion != 1 && !this.debug) {
+                this.$error(this.$t('ax'), 5000)
                 return
             }
 

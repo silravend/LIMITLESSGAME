@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div :class="[$i18n.locale]">
         <header>
             <img src="../assets/images/logo.png" alt="" class="logo">
             <nav>
@@ -151,7 +151,7 @@
                         </div>
 
                         <div class="main-gas">
-                            {{$t('j')}}(Gas Price): {{gas}}
+                            <span v-if="gas">{{$t('j')}}(Gas Price): {{gas}}</span>
                             <span class="main-gas_jackpot">
                                 {{$t('k')}}
                                 <b class="main-gas_primary">
@@ -352,6 +352,10 @@ export default {
                 en: {
                     label: 'English',
                     image: require('@/assets/ico/en.png')
+                },
+                kr: {
+                    label: '한국어',
+                    image: require('@/assets/ico/kr.png')
                 }
             },
             aniLength: 43,
@@ -465,6 +469,8 @@ export default {
     methods: {
         changeLang (lang) {
             this.$i18n.locale = lang
+            localStorage.setItem('lang', lang)
+            this.langVisible = false
         },
         startLampAni () {
             this.lampTimer = setInterval(() => {
@@ -675,6 +681,14 @@ body {
     background-size: 100% auto;
 }
 
+.en{
+    main{
+        .dashboard-item_ft{
+            font-size: 13px;
+        }
+    }
+}
+
 header {
     height: 70px;
     
@@ -741,8 +755,8 @@ header {
     }
     
     .lang-img{
-        width: 25px;
-        height: 25px;
+        width:25px;
+        height:25px;
         vertical-align: middle
     }
 
