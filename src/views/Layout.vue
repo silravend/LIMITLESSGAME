@@ -264,7 +264,7 @@
                 </a>
             </div>
 
-            <div class="footer-copyright">Copyright © 2019 limitless.game | All rights reserved</div>
+            <div class="footer-copyright">Copyright © 2019 limitless.vip | All rights reserved</div>
         </section>
 
         <modal v-if="introVisible" :visible.sync="introVisible" :title="$t('ac')" :btnText="$t('ad')">

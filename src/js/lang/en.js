@@ -1,7 +1,7 @@
 export default {
-    a: 'Fairness',
-    b: 'Referral',
-    c: 'Help',
+    a: 'FAIRNESS',
+    b: 'REFERRAL',
+    c: 'HELP',
     d: 'BALANCE',
     e: 'BET',
     f: 'PREDICTION',
