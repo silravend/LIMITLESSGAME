@@ -20,7 +20,7 @@ module.exports = {
             // 模板来源
             template: 'public/eth.html',
             // 在 dist/eth.html 的输出
-            filename: 'eth.html',
+            filename: 'dice/ethereum/index.html',
             // 当使用 title 选项时，
             // template 中的 title 标签需要是 <title><%= htmlWebpackPlugin.options.title %></title>
             title: 'eth',
@@ -34,7 +34,7 @@ module.exports = {
             // 模板来源
             template: 'public/tron.html',
             // 在 dist/tron.html 的输出
-            filename: 'tron.html',
+            filename: 'dice/tron/index.html',
             // 当使用 title 选项时，
             // template 中的 title 标签需要是 <title><%= htmlWebpackPlugin.options.title %></title>
             title: 'tron',
