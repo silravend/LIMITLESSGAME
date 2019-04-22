@@ -8,7 +8,7 @@
             :maxAmount="maxAmount"
             :amountStep="amountStep"
             :balance="balance"
-            :gas="gasPrice"
+            :gas="gas"
             :betLoading="betLoading"
             :recordList="recordList"
             :myRecordList="myRecordList"
@@ -66,19 +66,13 @@ export default {
     },
 
     computed: {
-        gasPrice () {
-            return web3.utils.fromWei(this.gas)
-        }
+      
     },
 
     async created() {
         this.getRecord()
         this.recordWs()
         this.getAmoutParams()
-        
-        //获取油费
-        const gasRes = await getGasPrice()
-        this.gas = gasRes.gasPrice
     },
 
     async mounted () {
@@ -111,6 +105,10 @@ export default {
         this.account = accounts[0]
         this.getBalance()
         this.getMyRecord()
+
+        //获取油费
+        const gasRes = await getGasPrice()
+        this.gas = gasRes.gasPrice
         
         contract = getContract(this.account)
         
@@ -237,7 +235,8 @@ export default {
             const params = await this.getBetParams()
             
             contract.methods.placeBet(params.betMask, params.modulo, params.commitLastBlock, params.commit, params.r, params.s).send({
-                gas: this.gas,
+                gas: '150000',
+                gasPrice: web3.utils.toWei(this.gas, 'gwei'),
                 from: this.account,
                 value: web3.utils.toWei(this.amount + '', "ether")
             }).catch( err => {
