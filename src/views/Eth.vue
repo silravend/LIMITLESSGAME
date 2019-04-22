@@ -86,12 +86,13 @@ export default {
         
         console.log(ethereum.networkVersion)
 
-        if (ethereum.networkVersion != 1 && !this.debug ){
-            this.$error(this.$t('ax'), 5000)
-            return;
-        }
+        
         
         setTimeout(() => {
+            if (ethereum.networkVersion != 1 && !this.debug ){
+                this.$error(this.$t('ax'), 5000)
+                return;
+            }
             if (!ethereum.selectedAddress) {
                 this.$warn(this.$t('as'), 5000)
             }
@@ -235,8 +236,9 @@ export default {
             const params = await this.getBetParams()
             
             contract.methods.placeBet(params.betMask, params.modulo, params.commitLastBlock, params.commit, params.r, params.s).send({
-                from: this.account,
                 gas: "300000",
+                gasPrice: "2000000000",
+                from: this.account,
                 value: web3.utils.toWei(this.amount + '', "ether")
             }).catch( err => {
                 console.log(err)
