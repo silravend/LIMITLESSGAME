@@ -84,6 +84,8 @@ export default {
         }
         const ethereum = window.ethereum
         
+        console.log(ethereum.networkVersion)
+
         if (ethereum.networkVersion != 1 && !this.debug ){
             this.$error(this.$t('ax'), 5000)
             return;
