@@ -51,7 +51,7 @@ export default {
             amountStep: 0.01,
             result: '',
             state:"bet",
-            debug: false
+            debug: true
         };
     },
     components: {
