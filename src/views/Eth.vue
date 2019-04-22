@@ -73,8 +73,8 @@ export default {
     },
 
     async mounted () {
-        
-         if (typeof window.ethereum === "undefined") {
+        console.log(window.ethereum)
+        if (typeof window.ethereum === "undefined") {
             this.$refs['app'].showIntro()
             return;
         }
@@ -82,7 +82,7 @@ export default {
         
         setTimeout(() => {
             if (!ethereum.selectedAddress) {
-                this.$warn('请在Metamask登录您的账户', 5000)
+                this.$warn(this.$t('as'), 5000)
             }
         }, 1500)
         
@@ -90,7 +90,7 @@ export default {
         //获取账户余额
         const accounts = await ethereum.enable().catch(err => {
             if (err.code == 4001) {
-                this.$warn('用户拒绝了Metamask')
+                this.$warn(this.$t('au'))
             }
             return null
         })
@@ -190,10 +190,10 @@ export default {
             this.result = res.sha3Mod100
 
             if (res.wins > 0) {
-                this.$success(`恭喜您赢得 ${res.wins} ETH`, 3000)
+                this.$success(this.$t('aq',{num: res.wins}), 3000)
                 this.$refs['app'].celebrate()
             } else {
-                this.$error(`很遗憾没中奖，再接再厉~`)
+                this.$error(this.$t('ar'))
             }
 
             setTimeout(() => {
@@ -207,12 +207,12 @@ export default {
         async betSubmit() {
 
              if (!ethereum.selectedAddress) {
-                this.$warn('请在metamask登录您的账户')
+                this.$warn(this.$t('as'))
                 return;
             }
 
             if (this.amount > this.balance) {
-                this.$warn('地址余额不足')
+                this.$warn(this.$t('at'))
                 return;
             }
 
@@ -226,9 +226,9 @@ export default {
             }).catch( err => {
                 console.log(err)
                 if (err.message.indexOf('User denied') > -1) {
-                    this.$error('用户拒绝了Metamask')
+                    this.$error(this.$t('au'))
                 } else {
-                    this.$error('投注失败，请稍后再试~')
+                    this.$error(this.$t('av'))
                 }
 
                 this.betLoading = false

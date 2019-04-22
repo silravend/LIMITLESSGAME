@@ -16,9 +16,10 @@
                     <span class="icon-symbol">Tron</span>
                 </a>
                 <div class="nav-primary"></div>
-                <a @click="fairnessVisible = true" class="nav-item">公平性</a>
-                <a @click="inviteVisible = true" class="nav-item">邀请好友</a>
-                <a @click="introVisible = true" class="nav-item">使用帮助</a>
+                <a @click="fairnessVisible = true" class="nav-item">{{$t('a')}}</a>
+                <a @click="inviteVisible = true" class="nav-item">{{$t('b')}}</a>
+                
+                <a @click="introVisible = true" class="nav-item">{{$t('c')}}</a>
 
                 <div @click="langVisible = true" @mouseout="langVisible = false" class="lang">
                     <div class="lang-item lang-current">
@@ -46,7 +47,7 @@
                 <img src="../assets/images/main-wrapper.png" alt="" class="main-wrapper">
                  <div class="main-balance">
                     <img src="../assets/images/balance.png" class="main-balance_img" />
-                    <div class="main-balance_text">余额： {{balance}}</div>
+                    <div class="main-balance_text">{{$t('d')}}： {{balance}}</div>
                 </div>
 
                 <div class="main-lamp left">
@@ -74,7 +75,7 @@
                     </div>
 
                     <div @click="bet" class="bet-btn" :class="{active: betLoading}">
-                        <span v-if="!betLoading">下注</span>
+                        <span v-if="!betLoading">{{$t('e')}}</span>
                         <beat-loader :loading="betLoading" color="rgba(255, 255, 255, .5)"></beat-loader>
                     </div>
                 </div>
@@ -112,21 +113,21 @@
                         <div class="main-dashboard">
                             <div class="dashboard-item">
                                 <div class="dashboard-item_hd">{{num}}</div>
-                                <div class="dashboard-item_ft">小于此数获胜</div>
+                                <div class="dashboard-item_ft">{{$t('f')}}</div>
                             </div>
                             <div class="dashboard-item">
                                 <div class="dashboard-item_hd">{{lossPer}}
                                     <small>x</small>
                                 </div>
-                                <div class="dashboard-item_ft">赔率</div>
+                                <div class="dashboard-item_ft">{{$t('g')}}</div>
                             </div>
                             <div class="dashboard-item">
                                 <div class="dashboard-item_hd">{{num}}%</div>
-                                <div class="dashboard-item_ft">中奖概率</div>
+                                <div class="dashboard-item_ft">{{$t('h')}}</div>
                             </div>
                             <div class="dashboard-item">
                                 <div class="dashboard-item_hd">{{bonus}}</div>
-                                <div class="dashboard-item_ft">获胜金额</div>
+                                <div class="dashboard-item_ft">{{$t('i')}}</div>
                                 <div class="dashboard-item_desc">{{symbol}}</div>
                             </div>
                         </div>
@@ -153,9 +154,9 @@
                         </div>
 
                         <div class="main-gas">
-                            建议的汽油价格(Gas Price): {{gas}}
+                            {{$t('j')}}(Gas Price): {{gas}}
                             <span class="main-gas_jackpot">
-                                奖池：
+                                {{$t('k')}}
                                 <b class="main-gas_primary">
                                     <countTo :startVal='jackpotStart' :decimals="4" :endVal='jackpotEnd' :duration='1500'></countTo>
                                 </b>
@@ -168,24 +169,24 @@
         </main>
 
         <div class="integration-notify">
-            现在投注可获得 2.50x LT
+            {{$t('l', {reward: '2.50'})}}
         </div>
 
         <div class="tab">
-            <div class="tab-item" :class="{active: tabActive == 0}" @click="tabActive = 0">所有投注</div>
-            <div class="tab-item" :class="{active: tabActive == 1}" @click="tabActive = 1">我的投注</div>
+            <div class="tab-item" :class="{active: tabActive == 0}" @click="tabActive = 0">{{$t('m')}}</div>
+            <div class="tab-item" :class="{active: tabActive == 1}" @click="tabActive = 1">{{$t('n')}}</div>
         </div>
 
         <section class="table">
             <div class="table-header">
-                <div class="table-header_item">时间</div>
-                <div class="table-header_item">用户</div>
-                <div class="table-header_item">投注</div>
-                <div class="table-header_item">预测数</div>
-                <div class="table-header_item">结果</div>
-                <div class="table-header_item">奖金</div>
-                <div class="table-header_item">幸运号码</div>
-                <div class="table-header_item">验证</div>
+                <div class="table-header_item">{{$t('o')}}</div>
+                <div class="table-header_item">{{$t('p')}}</div>
+                <div class="table-header_item">{{$t('q')}}</div>
+                <div class="table-header_item">{{$t('r')}}</div>
+                <div class="table-header_item">{{$t('s')}}</div>
+                <div class="table-header_item">{{$t('t')}}</div>
+                <div class="table-header_item">{{$t('u')}}</div>
+                <div class="table-header_item">{{$t('v')}}</div>
             </div>
 
             <div v-if="tabActive == 0" class="table-list">
@@ -203,7 +204,7 @@
                     </div>
                     <div class="cell-item">{{item.jackpot}}</div>
                     <div class="cell-item">
-                        <a class="cell-item_link" :href="'https://ropsten.etherscan.io/tx/' + item.betTrx" target="_blank">查看</a>
+                        <a class="cell-item_link" :href="'https://ropsten.etherscan.io/tx/' + item.betTrx" target="_blank">{{$t('w')}}</a>
                     </div>
                 </div>
             </div>
@@ -223,7 +224,7 @@
                     </div>
                     <div class="cell-item">{{item.jackpot}}</div>
                     <div class="cell-item">
-                        <a class="cell-item_link" :href="'https://ropsten.etherscan.io/tx/' + item.betTrx" target="_blank">查看</a>
+                        <a class="cell-item_link" :href="'https://ropsten.etherscan.io/tx/' + item.betTrx" target="_blank">{{$t('w')}}</a>
                     </div>
                 </div>
             </div>
@@ -233,11 +234,11 @@
             <div class="footer-bg"><img src="@/assets/images/footer-bg.png" class="footer-bg_img"></div>
             
             <div class="footer-desc">
-                <div class="footer-desc_title">免责声明</div>
-                <div>LIMITLESS目前不支持来自以下国家或地区的用户：中国大陆、美国（包括所有美国领土）。</div>
-                <div>LIMITLESS禁止未满18岁的用户参与游戏。LIMITLESS是一款区块链游戏，包括一定程度的财务风险。玩家应该意识到这种风险并相应地进行自我管理。</div>
-                <div>我们无意诱使任何人违反任何地方、州或国家的法律。玩家的唯一责任是参与自身管辖范围内的法律条款，以确定行为的合法性。</div>
-                <div>如果您有任何的疑问，欢迎加入官方的电报群寻求帮助。</div>
+                <div class="footer-desc_title">{{$t('x')}}</div>
+                <div>{{$t('y')}}</div>
+                <div>{{$t('z')}}</div>
+                <div>{{$t('aa')}}</div>
+                <div>{{$t('ab')}}</div>
             </div>
             
             <div class="footer-link">
@@ -269,19 +270,18 @@
             <div class="footer-copyright">Copyright © 2019 limitless.game | All rights reserved</div>
         </section>
 
-        <modal v-if="introVisible" :visible.sync="introVisible" title="帮助说明" btnText="确定">
+        <modal v-if="introVisible" :visible.sync="introVisible" :title="$t('ac')" :btnText="$t('ad')">
             <div class="modal-text">
-                <p>请使用Chrome浏览器并安装插件钱包</p>
-                <p>如果您还没有在Chrome浏览器上安装Metamask或者TronLink钱包，请点击以下链接进行下载（两款钱包均为Chrome浏览器上的免费插件）：</p>
+                <p>{{$t('ae')}}</p>
+                <p>{{$t('af')}}</p>
                 <p>Metamask:
                     <a href="https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn" target="_blank">https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn</a>
                 </p>
                 <p>TronLink:
                     <a href="https://chrome.google.com/webstore/detail/tronlink/ibnejdfjmmkpcnlpebklmnkoeoihofec" target="_blank">https://chrome.google.com/webstore/detail/tronlink/ibnejdfjmmkpcnlpebklmnkoeoihofec</a>
                 </p>
-                <p>
-                    请自行注册并登录钱包，并切换至主网节点（非任何测试网络）。<br> 登录钱包后如果无法正常显示您的余额，请重新刷新页面再开始游戏。
-                    <br> 如果您无法访问Google应用商店，可点击以下链接进行下载及观看安装教程。
+                <p v-html="$t('ag')">
+                    
                 </p>
                 <p>
                     <a href="https://api1.limitless.vip/download?url=plugins_and_tutorials.zip" target="_blank">https://api1.limitless.vip/download?url=plugins_and_tutorials.zip</a>
@@ -289,43 +289,41 @@
             </div>
         </modal>
 
-        <modal v-if="fairnessVisible" :visible.sync="fairnessVisible" title="公平性" btnText="确定">
+        <modal v-if="fairnessVisible" :visible.sync="fairnessVisible" :title="$t('ah')" :btnText="$t('ad')">
             <div class="modal-text">
-                <p>每局向玩家开放投注前，智能合约通过当前区块生成一个随机种子，该种子不由庄家、矿工或者任何人进行控制。此种子由拥有者签名后返还智能合约（可以通过浏览器进行查看）和玩家（可以在游戏内看到），方便之后验证对比。</p>
-                <p>当游戏结束时，服务器会把原始种子进行展示，以此证明系统在整个游戏过程中并未控制或者修改种子，杜绝系统作弊的可能性。</p>
-                <p>所有游戏的结果均可由对应的种子及签名来验证公平性。在极少特殊情况下，可能出现投注失败，此时系统会先从账户中扣除，然后在交易失败确认后再返回到您的钱包。</p>
+                <p>{{$t('ai')}}</p>
+                <p>{{$t('aj')}}</p>
+                <p>{{$t('ak')}}</p>
             </div>
         </modal>
 
-        <modal v-if="inviteVisible" :visible.sync="inviteVisible" title="邀请好友" btnText="确定">
+        <modal v-if="inviteVisible" :visible.sync="inviteVisible" :title="$t('b')" :btnText="$t('ad')">
             <div class="modal-text">
-                最好玩的区块链游戏Limitless Game现已正式上线，投注即可获得代币LLT。通过质押LLT可以获得平台利润分红，越早加入，收益越大。机会多多，上不封顶https://limitless.vip/dice?invite=
+                {{$t('al')}}https://limitless.vip/dice?invite=
             </div>
         </modal>
 
-        <modal v-if="vipVisible" :visible.sync="vipVisible" title="VIP" btnText="确定">
+        <modal v-if="vipVisible" :visible.sync="vipVisible" title="VIP" :btnText="$t('ad')">
             <div class="modal-text">
-                <p>LIMITLESS平台上进行的任何游戏投注，都将收获额外奖金。VIP等级越高，奖金额度越高！</p>
-                <p>注：VIP奖金根据ETH区块链上的不可逆交易进行计算。在极少特殊情况下，区块生产者可能丢弃您的交易（不会从您的账户扣款），该交易的VIP奖金将不会被计算。</p>
+                <p>{{$t('am')}}</p>
+                <p>{{$t('an')}}</p>
                 <div>
-                    <div>V1 累计投注 1,000 ETH 奖金0.01%</div>
-                    <div>V2 累计投注 2,000 ETH 奖金0.02%</div>
-                    <div>V3 累计投注 3,000 ETH 奖金0.03%</div>
-                    <div>V4 累计投注 4,000 ETH 奖金0.04%</div>
-                    <div>V5 累计投注 5,000 ETH 奖金0.05%</div>
-                    <div>V6 累计投注 6,000 ETH 奖金0.06%</div>
-                    <div>V7 累计投注 7,000 ETH 奖金0.07%</div>
-                    <div>V8 累计投注 8,000 ETH 奖金0.08%</div>
-                    <div>V9 累计投注 9,000 ETH 奖金0.09%</div>
+                    <div>V1 {{$t('ao', {eth: '1,000', precent: '0.01'})}}</div>
+                    <div>V2 {{$t('ao', {eth: '2,000', precent: '0.02'})}}</div>
+                    <div>V3 {{$t('ao', {eth: '3,000', precent: '0.03'})}}</div>
+                    <div>V4 {{$t('ao', {eth: '4,000', precent: '0.04'})}}</div>
+                    <div>V5 {{$t('ao', {eth: '5,000', precent: '0.05'})}}</div>
+                    <div>V6 {{$t('ao', {eth: '6,000', precent: '0.06'})}}</div>
+                    <div>V7 {{$t('ao', {eth: '7,000', precent: '0.07'})}}</div>
+                    <div>V8 {{$t('ao', {eth: '8,000', precent: '0.08'})}}</div>
+                    <div>V9 {{$t('ao', {eth: '9,000', precent: '0.09'})}}</div>
                 </div>
             </div>
         </modal>
 
-        <modal v-if="rechargeVisible" :visible.sync="rechargeVisible" title="充值" btnText="确定">
+        <modal v-if="rechargeVisible" :visible.sync="rechargeVisible" title="充值" :btnText="$t('ad')">
             <div class="modal-text">
-                <p>当用户钱包中的余额不足时，可以快捷的通过此入口在线充值，充值网站来自第三方支付平台，与Limitless没有合作关系，用户在进行充值时默认了解此风险。<br>
-                    <a href="">已了解，去充值</a>
-                </p>
+                <p v-html="$t('ap')"></p>
             </div>
         </modal>
     </div>
