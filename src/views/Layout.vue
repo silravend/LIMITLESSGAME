@@ -18,8 +18,26 @@
                 <div class="nav-primary"></div>
                 <a @click="fairnessVisible = true" class="nav-item">公平性</a>
                 <a @click="inviteVisible = true" class="nav-item">邀请好友</a>
-                
                 <a @click="introVisible = true" class="nav-item">使用帮助</a>
+
+                <div @click="langVisible = true" @mouseout="langVisible = false" class="lang">
+                    <div class="lang-item lang-current">
+                        <img src="@/assets/ico/zh.png" alt="" class="lang-img">
+                        <span class="lang-name">中文</span>
+                    </div>
+                    <transition name="fade-in-top">
+                        <div v-if="langVisible" class="lang-menu">
+                            <div class="lang-item">
+                                <img src="@/assets/ico/zh.png" alt="" class="lang-img">
+                                <span class="lang-name">中文</span>
+                            </div>
+                            <div class="lang-item">
+                                <img src="@/assets/ico/en.png" alt="" class="lang-img">
+                                <span class="lang-name">English</span>
+                            </div>
+                        </div>
+                    </transition>
+                </div>
             </nav>
         </header>
 
@@ -77,8 +95,6 @@
                         </div>
                         <div class="main-mask"></div>
                     </div>
-
-                    
                 </div>
                     
             </div>
@@ -345,6 +361,7 @@ export default {
             inviteVisible: false,
             vipVisible: false,
             rechargeVisible: false,
+            langVisible: false,
 
             lampActive: -1,
             lampTimer: null,
@@ -639,6 +656,7 @@ export default {
 <style lang="scss">
 @import "@/css/normalize.scss";
 @import "@/css/layout.scss";
+@import "@/css/animate/fade-in-top.scss";
 
 body {
     background: #0e002d url(../assets/images/bg.jpg) no-repeat;
@@ -694,6 +712,57 @@ header {
     .nav-primary {
         flex: 1;
     }
+}
+
+.lang{
+    margin-left: 30px;
+    cursor: pointer;
+    position: relative;
+    height: 100%;
+    font-size: 14px;
+    color: #fff;
+
+    
+    .lang-name {
+        vertical-align: middle;    
+        margin-left: 10px;
+    }
+    
+    .lang-img{
+        width: 25px;
+        height: 25px;
+        vertical-align: middle
+    }
+
+    .lang-menu{
+        position: absolute;
+        z-index: 9;
+        top: 70px;
+    }
+
+    .lang-item{
+        width: 100px;
+        height: 50px;
+        line-height: 50px;
+        background: #1b1461;
+        padding-left: 20px;
+
+        &:last-child{
+            border-radius: 0 0 4px 4px;
+        }
+        &:hover{
+            background: #0e0940;
+        }
+
+        &.lang-current{
+            margin-top: 10px;
+            &:hover{
+                background: #1b1461;
+            }
+        }
+    }
+
+    
 }
 
 main {
