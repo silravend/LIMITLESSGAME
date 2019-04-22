@@ -128,8 +128,7 @@ export default {
         },
 
         getContract () {
-            // const address = 'TFzqDkTGdzeJzpg2joyD1EoANqbHvR7VQm'
-            const address = 'TVyxTRQ4CjZk3QfhpYMBJ4jtnffQYKA3zR'
+            const address = 'TRfAw3n1xeMLygzpwXSEdspD78WFrNkEPS'
             return tronWeb.contract().at(address)
         },
 
@@ -176,6 +175,36 @@ export default {
             return params
         },
 
+        async settle (randomNumber,blockNumber) {
+            this.state = 'wait'
+            const res = await settleBet({
+                randomNumber: randomNumber,
+                blockNumber: blockNumber
+            })
+            if (res === null) {
+                this.betLoading = false
+                this.state = 'bet'
+                return;
+            }
+
+            this.state = 'result'
+            this.result = res.sha3Mod100
+
+            if (res.wins > 0) {
+                this.$success(this.$t('aq',{num: res.wins}), 3000)
+                this.$refs['app'].celebrate()
+            } else {
+                this.$error(this.$t('ar'))
+            }
+
+            setTimeout(() => {
+                this.getBalance()
+                this.state = 'bet'
+                this.betLoading = false
+            }, 3500)
+            
+        },
+
         async betSubmit() {
             this.betLoading = true
             const params = await this.getBetParams()
@@ -200,62 +229,7 @@ export default {
             const blockNumber = await fetchBlock(trx)
             // const block = await tronWeb.trx.getBlock(blockNumber)
             
-            const res = await settleBet({
-                randomNumber: params.id,
-                blockNumber: blockNumber
-            })
-            
-            if (res === null) {
-                this.betLoading = false
-                return;
-            }
-
-            if (res.wins > 0) {
-                this.$refs['app'].celebrate()
-                this.$success(`恭喜您赢得 ${res.wins} ETH`, 3000)
-            } else {
-                this.$success(`很遗憾没中奖，再接再厉~`)
-            }
-            this.betLoading = false
-            
-
-            // await tronWeb.trx.getBlockByNumber(blockNumber).then(data => {
-            //     console.log(data.blockID)
-            // })
-
-
-            
-
-            // watch((err, res) => {
-            //     console.log(err, res)
-            // }).catch( err => {
-            //     if (err.indexOf('declined') > -1) {
-            //         this.$error('交易被拒绝')
-            //     }
-            //     this.betLoading = false
-            // })
-            
-            return
-            contract.once('Commit', {
-                
-            }, async (error, event) => {
-                const res = await settleBet({
-                    randomNumber: params.id,
-                    hash: event.blockHash
-                })
-                if (res === null) {
-                    this.betLoading = false
-                    return;
-                }
-
-                if (res.wins > 0) {
-                    this.$refs['app'].celebrate()
-                    this.$success(`恭喜您赢得 ${res.wins} ETH`, 3000)
-                } else {
-                    this.$success(`很遗憾没中奖，再接再厉~`)
-                }
-                this.betLoading = false
-            })
+            this.settle(params.id, blockNumber)
         },
 
         async getRecord () {

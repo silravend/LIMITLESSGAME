@@ -182,7 +182,8 @@ export default {
         },
 
         async settle (randomNumber,blockHash) {
-             const res = await settleBet({
+            this.state = 'wait'
+            const res = await settleBet({
                 randomNumber: randomNumber,
                 hash: blockHash
             })
@@ -230,7 +231,7 @@ export default {
             const params = await this.getBetParams()
             
             contract.methods.placeBet(params.betMask, params.modulo, params.commitLastBlock, params.commit, params.r, params.s).send({
-                gas: "300000",
+                gas: "150000",
                 from: this.account,
                 value: web3.utils.toWei(this.amount + '', "ether")
             }).catch( err => {
@@ -246,7 +247,6 @@ export default {
 
             contract.once('Commit', {
             }, async (error, event) => {
-                this.state = 'wait'    
                 this.settle( params.id, event.blockHash)
             })
         },
