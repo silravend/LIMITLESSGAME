@@ -28,6 +28,7 @@ import getContract from "@/js/getContract";
 import web3 from '@/js/web3'
 import { sliceNumber } from '@/js/utils'
 import Layout from './Layout.vue'
+import Modal from '@/components/Modal.vue'
 
 let contract
 
@@ -53,7 +54,8 @@ export default {
         };
     },
     components: {
-       Layout
+       Layout,
+       Modal
     },
 
     watch: {
@@ -73,12 +75,16 @@ export default {
     },
 
     async mounted () {
-        console.log(window.ethereum)
         if (typeof window.ethereum === "undefined") {
             this.$refs['app'].showIntro()
             return;
         }
         const ethereum = window.ethereum
+        
+
+        if (ethereum.networkVersion != 1 ){
+            this.$error('测试网不支持，请切换到主网', 5000)
+        }
         
         setTimeout(() => {
             if (!ethereum.selectedAddress) {
@@ -205,8 +211,12 @@ export default {
         },
 
         async betSubmit() {
+            if (ethereum.networkVersion != 1) {
+                this.$error('测试网不支持，请切换到主网', 5000)
+                return
+            }
 
-             if (!ethereum.selectedAddress) {
+            if (!ethereum.selectedAddress) {
                 this.$warn(this.$t('as'))
                 return;
             }

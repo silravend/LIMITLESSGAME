@@ -21,21 +21,18 @@
                 
                 <a @click="introVisible = true" class="nav-item">{{$t('c')}}</a>
 
-                <div @click="langVisible = true" @mouseout="langVisible = false" class="lang">
+                <div @mouseenter="langVisible = true" @mouseleave="langVisible = false" class="lang">
                     <div class="lang-item lang-current">
-                        <img src="@/assets/ico/zh.png" alt="" class="lang-img">
-                        <span class="lang-name">中文</span>
+                        <img :src="curLang.image" alt="" class="lang-img">
+                        <span class="lang-name">{{curLang.label}}</span>
                     </div>
                     <transition name="fade-in-top">
                         <div v-if="langVisible" class="lang-menu">
-                            <div class="lang-item">
-                                <img src="@/assets/ico/zh.png" alt="" class="lang-img">
-                                <span class="lang-name">中文</span>
+                            <div v-for="(item, key) in langList" :key="key" @click="changeLang(key)" class="lang-item">
+                                <img :src="item.image" alt="" class="lang-img">
+                                <span class="lang-name">{{item.label}}</span>
                             </div>
-                            <div class="lang-item">
-                                <img src="@/assets/ico/en.png" alt="" class="lang-img">
-                                <span class="lang-name">English</span>
-                            </div>
+                            
                         </div>
                     </transition>
                 </div>
@@ -345,7 +342,18 @@ let contract;
 export default {
     name: "layout",
     data() {
+        
         return {
+            langList:{
+                zh: {
+                    label: '中文',
+                    image: require('@/assets/ico/zh.png')
+                },
+                en: {
+                    label: 'English',
+                    image: require('@/assets/ico/en.png')
+                }
+            },
             aniLength: 43,
             aniPaused: false,
             activeIndex: -1,
@@ -362,7 +370,7 @@ export default {
             langVisible: false,
 
             lampActive: -1,
-            lampTimer: null,
+            lampTimer: null
         };
     },
 
@@ -424,6 +432,9 @@ export default {
         bonus() {
             const res = this.lossPer * this.amount;
             return sliceNumber(res);
+        },
+        curLang () {
+            return this.langList[this.$i18n.locale]
         }
     },
 
@@ -452,6 +463,9 @@ export default {
     },
 
     methods: {
+        changeLang (lang) {
+            this.$i18n.locale = lang
+        },
         startLampAni () {
             this.lampTimer = setInterval(() => {
                 if (this.lampActive >= 2) {
