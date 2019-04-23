@@ -48,5 +48,6 @@ export default {
     au: '사용자 로그인 metamask 거절하다.',
     av: '감히 실패, 나중에 다시 주세요 ~',
     aw: '너 metamask 장부에 기입하다.',
-    ax: '주 네트워크로 전환하십시오.'
+    ax: '주 네트워크로 전환하십시오.',
+    ay: '너 TronLink 장부에 기입하다.',
 }

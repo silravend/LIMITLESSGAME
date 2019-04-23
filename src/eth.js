@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import App from './views/Eth.vue'
-import VueI18n from 'vue-i18n'
 import i18n from '@/js/lang'
 import Notification from '@/components/notification'
 import "@/fonts/iconfont.js"

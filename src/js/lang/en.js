@@ -48,5 +48,6 @@ export default {
     au: 'User refuse to login Metamask.',
     av: 'Bet fail, please try it later ~',
     aw: 'Please login your Metamask account.',
-    ax: 'Please switch to the main network.'
+    ax: 'Please switch to the main network.',
+    ay: 'Please login your TronLink account.',
 }

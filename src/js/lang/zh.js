@@ -48,5 +48,6 @@ export default {
     au: '用户拒绝了Metamask',
     av: '投注失败，请稍后再试~',
     aw: '请在Metamask登录您的账户',
-    ax: '测试网络不支持，请切换到主网'
+    ax: '测试网络不支持，请切换到主网',
+    ay: '请在TronLink登录您的账户',
 }

@@ -97,6 +97,11 @@ export default {
             return;
         }
         
+        if (!tronWeb.defaultAddress.base58) {
+            this.$error(this.$t('ay'), 5000)
+            return
+        }
+
         //等待 troweb 链接完成
         await tronWeb.isConnected()
         this.account = tronWeb.defaultAddress.base58   
@@ -210,11 +215,21 @@ export default {
         async betSubmit() {
             this.betLoading = true
             const params = await this.getBetParams()
-            const trx = await contract.placeBet(params.betMask, params.modulo, params.commitLastBlock, params.commit, params.r, params.s).send({
-                from: this.account,
-                gas: this.gas,
-                value: tronWeb.toSun(this.amount)
+            
+            contract.Commit().watch(res => {
+                console.log('watch')
+                console.log(res)
             })
+
+            const trx = await contract.placeBet(params.betMask, params.modulo, params.commitLastBlock, params.commit, params.r, params.s).send({
+                feeLimit: 1000000000,
+                callValue: tronWeb.toSun(this.amount),
+                shouldPollResponse: true
+            }).catch(err => {
+                console.log(err)
+            })
+
+            console.log(trx)
 
             const fetchBlock = trx => {
                 return new Promise(resolve => {
