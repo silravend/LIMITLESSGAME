@@ -84,14 +84,9 @@ export default {
         //         this.getJackpot()
         //     }, 10000)
         // })
-
-        //获取油费
-        const gasRes = await getGasPrice()
-        this.gas = gasRes.gasPrice
     },
 
     async mounted () {
-        console.log(window.tronWeb)
          if (typeof window.tronWeb === "undefined") {
             this.$refs['app'].showIntro()
             return;
@@ -99,7 +94,7 @@ export default {
         
         if (!tronWeb.defaultAddress.base58) {
             this.$error(this.$t('ay'), 5000)
-            return
+            // return
         }
 
         //等待 troweb 链接完成
@@ -135,7 +130,7 @@ export default {
         },
 
         getContract () {
-            const address = 'TRfAw3n1xeMLygzpwXSEdspD78WFrNkEPS'
+            const address = 'TLvUe7hvZsvYyfmZ3NkTHrMBwtU4pXn83K'
             return tronWeb.contract().at(address)
         },
 
@@ -216,37 +211,46 @@ export default {
             this.betLoading = true
             const params = await this.getBetParams()
             
-            contract.Commit().watch(res => {
+            contract.Commit().watch((err, res) => {
                 console.log('watch')
-                console.log(res)
+                console.log(err, res)
+                if(err) {
+                    this.$error(this.$t('av'))
+                    this.state = 'bet'
+                    this.betLoading = false
+                    return
+                }
+                this.settle(params.id, res.block)
             })
 
-            const trx = await contract.placeBet(params.betMask, params.modulo, params.commitLastBlock, params.commit, params.r, params.s).send({
-                feeLimit: 1000000000,
+            contract.placeBet(params.betMask, params.modulo, params.commitLastBlock, params.commit, params.r, params.s).send({
+                feeLimit: 100000000,
                 callValue: tronWeb.toSun(this.amount),
-                shouldPollResponse: true
+                shouldPollResponse:true
             }).catch(err => {
                 console.log(err)
+                this.$error(this.$t('av'))
+                this.state = 'bet'
+                this.betLoading = false
             })
-
-            console.log(trx)
-
-            const fetchBlock = trx => {
-                return new Promise(resolve => {
-                    const timer = setInterval(async () => {
-                        const res = await tronWeb.trx.getTransactionInfo(trx)
-                        if (res.blockNumber) {
-                            clearInterval(timer)
-                            resolve(res.blockNumber)
-                        }
-                    }, 1000)
-                })
-            }
-
-            const blockNumber = await fetchBlock(trx)
-            // const block = await tronWeb.trx.getBlock(blockNumber)
             
-            this.settle(params.id, blockNumber)
+            
+            // const fetchBlock = trx => {
+            //     console.log('fetchBlock')
+            //     return new Promise(resolve => {
+            //         const timer = setInterval(async () => {
+            //             const res = await tronWeb.trx.getTransactionInfo(trx)
+            //             if (res.blockNumber) {
+            //                 clearInterval(timer)
+            //                 resolve(res.blockNumber)
+            //             }
+            //         }, 1000)
+            //     })
+            // }
+
+            // const blockNumber = await fetchBlock(trx)
+            
+            // this.settle(params.id, blockNumber)
         },
 
         async getRecord () {

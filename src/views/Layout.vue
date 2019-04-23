@@ -9,7 +9,7 @@
                     </svg>
                     <span class="icon-symbol">ETHEREUM</span>
                 </a>
-                <a style="display: none" href="" class="nav-item" :class="{active: symbol == 'TRX'}">
+                <a href="https://www.limitless.vip/dice/tron" class="nav-item" :class="{active: symbol == 'TRX'}">
                     <svg class="icon" aria-hidden="true">
                         <use xlink:href="#icon-icon_TRX"></use>
                     </svg>
@@ -305,15 +305,15 @@
                 <p>{{$t('am')}}</p>
                 <p>{{$t('an')}}</p>
                 <div>
-                    <div>V1 {{$t('ao', {eth: '1,000', precent: '0.01'})}}</div>
-                    <div>V2 {{$t('ao', {eth: '2,000', precent: '0.02'})}}</div>
-                    <div>V3 {{$t('ao', {eth: '3,000', precent: '0.03'})}}</div>
-                    <div>V4 {{$t('ao', {eth: '4,000', precent: '0.04'})}}</div>
-                    <div>V5 {{$t('ao', {eth: '5,000', precent: '0.05'})}}</div>
-                    <div>V6 {{$t('ao', {eth: '6,000', precent: '0.06'})}}</div>
-                    <div>V7 {{$t('ao', {eth: '7,000', precent: '0.07'})}}</div>
-                    <div>V8 {{$t('ao', {eth: '8,000', precent: '0.08'})}}</div>
-                    <div>V9 {{$t('ao', {eth: '9,000', precent: '0.09'})}}</div>
+                    <div>V1 {{$t('ao', {num: '1,000', precent: '0.01'})}}</div>
+                    <div>V2 {{$t('ao', {num: '2,000', precent: '0.02'})}}</div>
+                    <div>V3 {{$t('ao', {num: '3,000', precent: '0.03'})}}</div>
+                    <div>V4 {{$t('ao', {num: '4,000', precent: '0.04'})}}</div>
+                    <div>V5 {{$t('ao', {num: '5,000', precent: '0.05'})}}</div>
+                    <div>V6 {{$t('ao', {num: '6,000', precent: '0.06'})}}</div>
+                    <div>V7 {{$t('ao', {num: '7,000', precent: '0.07'})}}</div>
+                    <div>V8 {{$t('ao', {num: '8,000', precent: '0.08'})}}</div>
+                    <div>V9 {{$t('ao', {num: '9,000', precent: '0.09'})}}</div>
                 </div>
             </div>
         </modal>

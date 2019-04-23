@@ -39,9 +39,9 @@ export default {
     al: 'Best Blockchain Game now is online, play and get reward of LT. By pledging LT, the platform Profit Dividend can be obtained. The earlier the platform joins, the greater the revenue. Opportunities are plentiful, not capped.',
     am: 'LIMITLESS for Any gambling on the platform will result in additional bonuses. The higher the VIP level, the higher the bonus amount!',
     an: 'NOTICE：VIP bonus is calculated on the basis of irreversible transactions on the ETH block chain. In very few exceptional cases, the block producer may discard your transaction (which will not be deducted from your account), and the VIP bonus for that transaction will not be calculated.',
-    ao: 'Cumulative bet 1,000 USD Bonus 0.01%',
+    ao: 'Cumulative bet {num} USD Bonus {precent}%',
     ap: 'When the balance in the user\'s wallet is insufficient, it can quickly recharge online through this entrance. The recharge website comes from a third-party payment platform, and has no cooperation with Limitless. The user knows the risk by default when recharging.<br><a href="">I understand, go ahead</a>',
-    aq: 'Congratulations! You have won 100 ETH',
+    aq: 'Congratulations! You have won {num} ETH',
     ar: 'Sorry, you lose ~',
     as: 'Please login your Metamask account.',
     at: 'Balance is not enough.',
@@ -50,4 +50,5 @@ export default {
     aw: 'Please login your Metamask account.',
     ax: 'Please switch to the main network.',
     ay: 'Please login your TronLink account.',
+    az: 'Congratulations! You have won {num} TRX',
 }
