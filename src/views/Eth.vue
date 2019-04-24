@@ -215,6 +215,8 @@ export default {
         },
 
         async betSubmit() {
+            this.state = 'wait'
+            return;
             if (ethereum.networkVersion != 1 && !this.debug) {
                 this.$error(this.$t('ax'), 5000)
                 return

@@ -358,7 +358,7 @@ export default {
                     image: require('@/assets/ico/kr.png')
                 }
             },
-            aniLength: 28,
+            aniLength: 30,
             aniPaused: false,
             activeIndex: -1,
             activeIndex2: -1,
@@ -695,6 +695,7 @@ header {
     background: rgba(27, 20, 97, 1);
     opacity: 0.9;
     position: relative;
+    z-index: 9;
 
     .logo {
         position: absolute;
@@ -744,6 +745,7 @@ header {
     margin-left: 30px;
     cursor: pointer;
     position: relative;
+    z-index: 9;
     height: 100%;
     font-size: 14px;
     color: #fff;
@@ -762,7 +764,7 @@ header {
 
     .lang-menu{
         position: absolute;
-        z-index: 9;
+        z-index: 100;
         top: 70px;
     }
 
@@ -792,12 +794,12 @@ header {
 }
 
 main {
-    width: 1081px;
-    margin: 50px auto 0;
+    width: 1185px;
+    margin: 30px auto 0;
     text-align: center;
     position: relative;
-    height:571px;
-    
+    height:685px;
+    z-index:2;
 
     .common-cover{
         position: absolute;
@@ -812,10 +814,10 @@ main {
     .bg-cover{
         position: absolute;
         z-index: 5;
-        left: 220px;
-        right: 220px;
-        top: 118px;
-        height: 370px;
+        left: 265px;
+        right: 260px;
+        top: 145px;
+        height: 382px;
         overflow: hidden;
     }
 
@@ -846,11 +848,11 @@ main {
     .bet-cover{
         position: absolute;
         z-index: 10;
-        width: 640px;
-        height: 370px;
+        width: 660px;
+        height: 382px;
         left: 50%;
         right: 0px;
-        top: 115px;
+        top: 145px;
         transform: translate(-50%, 0);
         overflow: hidden;
     }
@@ -864,7 +866,7 @@ main {
     }
 
     .bet-cover_item{
-        height: 370px;
+        height: 382px;
         position: relative;
         &:before{
             content: '';
@@ -917,10 +919,10 @@ main {
     .main-lamp {
         position: absolute;
         z-index: 10;
-        top: 253px;
+        top: 291px;
 
         &.left {
-            left: 178px;
+            left: 216px;
             .main-lamp_item {
                 background: url(../assets/images/lamp_l.png) no-repeat;
                 background-size: 100% 100%;
@@ -933,7 +935,7 @@ main {
         }
 
         &.right {
-            right: 174px;
+            right: 211px;
             .main-lamp_item {
                 background: url(../assets/images/lamp_r.png) no-repeat;
                 background-size: 100% 100%;
@@ -956,7 +958,7 @@ main {
         position: absolute;
         z-index: 10;
         left: 50%;
-        top: 38px;
+        top: 65px;
         transform: translate(-50%, 0);
     }
 
@@ -991,7 +993,7 @@ main {
         display: flex;
         align-items: center;
         justify-content: center;
-        margin-top: 32px;
+        margin-top: 40px;
     }
 
     .dashboard-item {
@@ -1037,7 +1039,7 @@ main {
     .main-slider {
         position: absolute;
         z-index: 10;
-        bottom: 70px;
+        bottom: 60px;
         left: 50%;
         transform: translate(-50%, 0);
         width: 560px;
@@ -1099,7 +1101,7 @@ main {
         position: absolute;
         z-index: 10;
         left: 50%;
-        bottom: 15px;
+        bottom: 8px;
         transform: translate(-50%, 0);
         font-size: 14px;
         color: rgba(255, 255, 255, 0.41);
@@ -1118,10 +1120,10 @@ main {
     .main-btns {
         position: absolute;
         z-index: 10;
-        bottom: 30px;
+        bottom: 100px;
         display: flex;
         align-items: center;
-        left: 253px;
+        left: 295px;
     }
 
     .minus-btn {
@@ -1170,7 +1172,7 @@ main {
         padding: 0 4px;
         box-sizing: border-box;
         position: relative;
-        margin-left: 20px;
+        margin-left: 25px;
     }
 
     .multi-btn_item {
@@ -1216,7 +1218,7 @@ main {
         font-size: 28px;
         color: #fff;
         font-weight: 800;
-        margin-left: 25px;
+        margin-left: 40px;
         cursor: pointer;
 
         &.active {
@@ -1235,7 +1237,7 @@ main {
     color: #ffad39;
     font-size: 24px;
     width: 400px;
-    margin: 50px auto;
+    margin: -50px auto 50px;
 }
 
 .tab {
