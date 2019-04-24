@@ -9,7 +9,7 @@
                     </svg>
                     <span class="icon-symbol">ETHEREUM</span>
                 </a>
-                <a href="https://www.limitless.vip/dice/tron" class="nav-item" :class="{active: symbol == 'TRX'}">
+                <a style="display:none" href="https://www.limitless.vip/dice/tron" class="nav-item" :class="{active: symbol == 'TRX'}">
                     <svg class="icon" aria-hidden="true">
                         <use xlink:href="#icon-icon_TRX"></use>
                     </svg>
@@ -201,7 +201,7 @@
                     </div>
                     <div class="cell-item">{{item.jackpot}}</div>
                     <div class="cell-item">
-                        <a class="cell-item_link" :href="'https://ropsten.etherscan.io/tx/' + item.betTrx" target="_blank">{{$t('w')}}</a>
+                        <a class="cell-item_link" :href="item._link" target="_blank">{{$t('w')}}</a>
                     </div>
                 </div>
             </div>
@@ -792,11 +792,11 @@ header {
 }
 
 main {
-    width: 1083px;
+    width: 1650px;
     margin: 150px auto 0;
     text-align: center;
     position: relative;
-    height: 733px;
+    height:871px;
     
 
     .common-cover{
@@ -812,9 +812,9 @@ main {
     .bg-cover{
         position: absolute;
         z-index: 5;
-        left: 0px;
+        left: 6px;
         right: 0px;
-        top: 55px;
+        top: 178px;
         height: 600px;
         overflow: hidden;
     }
@@ -850,7 +850,7 @@ main {
         height: 550px;
         left: 50%;
         right: 0px;
-        top: 58px;
+        top: 181px;
         transform: translate(-50%, 0);
         overflow: hidden;
     }
@@ -911,15 +911,16 @@ main {
         z-index: 9;
         left: 0px;
         top: 0px;
+        width: 100%;
     }
 
     .main-lamp {
         position: absolute;
         z-index: 10;
-        top: 270px;
+        top: 390px;
 
         &.left {
-            left: 7px;
+            left: 270px;
             .main-lamp_item {
                 background: url(../assets/images/lamp_l.png) no-repeat;
                 background-size: 100% 100%;
@@ -932,7 +933,7 @@ main {
         }
 
         &.right {
-            right: 11px;
+            right: 266px;
             .main-lamp_item {
                 background: url(../assets/images/lamp_r.png) no-repeat;
                 background-size: 100% 100%;
@@ -955,7 +956,7 @@ main {
         position: absolute;
         z-index: 10;
         left: 50%;
-        top: -60px;
+        top: 66px;
         transform: translate(-50%, 0);
     }
 
@@ -1104,10 +1105,10 @@ main {
     .main-btns {
         position: absolute;
         z-index: 10;
-        bottom: 30px;
+        bottom: 48px;
         display: flex;
         align-items: center;
-        left: 88px;
+        left: 383px;
     }
 
     .minus-btn {
