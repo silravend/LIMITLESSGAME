@@ -134,7 +134,7 @@
                             <div class="main-slider_bd">
                                 <img src="../assets/images/slider.png" alt="" class="main-slider_bg">
                                 <div class="main-slider_wrapper">
-                                    <vue-slider :width="655" :dot-size="55" @change="$emit('update:num', $event)" :value="num" :tooltip="'always'" :min="min" :max="max">
+                                    <vue-slider :width="426" :dot-size="36" @change="$emit('update:num', $event)" :value="num" :tooltip="'always'" :min="min" :max="max">
                                         <template v-slot:dot>
                                             <img src="../assets/images/move.png" class="custom-dot" />
                                         </template>
@@ -358,7 +358,7 @@ export default {
                     image: require('@/assets/ico/kr.png')
                 }
             },
-            aniLength: 43,
+            aniLength: 28,
             aniPaused: false,
             activeIndex: -1,
             activeIndex2: -1,
@@ -684,7 +684,7 @@ body {
 .en{
     main{
         .dashboard-item_ft{
-            font-size: 13px;
+            font-size: 12px;
         }
     }
 }
@@ -792,11 +792,11 @@ header {
 }
 
 main {
-    width: 1650px;
-    margin: 150px auto 0;
+    width: 1081px;
+    margin: 50px auto 0;
     text-align: center;
     position: relative;
-    height:871px;
+    height:571px;
     
 
     .common-cover{
@@ -812,10 +812,10 @@ main {
     .bg-cover{
         position: absolute;
         z-index: 5;
-        left: 6px;
-        right: 0px;
-        top: 178px;
-        height: 600px;
+        left: 220px;
+        right: 220px;
+        top: 118px;
+        height: 370px;
         overflow: hidden;
     }
 
@@ -846,11 +846,11 @@ main {
     .bet-cover{
         position: absolute;
         z-index: 10;
-        width: 824px;
-        height: 550px;
+        width: 640px;
+        height: 370px;
         left: 50%;
         right: 0px;
-        top: 181px;
+        top: 115px;
         transform: translate(-50%, 0);
         overflow: hidden;
     }
@@ -864,7 +864,7 @@ main {
     }
 
     .bet-cover_item{
-        height: 550px;
+        height: 370px;
         position: relative;
         &:before{
             content: '';
@@ -917,10 +917,10 @@ main {
     .main-lamp {
         position: absolute;
         z-index: 10;
-        top: 390px;
+        top: 253px;
 
         &.left {
-            left: 270px;
+            left: 178px;
             .main-lamp_item {
                 background: url(../assets/images/lamp_l.png) no-repeat;
                 background-size: 100% 100%;
@@ -933,7 +933,7 @@ main {
         }
 
         &.right {
-            right: 266px;
+            right: 174px;
             .main-lamp_item {
                 background: url(../assets/images/lamp_r.png) no-repeat;
                 background-size: 100% 100%;
@@ -946,8 +946,8 @@ main {
         }
 
         .main-lamp_item {
-            width: 51px;
-            height: 37px;
+            width: 33px;
+            height: 24px;
             margin-bottom: 9px;
         }
     }
@@ -956,8 +956,12 @@ main {
         position: absolute;
         z-index: 10;
         left: 50%;
-        top: 66px;
+        top: 38px;
         transform: translate(-50%, 0);
+    }
+
+    .main-balance_img{
+        width: 320px;
     }
 
     .main-balance_text {
@@ -966,10 +970,10 @@ main {
         top: 50%;
         left: 50%;
         transform: translate(-50%, 4px);
-        font-size: 20px;
+        font-size: 14px;
         font-weight: 500;
         color: rgba(255, 255, 255, 1);
-        line-height: 18px;
+        line-height: 10px;
     }
 
     .main-mask {
@@ -984,17 +988,17 @@ main {
     }
 
     .main-dashboard {
-        
         display: flex;
         align-items: center;
         justify-content: center;
-        margin-top: 80px;
+        margin-top: 32px;
     }
 
     .dashboard-item {
         background: url(../assets/images/item.png) no-repeat;
-        width: 162px;
-        height: 233px;
+        background-size: 100% 100%;
+        width: 132px;
+        height: 190px;
         position: relative;
 
         &:not(:first-child) {
@@ -1003,15 +1007,15 @@ main {
     }
 
     .dashboard-item_hd {
-        height: 180px;
-        line-height: 180px;
-        font-size: 32px;
+        height: 144px;
+        line-height: 144px;
+        font-size: 26px;
         font-weight: bold;
         color: rgba(255, 255, 255, 1);
     }
     .dashboard-item_ft {
-        height: 53px;
-        line-height: 53px;
+        height: 50px;
+        line-height: 50px;
         font-size: 16px;
         color: rgba(128, 216, 255, 1);
     }
@@ -1027,22 +1031,26 @@ main {
         left: 0px;
         right: 0px;
         text-align: center;
-        bottom: 94px;
+        bottom: 75px;
     }
 
     .main-slider {
         position: absolute;
         z-index: 10;
-        bottom: 90px;
+        bottom: 70px;
         left: 50%;
         transform: translate(-50%, 0);
-        width: 824px;
-        height: 44px;
+        width: 560px;
+        height: 29px;
         border-radius: 6px;
         background: #150221;
         display: flex;
         align-items: center;
     }
+    .main-slider_bg{
+        width: 463px;
+    }
+
     .vue-slider-process {
         background: none;
         height: 24px;
@@ -1060,8 +1068,13 @@ main {
     .main-slider_wrapper {
         position: absolute;
         z-index: 9;
-        top: -19px;
-        left: 29px;
+        top: -14px;
+        left: 18px;
+    }
+
+    .custom-dot{
+        width: 34px;
+        height: 36px;
     }
 
     .custom-tooltip {
@@ -1105,15 +1118,15 @@ main {
     .main-btns {
         position: absolute;
         z-index: 10;
-        bottom: 48px;
+        bottom: 30px;
         display: flex;
         align-items: center;
-        left: 383px;
+        left: 253px;
     }
 
     .minus-btn {
-        width: 64px;
-        height: 65px;
+        width: 42px;
+        height: 42px;
         cursor: pointer;
     }
 
@@ -1122,12 +1135,16 @@ main {
         margin-left: 3px;
     }
 
+    .amount-input_img{
+        height: 42px;
+    }
+
     .amount-input_input {
         position: absolute;
         z-index: 9;
         width: 100%;
-        height: 63px;
-        line-height: 63px;
+        height: 42px;
+        line-height: 42px;
         border: none;
         background: none;
         text-align: center;
@@ -1138,19 +1155,22 @@ main {
 
     .plus-btn {
         margin-left: 4px;
+        width: 38px;
+        height: 42px;
         cursor: pointer;
     }
 
     .multi-btn {
         background: url(../assets/images/gas-slide.png) no-repeat;
-        width: 298px;
-        height: 66px;
+        background-size: 100% 100%;
+        width: 194px;
+        height: 44px;
         display: flex;
         align-items: center;
         padding: 0 4px;
         box-sizing: border-box;
         position: relative;
-        margin-left: 26px;
+        margin-left: 20px;
     }
 
     .multi-btn_item {
@@ -1158,9 +1178,9 @@ main {
 
         text-align: center;
         color: #fff;
-        font-size: 16px;
-        height: 30px;
-        line-height: 30px;
+        font-size: 14px;
+        height: 28px;
+        line-height: 28px;
         border-radius: 6px;
         font-weight: 400;
         cursor: pointer;
@@ -1187,15 +1207,16 @@ main {
 
     .bet-btn {
         background: url(../assets/images/bet.png) no-repeat;
-        width: 229px;
-        height: 80px;
-        line-height: 62px;
+        background-size: 100% 100%;
+        width: 149px;
+        height: 52px;
+        line-height: 46px;
         text-align: center;
         letter-spacing: 2px;
-        font-size: 35px;
+        font-size: 28px;
         color: #fff;
         font-weight: 800;
-        margin-left: 45px;
+        margin-left: 25px;
         cursor: pointer;
 
         &.active {
