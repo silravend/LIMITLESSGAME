@@ -221,7 +221,7 @@
                     </div>
                     <div class="cell-item">{{item.jackpot}}</div>
                     <div class="cell-item">
-                        <a class="cell-item_link" :href="'https://ropsten.etherscan.io/tx/' + item.betTrx" target="_blank">{{$t('w')}}</a>
+                        <a class="cell-item_link" :href="item._link" target="_blank">{{$t('w')}}</a>
                     </div>
                 </div>
             </div>

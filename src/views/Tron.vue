@@ -91,18 +91,24 @@ export default {
             this.$refs['app'].showIntro()
             return;
         }
-        
-        if (!tronWeb.defaultAddress.base58) {
-            this.$error(this.$t('ay'), 5000)
-            // return
-        }
 
         //等待 troweb 链接完成
         await tronWeb.isConnected()
+        
+        if (!tronWeb.defaultAddress.base58) {
+            this.$error(this.$t('ay'), 5000)
+            return
+        }
+
         this.account = tronWeb.defaultAddress.base58   
         this.getBalance()
         contract = await this.getContract()
-        console.log(contract)
+
+        this.getJackpot()
+        setInterval(() => {
+            this.getJackpot()
+        }, 10000)
+    
         
     },
 
@@ -119,14 +125,14 @@ export default {
 
         async getBalance () {
             const balance =  await tronWeb.trx.getBalance(this.account)
-            this.balance = tronWeb.fromSun(balance)
+            this.balance = sliceNumber(tronWeb.fromSun(balance), 0)
         },
         
         async getJackpot () {
             this.jackpotStart = this.jackpotEnd
             const res = await contract.methods.jackpotSize().call()
 
-            this.jackpotEnd = sliceNumber(web3.utils.fromWei(res))
+            this.jackpotEnd = sliceNumber(tronWeb.fromSun(res), 0)
         },
 
         getContract () {
@@ -259,7 +265,8 @@ export default {
 
             res.forEach(item => {
                 item._update = this.formatDate(item.updatedAt)
-                item._wins = sliceNumber(item.wins)
+                item._wins = sliceNumber(item.wins, 0)
+                item._link = `https://tronscan.org/#/transaction/${item.betTrx}`
             })
             
             this.recordList = res
@@ -272,7 +279,8 @@ export default {
             if (res === null) return;
             res.forEach(item => {
                 item._update = this.formatDate(item.updatedAt)
-                item._wins = sliceNumber(item.wins)
+                item._wins = sliceNumber(item.wins, 0)
+                item._link = `https://tronscan.org/#/transaction/${item.betTrx}`
             })
 
             this.myRecordList = res
@@ -290,7 +298,7 @@ export default {
                 try{
                     const res = JSON.parse(evt.data)
                     res._update = this.formatDate(res.updatedAt)
-                    res._wins = sliceNumber(res.wins)
+                    res._wins = sliceNumber(res.wins, 0)
                     this.recordList.unshift(res)
                     if (res.address == this.account) {
                         this.myRecordList.unshift(res)

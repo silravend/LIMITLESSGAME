@@ -144,8 +144,7 @@ export default {
         },
 
         fixAmount() {
-
-            let num = parseFloat(this.amount);
+            let num = parseFloat(this.amount)
             if (isNaN(num)) {
                 this.amount = "0.01";
             } else {
@@ -263,6 +262,7 @@ export default {
             res.forEach(item => {
                 item._update = this.formatDate(item.updatedAt)
                 item._wins = sliceNumber(item.wins)
+                item._link = `https://etherscan.io/tx/${item.betTrx}`
             })
             
             this.recordList = res
@@ -276,6 +276,7 @@ export default {
             res.forEach(item => {
                 item._update = this.formatDate(item.updatedAt)
                 item._wins = sliceNumber(item.wins)
+                item._link = `https://etherscan.io/tx/${item.betTrx}`
             })
 
             this.myRecordList = res
