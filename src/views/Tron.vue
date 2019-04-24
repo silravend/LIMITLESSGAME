@@ -136,7 +136,7 @@ export default {
         },
 
         getContract () {
-            const address = 'TLvUe7hvZsvYyfmZ3NkTHrMBwtU4pXn83K'
+            const address = 'TR4pfjyXuUFy1nQPEZfYb7BD6ywhPuoBmF'
             return tronWeb.contract().at(address)
         },
 
@@ -199,7 +199,7 @@ export default {
             this.result = res.sha3Mod100
 
             if (res.wins > 0) {
-                this.$success(this.$t('aq',{num: res.wins}), 3000)
+                this.$success(this.$t('aq',{num: res.wins, symbol: 'TRX'}), 3000)
                 this.$refs['app'].celebrate()
             } else {
                 this.$error(this.$t('ar'))

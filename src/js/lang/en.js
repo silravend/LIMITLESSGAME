@@ -41,7 +41,7 @@ export default {
     an: 'NOTICE：VIP bonus is calculated on the basis of irreversible transactions on the ETH block chain. In very few exceptional cases, the block producer may discard your transaction (which will not be deducted from your account), and the VIP bonus for that transaction will not be calculated.',
     ao: 'Cumulative bet {num} USD Bonus {precent}%',
     ap: 'When the balance in the user\'s wallet is insufficient, it can quickly recharge online through this entrance. The recharge website comes from a third-party payment platform, and has no cooperation with Limitless. The user knows the risk by default when recharging.<br><a href="">I understand, go ahead</a>',
-    aq: 'Congratulations! You have won {num} ETH',
+    aq: 'Congratulations! You have won {num} {symbol}',
     ar: 'Sorry, you lose ~',
     as: 'Please login your Metamask account.',
     at: 'Balance is not enough.',

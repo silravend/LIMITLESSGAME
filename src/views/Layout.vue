@@ -9,7 +9,7 @@
                     </svg>
                     <span class="icon-symbol">ETHEREUM</span>
                 </a>
-                <a style="display:none" href="https://www.limitless.vip/dice/tron" class="nav-item" :class="{active: symbol == 'TRX'}">
+                <a href="https://www.limitless.vip/dice/tron" class="nav-item" :class="{active: symbol == 'TRX'}">
                     <svg class="icon" aria-hidden="true">
                         <use xlink:href="#icon-icon_TRX"></use>
                     </svg>
