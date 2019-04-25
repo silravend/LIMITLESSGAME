@@ -11,7 +11,7 @@ module.exports = {
         //     '~': path.resolve(__dirname, 'src/')
         // }
     },
-
+    // productionSourceMap: false,
     pages: {
         eth: {
             // page 的入口

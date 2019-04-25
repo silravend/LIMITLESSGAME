@@ -16,6 +16,7 @@
             :jackpotEnd="jackpotEnd"
             :state="state"
             :result="result"
+            :loading="loading"
             @bet="betSubmit"
         >
         </layout>
@@ -51,6 +52,7 @@ export default {
             amountStep: 0.01,
             result: '',
             state:"bet",
+            loading: true,
             debug: true
         };
     },
@@ -133,6 +135,7 @@ export default {
         getBalance () {
             web3.eth.getBalance(this.account).then(balance => {
                 this.balance = sliceNumber(web3.utils.fromWei(balance, "ether"))
+                this.loading = false
             })
         },
         
@@ -239,7 +242,6 @@ export default {
                 from: this.account,
                 value: web3.utils.toWei(this.amount + '', "ether")
             }).catch( err => {
-                console.log(err)
                 if (err.message.indexOf('User denied') > -1) {
                     this.$error(this.$t('au'))
                 } else {
@@ -283,16 +285,12 @@ export default {
         },
 
         recordWs () {
-            var ws = new WebSocket(process.env.VUE_APP_WS, 'echo-protocol');
-
-            ws.onopen = () => { 
-                
-                ws.send("Hello WebSockets!");
-            }
+            var ws = new WebSocket(process.env.VUE_APP_WS, 'echo-protocol')
 
             ws.onmessage = evt => {
                 try{
                     const res = JSON.parse(evt.data)
+                    
                     res._update = this.formatDate(res.updatedAt)
                     res._wins = sliceNumber(res.wins)
                     this.recordList.unshift(res)

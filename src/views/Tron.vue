@@ -17,6 +17,8 @@
             :jackpotEnd="jackpotEnd"
             :state="state"
             :result="result"
+            :decimal="0"
+            :loading="loading"
             @bet="betSubmit"
         >
         </layout>
@@ -29,6 +31,7 @@ import getContract from "@/js/getContract";
 import web3 from '@/js/web3'
 import { sliceNumber } from '@/js/utils'
 import Layout from './Layout.vue'
+import { setTimeout } from 'timers';
 
 let contract
 
@@ -51,6 +54,7 @@ export default {
             amountStep: 0.01,
             result: '',
             state:"bet",
+            loading: true,
             debug: true
         };
     },
@@ -68,48 +72,32 @@ export default {
         this.getRecord()
         this.recordWs()
         this.getAmoutParams()
-        
-        // ethereum.enable().catch(reason => {
-        //     console.log(reason);
-        // }).then(accounts => {
-        //     this.account = accounts[0]
-        //     this.getBalance()
-        //     this.getMyRecord()
-        //     this.recordWs()
-            
-        //     contract = getContract(this.account)
-            
-        //     this.getJackpot()
-        //     setInterval(() => {
-        //         this.getJackpot()
-        //     }, 10000)
-        // })
     },
 
-    async mounted () {
-         if (typeof window.tronWeb === "undefined") {
-            this.$refs['app'].showIntro()
-            return;
-        }
+    mounted () {
+        setTimeout(async () => {
+            if (typeof window.tronWeb === "undefined") {
+                this.$refs['app'].showIntro()
+                return;
+            }
 
-        //等待 troweb 链接完成
-        await tronWeb.isConnected()
-        
-        if (!tronWeb.defaultAddress.base58) {
-            this.$error(this.$t('ay'), 5000)
-            return
-        }
+            //等待 troweb 链接完成
+            await tronWeb.isConnected()
+            
+            if (!tronWeb.defaultAddress.base58) {
+                this.$error(this.$t('ay'), 5000)
+                return
+            }
 
-        this.account = tronWeb.defaultAddress.base58   
-        this.getBalance()
-        contract = await this.getContract()
+            this.account = tronWeb.defaultAddress.base58   
+            this.getBalance()
+            contract = await this.getContract()
 
-        this.getJackpot()
-        setInterval(() => {
             this.getJackpot()
-        }, 10000)
-    
-        
+            setInterval(() => {
+                this.getJackpot()
+            }, 10000)
+        }, 500)
     },
 
     methods: {
@@ -126,6 +114,7 @@ export default {
         async getBalance () {
             const balance =  await tronWeb.trx.getBalance(this.account)
             this.balance = sliceNumber(tronWeb.fromSun(balance), 0)
+            this.loading = false
         },
         
         async getJackpot () {
@@ -179,7 +168,6 @@ export default {
             while(params.v == 28) {
                 params = await ready()
             }
-
             return params
         },
 
@@ -233,6 +221,9 @@ export default {
                 feeLimit: 100000000,
                 callValue: tronWeb.toSun(this.amount),
                 shouldPollResponse:true
+            }).then(res => {
+                console.log(res)
+                console.log('then')
             }).catch(err => {
                 console.log(err)
                 this.$error(this.$t('av'))
@@ -297,12 +288,16 @@ export default {
             ws.onmessage = evt => {
                 try{
                     const res = JSON.parse(evt.data)
-                    res._update = this.formatDate(res.updatedAt)
-                    res._wins = sliceNumber(res.wins, 0)
-                    this.recordList.unshift(res)
-                    if (res.address == this.account) {
-                        this.myRecordList.unshift(res)
+                    //Tron 地址以 T 字母开头
+                    if (res.address.indexOf('T') == 0) {
+                        res._update = this.formatDate(res.updatedAt)
+                        res._wins = sliceNumber(res.wins, 0)
+                        this.recordList.unshift(res)
+                        if (res.address == this.account) {
+                            this.myRecordList.unshift(res)
+                        }
                     }
+                    
                 } catch (err) {
                     
                 }

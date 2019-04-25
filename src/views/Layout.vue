@@ -44,7 +44,10 @@
                 <img src="../assets/images/main-wrapper.png" alt="" class="main-wrapper">
                  <div class="main-balance">
                     <img src="../assets/images/balance.png" class="main-balance_img" />
-                    <div class="main-balance_text">{{$t('d')}}： {{balance}}</div>
+                    <div class="main-balance_text">
+                        <beat-loader v-if="loading" :loading="loading" color="rgba(255, 255, 255, 1)"></beat-loader>
+                        <span v-else>{{$t('d')}}： {{balance}}</span>
+                    </div>
                 </div>
 
                 <div class="main-lamp left">
@@ -71,9 +74,9 @@
                         <div style="display:none" class="multi-btn_active">1x</div>
                     </div>
 
-                    <div @click="bet" class="bet-btn" :class="{active: betLoading}">
-                        <span v-if="!betLoading">{{$t('e')}}</span>
-                        <beat-loader :loading="betLoading" color="rgba(255, 255, 255, .5)"></beat-loader>
+                    <div @click="bet" class="bet-btn" :class="{active: loading || betLoading}">
+                        <beat-loader v-if="loading || betLoading" :loading="loading || betLoading" color="rgba(255, 255, 255, .5)"></beat-loader>
+                        <span v-else>{{$t('e')}}</span>
                     </div>
                 </div>
             </div>
@@ -155,7 +158,7 @@
                             <span class="main-gas_jackpot">
                                 {{$t('k')}}
                                 <b class="main-gas_primary">
-                                    <countTo :startVal='jackpotStart' :decimals="4" :endVal='jackpotEnd' :duration='1500'></countTo>
+                                    <countTo :startVal='jackpotStart' :decimals="decimal" :endVal='jackpotEnd' :duration='1500'></countTo>
                                 </b>
                                 {{symbol}}
                             </span>
@@ -382,6 +385,9 @@ export default {
         symbol: {
             default: "ETH"
         },
+        loading: {
+            default: false
+        },
         num: {
             default: 50
         },
@@ -419,6 +425,9 @@ export default {
         },
         state: {
             default: '' // 'bet wait result' 
+        },
+        decimal: {
+            default: 4
         }
     },
 
@@ -971,11 +980,10 @@ main {
         z-index: 2;
         top: 50%;
         left: 50%;
-        transform: translate(-50%, 4px);
+        transform: translate(-50%, -2px);
         font-size: 14px;
         font-weight: 500;
         color: rgba(255, 255, 255, 1);
-        line-height: 10px;
     }
 
     .main-mask {
