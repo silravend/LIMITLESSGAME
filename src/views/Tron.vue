@@ -27,11 +27,10 @@
 
 <script>
 import { getGasPrice, getBetParams, settleBet, getRecord, getMyRecord, getAmountParams } from "@/api/tron";
-import getContract from "@/js/getContract";
-import web3 from '@/js/web3'
 import { sliceNumber } from '@/js/utils'
 import Layout from './Layout.vue'
 import { setTimeout } from 'timers';
+import { constants } from 'fs';
 
 let contract
 
@@ -65,6 +64,10 @@ export default {
     watch: {
         amount () {
             this.fixAmount()
+        },
+
+        account () {
+            this.getBalance()
         }
     },
 
@@ -76,28 +79,32 @@ export default {
 
     mounted () {
         setTimeout(async () => {
+            
             if (typeof window.tronWeb === "undefined") {
                 this.$refs['app'].showIntro()
                 return;
             }
 
-            //等待 troweb 链接完成
-            await tronWeb.isConnected()
-            
-            if (!tronWeb.defaultAddress.base58) {
+             if (!tronWeb.defaultAddress.base58) {
                 this.$error(this.$t('ay'), 5000)
                 return
             }
 
+            //等待 troweb 链接完成
+            await tronWeb.isConnected()
+
             this.account = tronWeb.defaultAddress.base58   
-            this.getBalance()
+            
             contract = await this.getContract()
+            if (!contract) {
+                return 
+            }
 
             this.getJackpot()
             setInterval(() => {
                 this.getJackpot()
             }, 10000)
-        }, 500)
+        }, 1000)
     },
 
     methods: {
@@ -126,7 +133,7 @@ export default {
 
         getContract () {
             const address = 'TR4pfjyXuUFy1nQPEZfYb7BD6ywhPuoBmF'
-            return tronWeb.contract().at(address)
+            return tronWeb.contract().at(address).catch(err => console.log(err))
         },
 
         fixAmount() {
