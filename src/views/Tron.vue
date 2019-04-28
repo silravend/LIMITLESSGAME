@@ -54,7 +54,7 @@ export default {
             result: '',
             state:"bet",
             loading: true,
-            debug: true
+            debug: false
         };
     },
     components: {
@@ -108,6 +108,10 @@ export default {
     },
 
     methods: {
+        isMainNet () {
+            return tronWeb.eventServer.host.indexOf('api.trongrid.io') > -1
+        },
+
         async getAmoutParams () {
             const res = await getAmountParams()
             if (res === null) return;
@@ -209,6 +213,10 @@ export default {
         },
 
         async betSubmit() {
+            if (!this.isMainNet() && !this.debug) {
+                this.$error(this.$t('ax'))
+                return
+            }
             this.betLoading = true
             const params = await this.getBetParams()
             
@@ -228,9 +236,6 @@ export default {
                 feeLimit: 100000000,
                 callValue: tronWeb.toSun(this.amount),
                 shouldPollResponse:true
-            }).then(res => {
-                console.log(res)
-                console.log('then')
             }).catch(err => {
                 console.log(err)
                 this.$error(this.$t('av'))

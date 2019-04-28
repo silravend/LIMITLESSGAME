@@ -803,11 +803,11 @@ header {
 }
 
 main {
-    width: 1185px;
+    width: 1352px;
     margin: 30px auto 0;
     text-align: center;
     position: relative;
-    height:685px;
+    height:765px;
     z-index:2;
 
     .common-cover{
@@ -823,10 +823,12 @@ main {
     .bg-cover{
         position: absolute;
         z-index: 5;
-        left: 265px;
-        right: 260px;
-        top: 145px;
-        height: 382px;
+        width: 660px;
+        height: 382px;;
+        left: 50%;
+        right: 0px;
+        top: 152px;
+        transform: translate(-50%, 0);
         overflow: hidden;
     }
 
@@ -861,7 +863,7 @@ main {
         height: 382px;
         left: 50%;
         right: 0px;
-        top: 145px;
+        top: 152px;
         transform: translate(-50%, 0);
         overflow: hidden;
     }
@@ -928,10 +930,10 @@ main {
     .main-lamp {
         position: absolute;
         z-index: 10;
-        top: 291px;
+        top: 300px;
 
         &.left {
-            left: 216px;
+            left: 295px;
             .main-lamp_item {
                 background: url(../assets/images/lamp_l.png) no-repeat;
                 background-size: 100% 100%;
@@ -944,7 +946,7 @@ main {
         }
 
         &.right {
-            right: 211px;
+            right: 299px;
             .main-lamp_item {
                 background: url(../assets/images/lamp_r.png) no-repeat;
                 background-size: 100% 100%;
@@ -967,7 +969,7 @@ main {
         position: absolute;
         z-index: 10;
         left: 50%;
-        top: 65px;
+        top: 73px;
         transform: translate(-50%, 0);
     }
 
@@ -1128,10 +1130,10 @@ main {
     .main-btns {
         position: absolute;
         z-index: 10;
-        bottom: 100px;
+        bottom: 170px;
         display: flex;
         align-items: center;
-        left: 295px;
+        left: 373px;
     }
 
     .minus-btn {
