@@ -1,6 +1,6 @@
 <template>
-    <div class="" id="app">
-        <layout
+    <div id="app">
+        <game
             ref="app"
             symbol="TRX"
             :num.sync="num"
@@ -20,22 +20,22 @@
             :decimal="0"
             :loading="loading"
             @bet="betSubmit"
+            @ended="betEnd"
         >
-        </layout>
+        </game>
     </div>
 </template>
 
 <script>
-import { getGasPrice, getBetParams, settleBet, getRecord, getMyRecord, getAmountParams } from "@/api/tron";
+import { getBetParams, settleBet, getRecord, getMyRecord, getAmountParams } from "@/api/tron";
 import { sliceNumber } from '@/js/utils'
-import Layout from './Layout.vue'
-import { setTimeout } from 'timers';
-import { constants } from 'fs';
+import Game from './Game.vue'
+import calcReward from '@/js/calcReward'
+import { tron as getContract, tronSettle as getSettleContract } from '@/js/contract'
 
-let contract
+let contract, settleContract
 
 export default {
-    name: "app",
     data() {
         return {
             num: 50,
@@ -51,14 +51,16 @@ export default {
             minAmount: 0.01,
             maxAmount: 10.02,
             amountStep: 0.01,
-            result: '',
+            result: {},
             state:"bet",
             loading: true,
-            debug: false
+            debug: true,
+            amountCache: 50, 
+            numCache: 0.01
         };
     },
     components: {
-       Layout
+       Game
     },
 
     watch: {
@@ -85,18 +87,20 @@ export default {
                 return;
             }
 
-             if (!tronWeb.defaultAddress.base58) {
+            if (!window.tronWeb.defaultAddress.base58) {
                 this.$error(this.$t('ay'), 5000)
                 return
             }
 
             //等待 troweb 链接完成
-            await tronWeb.isConnected()
+            await window.tronWeb.isConnected()
 
-            this.account = tronWeb.defaultAddress.base58   
+            this.account = window.tronWeb.defaultAddress.base58   
             
-            contract = await this.getContract()
-            if (!contract) {
+            contract = await getContract()
+            settleContract = await getSettleContract()
+
+            if (!contract || !settleContract) {
                 return 
             }
 
@@ -109,7 +113,7 @@ export default {
 
     methods: {
         isMainNet () {
-            return tronWeb.eventServer.host.indexOf('api.trongrid.io') > -1
+            return window.tronWeb.eventServer.host.indexOf('api.trongrid.io') > -1
         },
 
         async getAmoutParams () {
@@ -123,8 +127,8 @@ export default {
         },
 
         async getBalance () {
-            const balance =  await tronWeb.trx.getBalance(this.account)
-            this.balance = sliceNumber(tronWeb.fromSun(balance), 0)
+            const balance =  await window.tronWeb.trx.getBalance(this.account)
+            this.balance = sliceNumber(window.tronWeb.fromSun(balance), 0)
             this.loading = false
         },
         
@@ -132,13 +136,9 @@ export default {
             this.jackpotStart = this.jackpotEnd
             const res = await contract.methods.jackpotSize().call()
 
-            this.jackpotEnd = sliceNumber(tronWeb.fromSun(res), 0)
+            this.jackpotEnd = sliceNumber(window.tronWeb.fromSun(res), 0)
         },
 
-        getContract () {
-            const address = 'TR4pfjyXuUFy1nQPEZfYb7BD6ywhPuoBmF'
-            return tronWeb.contract().at(address).catch(err => console.log(err))
-        },
 
         fixAmount() {
             let num = parseInt(this.amount);
@@ -159,6 +159,9 @@ export default {
 
         async getBetParams () {
             const ready = async () => {
+                this.amountCache = this.amount
+                this.numCache = this.num
+                
                 const res = await getBetParams({
                     betmask: this.num,
                     amount:  this.amount,
@@ -182,34 +185,43 @@ export default {
             return params
         },
 
-        async settle (randomNumber,blockNumber) {
-            this.state = 'wait'
-            const res = await settleBet({
+        settle (randomNumber,blockNumber) {
+            settleBet({
                 randomNumber: randomNumber,
                 blockNumber: blockNumber
             })
-            if (res === null) {
-                this.betLoading = false
-                this.state = 'bet'
-                return;
-            }
+        },
 
-            this.state = 'result'
-            this.result = res.sha3Mod100
+        betEnd () {
+            this.getBalance()
+            this.state = 'bet'
+            this.betLoading = false
+        },
 
-            if (res.wins > 0) {
-                this.$success(this.$t('aq',{num: res.wins, symbol: 'TRX'}), 3000)
-                this.$refs['app'].celebrate()
-            } else {
-                this.$error(this.$t('ar'))
-            }
-
-            setTimeout(() => {
-                this.getBalance()
-                this.state = 'bet'
-                this.betLoading = false
-            }, 3500)
+        async getResult (id, blockNumber) {
+            const block = await window.tronWeb.trx.getBlock(parseInt(blockNumber))
+            const blockHash = "0x" + block.blockID
+            let result = await settleContract.getInfo(id, blockHash).call()
             
+            const sha3Mod100 = parseInt(result[1].toString()) || 100
+            const wins = calcReward.tron(this.amountCache, this.numCache)
+            console.log(sha3Mod100, wins)
+
+            return { sha3Mod100, wins }
+        },
+
+        // 手动提前计算
+        async manualSettle (id, blockNumber) {
+            const { sha3Mod100, wins } = await this.getResult(id, blockNumber)
+
+            this.result = {
+                sha3Mod100: sha3Mod100,
+                wins: sha3Mod100 < this.numCache ? wins : 0
+            }
+            this.state = 'wait'
+            setTimeout(() => {
+                this.state = 'result'
+            }, 5000)
         },
 
         async betSubmit() {
@@ -225,41 +237,22 @@ export default {
                 console.log(err, res)
                 if(err) {
                     this.$error(this.$t('av'))
-                    this.state = 'bet'
-                    this.betLoading = false
+                    this.betEnd()
                     return
                 }
                 this.settle(params.id, res.block)
+                this.manualSettle(params.id, res.block)
             })
 
             contract.placeBet(params.betMask, params.modulo, params.commitLastBlock, params.commit, params.r, params.s).send({
                 feeLimit: 100000000,
-                callValue: tronWeb.toSun(this.amount),
+                callValue: window.tronWeb.toSun(this.amount),
                 shouldPollResponse:true
             }).catch(err => {
                 console.log(err)
                 this.$error(this.$t('av'))
-                this.state = 'bet'
-                this.betLoading = false
+                this.betEnd()
             })
-            
-            
-            // const fetchBlock = trx => {
-            //     console.log('fetchBlock')
-            //     return new Promise(resolve => {
-            //         const timer = setInterval(async () => {
-            //             const res = await tronWeb.trx.getTransactionInfo(trx)
-            //             if (res.blockNumber) {
-            //                 clearInterval(timer)
-            //                 resolve(res.blockNumber)
-            //             }
-            //         }, 1000)
-            //     })
-            // }
-
-            // const blockNumber = await fetchBlock(trx)
-            
-            // this.settle(params.id, blockNumber)
         },
 
         async getRecord () {
@@ -292,11 +285,6 @@ export default {
         recordWs () {
             var ws = new WebSocket(process.env.VUE_APP_WS, 'echo-protocol');
 
-            ws.onopen = evt => { 
-                
-                ws.send("Hello WebSockets!");
-            }
-
             ws.onmessage = evt => {
                 try{
                     const res = JSON.parse(evt.data)
@@ -311,12 +299,9 @@ export default {
                     }
                     
                 } catch (err) {
-                    
+                    this.$error(err.message)
+                    console.log(err)
                 }
-            }
-
-            ws.onclose = evt => {
-                
             }
         },
 

@@ -82,11 +82,89 @@
             </div>
 
             <div class="bg-cover">
-                <slot name="bg-cover"></slot>
+                <div class="bg-cover-wrapper" :class="{result: state != 'bet'}">
+                    <div class="bg-cover_item">
+                        <div class="bg-cover_result">
+                            
+                        </div> 
+                    </div>
+
+                    <div class="bg-cover_item">
+                        <img src="../assets/images/main-bg.png" alt="" class="main-bg">
+                        <div class="main-ani">
+                            <div class="main-ani_item" v-for="i in aniLength" :class="{active: i == activeIndex || i == activeIndex2}" :key="i"></div>
+                        </div>
+                        <div class="main-mask"></div>
+                    </div>
+                </div>
+                    
             </div>
 
             <div class="bet-cover">
-                <slot name="bet-cover"></slot>
+                <div class="bet-cover-wrapper" :class="{result: state != 'bet'}">
+                    <div class="bet-cover_item">
+                        <div class="result-num">
+                            <TwinkleNumber :start="state == 'wait'" :val="result" />
+                        </div>
+                        
+                    </div>
+
+                    <div class="bet-cover_item">
+                        <div class="main-dashboard">
+                            <div class="dashboard-item">
+                                <div class="dashboard-item_hd">{{num}}</div>
+                                <div class="dashboard-item_ft">{{$t('f')}}</div>
+                            </div>
+                            <div class="dashboard-item">
+                                <div class="dashboard-item_hd">{{lossPer}}
+                                    <small>x</small>
+                                </div>
+                                <div class="dashboard-item_ft">{{$t('g')}}</div>
+                            </div>
+                            <div class="dashboard-item">
+                                <div class="dashboard-item_hd">{{num}}%</div>
+                                <div class="dashboard-item_ft">{{$t('h')}}</div>
+                            </div>
+                            <div class="dashboard-item">
+                                <div class="dashboard-item_hd">{{bonus}}</div>
+                                <div class="dashboard-item_ft">{{$t('i')}}</div>
+                                <div class="dashboard-item_desc">{{symbol}}</div>
+                            </div>
+                        </div>
+
+                        <div class="main-slider">
+                            <div class="main-slider_hd">1</div>
+                            <div class="main-slider_bd">
+                                <img src="../assets/images/slider.png" alt="" class="main-slider_bg">
+                                <div class="main-slider_wrapper">
+                                    <vue-slider :width="426" :dot-size="36" @change="$emit('update:num', $event)" :value="num" :tooltip="'always'" :min="min" :max="max">
+                                        <template v-slot:dot>
+                                            <img src="../assets/images/move.png" class="custom-dot" />
+                                        </template>
+                                        <template v-slot:tooltip="{ num }">
+                                            <div class="custom-tooltip">{{ num }}</div>
+                                        </template>
+                                        <template v-slot:tooltip="{ value, focus }">
+                                            <div :class="['custom-tooltip', { focus }]">{{ value }}</div>
+                                        </template>
+                                    </vue-slider>
+                                </div>
+                            </div>
+                            <div class="main-slider_hd">100</div>
+                        </div>
+
+                        <div class="main-gas">
+                            <span v-if="gas">{{$t('j')}}(Gas Price): {{gas}}</span>
+                            <span class="main-gas_jackpot">
+                                {{$t('k')}}
+                                <b class="main-gas_primary">
+                                    <countTo :startVal='jackpotStart' :decimals="decimal" :endVal='jackpotEnd' :duration='1500'></countTo>
+                                </b>
+                                {{symbol}}
+                            </span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </main>
 
@@ -252,17 +330,20 @@
 </template>
 
 <script>
+import VueSlider from "vue-slider-component";
+import "vue-slider-component/theme/default.css";
 
-
-import BeatLoader from "vue-spinner/src/BeatLoader.vue"
-import Confetti from "canvas-confetti"
-import Modal from "@/components/Modal.vue"
+import BeatLoader from "vue-spinner/src/BeatLoader.vue";
+import CountTo from "vue-count-to";
+import { sliceNumber } from "@/js/utils";
+import Confetti from "canvas-confetti";
+import Modal from "@/components/Modal.vue";
+import TwinkleNumber from '@/components/TwinkleNumber.vue'
 
 let contract;
 
 export default {
     name: "layout",
-    inheritAttrs: false,
     data() {
         
         return {
@@ -280,11 +361,12 @@ export default {
                     image: require('@/assets/ico/kr.png')
                 }
             },
-            
+            aniLength: 30,
             aniPaused: false,
             activeIndex: -1,
             activeIndex2: -1,
-            
+            min: 1,
+            max: 97,
             power: 1,
             tabActive: 0,
             introVisible: false,
@@ -306,6 +388,9 @@ export default {
         loading: {
             default: false
         },
+        num: {
+            default: 50
+        },
         balance: {
             default: 0
         },
@@ -321,38 +406,71 @@ export default {
         amountStep: {
             default: 0.01
         },
+        gas: {
+            default: ""
+        },
         betLoading: {
             default: false
         },
         recordList: Array,
         myRecordList: Array,
-        
-        celebrateVisible: {
-            default: false
+        jackpotStart: {
+            default: 0
+        },
+        jackpotEnd: {
+            default: 0
+        },
+        result: {
+            default: ''
+        },
+        state: {
+            default: '' // 'bet wait result' 
+        },
+        decimal: {
+            default: 4
         }
     },
 
     components: {
+        VueSlider,
         BeatLoader,
-        
-        Modal
+        CountTo,
+        Modal,
+        TwinkleNumber
     },
     computed: {
-        
+        lossPer() {
+            return ((this.min + this.max) / this.num).toFixed(2);
+        },
+        bonus() {
+            const res = this.lossPer * this.amount;
+            return sliceNumber(res);
+        },
         curLang () {
             return this.langList[this.$i18n.locale]
         }
     },
 
-    created () {
-        console.log(this.$attrs)
-        console.log(this.$listeners)
-    },
-
     watch: {
-        celebrateVisible (newVal) {
-            if (newVal) {
-                this.celebrate()
+        betLoading(newVal) {
+            // if (newVal) {
+            //     this.startAni();
+            // } else {
+            //     this.stopAni();
+            // }
+        },
+        lossPer() {
+            return ((this.min + this.max) / this.num).toFixed(2);
+        },
+        bonus() {
+            const res = this.lossPer * this.amount;
+            return sliceNumber(res);
+        },
+        state (newVal) {
+            if (newVal == 'wait') {
+                this.startLampAni()
+            } else {
+                this.stopLampAni()
             }
         }
     },
@@ -540,12 +658,11 @@ export default {
 
         // 中奖后的庆祝效果
         celebrate() {
-            var end = Date.now() + 5 * 1000
-            var interval = setInterval(() => {
+            var end = Date.now() + 5 * 1000;
+
+            var interval = setInterval(function() {
                 if (Date.now() > end) {
-                    clearInterval(interval)
-                    this.$emit('update:celebrateVisible', false)
-                    return;
+                    return clearInterval(interval);
                 }
 
                 Confetti({
@@ -717,7 +834,28 @@ main {
 
     
 
-  
+    .bg-cover-wrapper{
+        transform: translate(0, -50%);
+        transition: all .3s;
+        &.result{
+            transform: translate(0, 0)
+        }
+    }
+
+    .bg-cover_item{
+        height: 600px;
+        position: relative;
+    }
+
+    .bg-cover_result{
+        background: #0e002d;
+        width: 1000px;
+        height: 100%;
+        position: absolute;
+        left: 50%;
+        transform: translate(-50%, 0)
+    }
+
     .bet-cover{
         position: absolute;
         z-index: 10;
@@ -730,8 +868,56 @@ main {
         overflow: hidden;
     }
 
+    .bet-cover-wrapper{
+        transform: translate(0, -50%);
+        transition: all .3s;
+        &.result{
+            transform: translate(0, 0)
+        }
+    }
 
-    
+    .bet-cover_item{
+        height: 382px;
+        position: relative;
+        &:before{
+            content: '';
+            display: table
+        }
+
+        .result-num{
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%)
+        }
+    }
+
+    .main-ani {
+        position: absolute;
+        z-index: 2;
+        width: 960px;
+        top: 0px;
+        left: 50%;
+        transform: translate(-50%, 0);
+    }
+
+    .main-bg {
+        position: absolute;
+        z-index: 1;
+        width: 963px;
+        left: 50%;
+        margin-left: -483px;
+    }
+
+    .main-ani_item {
+        height: 2px;
+        background: rgba(97, 55, 218, 1);
+        margin-bottom: 10px;
+
+        &.active {
+            box-shadow: 0 0 3px 2px rgba(255, 2552, 255, 0.6);
+        }
+    }
 
     .main-wrapper {
         position: absolute;
@@ -813,9 +999,134 @@ main {
         background: rgba(0, 0, 0, 0.3);
     }
 
-    
+    .main-dashboard {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 40px;
+    }
 
-   
+    .dashboard-item {
+        background: url(../assets/images/item.png) no-repeat;
+        background-size: 100% 100%;
+        width: 132px;
+        height: 190px;
+        position: relative;
+
+        &:not(:first-child) {
+            margin-left: 23px;
+        }
+    }
+
+    .dashboard-item_hd {
+        height: 144px;
+        line-height: 144px;
+        font-size: 26px;
+        font-weight: bold;
+        color: rgba(255, 255, 255, 1);
+    }
+    .dashboard-item_ft {
+        height: 50px;
+        line-height: 50px;
+        font-size: 16px;
+        color: rgba(128, 216, 255, 1);
+    }
+
+    .dashboard-item_desc {
+        font-size: 24px;
+        font-weight: bold;
+        color: rgba(255, 255, 255, 1);
+        opacity: 0.34;
+
+        position: absolute;
+        z-index: 3;
+        left: 0px;
+        right: 0px;
+        text-align: center;
+        bottom: 75px;
+    }
+
+    .main-slider {
+        position: absolute;
+        z-index: 10;
+        bottom: 60px;
+        left: 50%;
+        transform: translate(-50%, 0);
+        width: 560px;
+        height: 29px;
+        border-radius: 6px;
+        background: #150221;
+        display: flex;
+        align-items: center;
+    }
+    .main-slider_bg{
+        width: 463px;
+    }
+
+    .vue-slider-process {
+        background: none;
+        height: 24px;
+        border-radius: 0px;
+    }
+    .vue-slider-rail {
+        background: none;
+        border-radius: 0px;
+    }
+
+    .vue-slider-dot {
+        cursor: pointer;
+    }
+
+    .main-slider_wrapper {
+        position: absolute;
+        z-index: 9;
+        top: -14px;
+        left: 18px;
+    }
+
+    .custom-dot{
+        width: 34px;
+        height: 36px;
+    }
+
+    .custom-tooltip {
+        transform: translateY(5px);
+        font-weight: bold;
+        color: #fff;
+        font-size: 24px;
+    }
+    .main-slider_hd,
+    .main-slider_ft {
+        width: 56px;
+        text-align: center;
+        font-size: 16px;
+        color: #80d8ff;
+    }
+    .main-slider_bd {
+        flex: 1;
+        position: relative;
+    }
+
+    .main-gas {
+        position: absolute;
+        z-index: 10;
+        left: 50%;
+        bottom: 8px;
+        transform: translate(-50%, 0);
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.41);
+        white-space: nowrap;
+    }
+
+    .main-gas_jackpot {
+        margin-left: 20px;
+    }
+
+    .main-gas_primary {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 16px;
+    }
+
     .main-btns {
         position: absolute;
         z-index: 10;

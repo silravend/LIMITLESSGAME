@@ -1,6 +1,6 @@
 <template>
     <div class="" id="app">
-        <layout
+        <game
             ref="app"
             :num.sync="num"
             :amount.sync="amount"
@@ -17,24 +17,25 @@
             :state="state"
             :result="result"
             :loading="loading"
+            :celebrateVisible="celebrateVisible"
             @bet="betSubmit"
+            @ended="betEnd"
         >
-        </layout>
+        </game>
     </div>
 </template>
 
 <script>
 import { getGasPrice, getBetParams, settleBet, getRecord, getMyRecord, getAmountParams } from "@/api";
-import getContract from "@/js/getContract";
 import web3 from '@/js/web3'
 import { sliceNumber } from '@/js/utils'
-import Layout from './Layout.vue'
-import Modal from '@/components/Modal.vue'
+import Game from './Game.vue'
+import calcReward from '@/js/calcReward'
+import { eth as getContract, ethSettle as getSettleContract } from "@/js/contract"
 
-let contract
+let contract, settleContract
 
 export default {
-    name: "app",
     data() {
         return {
             num: 50,
@@ -50,15 +51,15 @@ export default {
             minAmount: 0.01,
             maxAmount: 10.02,
             amountStep: 0.01,
-            result: '',
+            result: {},
             state:"bet",
             loading: true,
+            celebrateVisible: false,
             debug: true
         };
     },
     components: {
-       Layout,
-       Modal
+       Game
     },
 
     watch: {
@@ -82,21 +83,20 @@ export default {
             this.$refs['app'].showIntro()
             return;
         }
-        const ethereum = window.ethereum
         
         setTimeout(() => {
-            if (ethereum.networkVersion != 1 && !this.debug ){
+            if (window.ethereum.networkVersion != 1 && !this.debug ){
                 this.$error(this.$t('ax'), 5000)
                 return;
             }
-            if (!ethereum.selectedAddress) {
+            if (!window.ethereum.selectedAddress) {
                 this.$warn(this.$t('as'), 5000)
             }
         }, 1500)
         
 
         //获取账户余额
-        const accounts = await ethereum.enable().catch(err => {
+        const accounts = await window.ethereum.enable().catch(err => {
             if (err.code == 4001) {
                 this.$warn(this.$t('au'))
             }
@@ -113,7 +113,8 @@ export default {
         this.gas = gasRes.gasPrice
         
         contract = getContract(this.account)
-        
+        settleContract = getSettleContract(this.account)
+        console.log(settleContract)
         this.getJackpot()
         setInterval(() => {
             this.getJackpot()
@@ -164,6 +165,8 @@ export default {
 
         async getBetParams () {
             const ready = async () => {
+                this.amountCache = this.amount
+                this.numCache = this.num
                 const res = await getBetParams({
                     betmask: this.num,
                     amount:  this.amount,
@@ -187,51 +190,67 @@ export default {
             return params
         },
 
-        async settle (randomNumber,blockHash) {
-            this.state = 'wait'
-            const res = await settleBet({
+        settle (randomNumber,blockHash) {
+            settleBet({
                 randomNumber: randomNumber,
                 hash: blockHash
             })
-            if (res === null) {
-                this.betLoading = false
-                this.state = 'bet'
-                return;
-            }
-
-            this.state = 'result'
-            this.result = res.sha3Mod100
-
-            if (res.wins > 0) {
-                this.$success(this.$t('aq',{num: res.wins, symbol: 'ETH'}), 3000)
-                this.$refs['app'].celebrate()
-            } else {
-                this.$error(this.$t('ar'))
-            }
-
-            setTimeout(() => {
-                this.getBalance()
-                this.state = 'bet'
-                this.betLoading = false
-            }, 3500)
-            
         },
 
-        async betSubmit() {
-            if (ethereum.networkVersion != 1 && !this.debug) {
-                this.$error(this.$t('ax'), 5000)
-                return
+        betEnd () {
+            this.getBalance()
+            this.state = 'bet'
+            this.betLoading = false
+        },
+
+        async getResult (id, blockHash) {
+            let result = await settleContract.methods.getInfo(id, blockHash).call()
+            
+            console.log(result)
+
+            const sha3Mod100 = parseInt(result[1].toString()) || 100
+            const wins = sliceNumber(calcReward.eth(this.amountCache, this.numCache))
+            console.log(sha3Mod100, wins)
+
+            return { sha3Mod100, wins }
+        },
+
+        // 手动提前计算
+        async manualSettle (id, blockHash) {
+            const { sha3Mod100, wins } = await this.getResult(id, blockHash)
+
+            this.result = {
+                sha3Mod100: sha3Mod100,
+                wins: sha3Mod100 < this.numCache ? wins : 0
             }
 
-            if (!ethereum.selectedAddress) {
+            this.state = 'wait'
+            
+            setTimeout(() => {
+                this.state = 'result'
+            }, 5000)
+        },
+
+        submitVerify () {
+            if (window.ethereum.networkVersion != 1 && !this.debug) {
+                this.$error(this.$t('ax'), 5000)
+                return false
+            }
+
+            if (!window.ethereum.selectedAddress) {
                 this.$warn(this.$t('as'))
-                return;
+                return false
             }
 
             if (this.amount > this.balance) {
                 this.$warn(this.$t('at'))
-                return;
+                return false
             }
+            return true
+        },
+
+        async betSubmit() {
+            if (!this.submitVerify()) return;
 
             this.betLoading = true
             const params = await this.getBetParams()
@@ -252,8 +271,11 @@ export default {
             })
 
             contract.once('Commit', {
+
             }, async (error, event) => {
+                console.log('commit')
                 this.settle( params.id, event.blockHash)
+                this.manualSettle(params.id, event.blockHash)
             })
         },
 
@@ -298,12 +320,9 @@ export default {
                         this.myRecordList.unshift(res)
                     }
                 } catch (err) {
-                    
+                    this.$error(err.message)
+                    console.log(err)
                 }
-            }
-
-            ws.onclose = () => {
-                
             }
         },
 
