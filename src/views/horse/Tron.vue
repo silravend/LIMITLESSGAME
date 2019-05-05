@@ -178,8 +178,8 @@ export default {
 
             let params = await ready()
             
-            // 如果v的值为28，则重新请求
-            while(params.v == 28) {
+            // 如果v的值为128，则重新请求
+            while(params.v == 128) {
                 params = await ready()
             }
             return params

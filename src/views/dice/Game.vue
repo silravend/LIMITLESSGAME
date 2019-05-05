@@ -161,11 +161,11 @@ export default {
 
     computed: {
         lossPer() {
-            return ((this.min + this.max) / this.num).toFixed(2);
+            return ((this.min + this.max) / this.num).toFixed(2)
         },
         bonus() {
-            const res = this.lossPer * this.$attrs.amount;
-            return sliceNumber(res);
+            const res = this.lossPer * this.$attrs.amount
+            return sliceNumber(res)
         },
     },
 

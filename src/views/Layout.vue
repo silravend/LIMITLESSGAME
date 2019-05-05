@@ -403,25 +403,25 @@ export default {
                 (amount * Math.pow(10, digits) +
                     this.amountStep * Math.pow(10, digits)) /
                 Math.pow(10, digits)
-            ).toFixed(2);
+            ).toFixed(2)
 
-            this.$emit("update:amount", result);
+            this.$emit("update:amount", result)
         },
 
         half() {
-            this.$emit("update:amount", this.amount / 2);
+            this.$emit("update:amount", this.amount / 2)
         },
 
         double() {
-            this.$emit("update:amount", this.amount * 2);
+            this.$emit("update:amount", this.amount * 2)
         },
 
         setMin() {
-            this.$emit("update:amount", this.minAmount);
+            this.$emit("update:amount", this.minAmount)
         },
 
         setMax() {
-            this.$emit("update:amount", this.maxAmount);
+            this.$emit("update:amount", this.balance)
         },
 
         async startAni() {

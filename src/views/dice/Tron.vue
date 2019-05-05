@@ -127,8 +127,9 @@ export default {
         },
 
         async getBalance () {
+            console.log('getBalance')
             const balance =  await window.tronWeb.trx.getBalance(this.account)
-            this.balance = sliceNumber(window.tronWeb.fromSun(balance), 0)
+            this.balance = sliceNumber(window.tronWeb.fromSun(balance), 2)
             this.loading = false
         },
         
@@ -136,7 +137,7 @@ export default {
             this.jackpotStart = this.jackpotEnd
             const res = await contract.methods.jackpotSize().call()
 
-            this.jackpotEnd = sliceNumber(window.tronWeb.fromSun(res), 0)
+            this.jackpotEnd = sliceNumber(window.tronWeb.fromSun(res), 2)
         },
 
 
@@ -204,7 +205,7 @@ export default {
             let result = await settleContract.getInfo(id, blockHash).call()
             
             const sha3Mod100 = parseInt(result[1].toString()) || 100
-            const wins = calcReward.tron(this.amountCache, this.numCache)
+            const wins = sliceNumber(calcReward.tron(this.amountCache, this.numCache), 2)
             console.log(sha3Mod100, wins)
 
             return { sha3Mod100, wins }
@@ -272,16 +273,17 @@ export default {
             })
         },
 
+        prefixRecord (item) {
+            item._update = this.formatDate(item.updatedAt)
+            item._wins = sliceNumber(item.wins, 2)
+            item._link = `https://tronscan.org/#/transaction/${item.betTrx}`
+        },
+
         async getRecord () {
             const res =  await getRecord()
             if (res === null) return;
 
-            res.forEach(item => {
-                item._update = this.formatDate(item.updatedAt)
-                item._wins = sliceNumber(item.wins, 0)
-                item._link = `https://tronscan.org/#/transaction/${item.betTrx}`
-            })
-            
+            res.forEach(item => this.prefixRecord(item))
             this.recordList = res
         },
 
@@ -290,12 +292,8 @@ export default {
                 address: this.account
             })
             if (res === null) return;
-            res.forEach(item => {
-                item._update = this.formatDate(item.updatedAt)
-                item._wins = sliceNumber(item.wins, 0)
-                item._link = `https://tronscan.org/#/transaction/${item.betTrx}`
-            })
 
+            res.forEach(item => this.prefixRecord(item))
             this.myRecordList = res
         },
 
@@ -307,8 +305,7 @@ export default {
                     const res = JSON.parse(evt.data)
                     //Tron 地址以 T 字母开头
                     if (res.address.indexOf('T') == 0) {
-                        res._update = this.formatDate(res.updatedAt)
-                        res._wins = sliceNumber(res.wins, 0)
+                        this.prefixRecord(res)
                         this.recordList.unshift(res)
                         if (res.address == this.account) {
                             this.myRecordList.unshift(res)
