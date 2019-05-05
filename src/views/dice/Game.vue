@@ -96,7 +96,8 @@ import TwinkleNumber from '@/components/TwinkleNumber.vue'
 import { sliceNumber } from "@/js/utils"
 import VueSlider from "vue-slider-component"
 import "vue-slider-component/theme/default.css"
-import CountTo from "vue-count-to";
+import CountTo from "vue-count-to"
+import NP from 'number-precision'
 
 export default {
     data () {
@@ -161,11 +162,13 @@ export default {
 
     computed: {
         lossPer() {
-            return ((this.min + this.max) / this.num).toFixed(2)
+            const step1 = NP.plus(this.min, this.max)
+            const step2 = NP.divide(step1, this.num)
+            return step2.toFixed(2)
         },
         bonus() {
-            const res = this.lossPer * this.$attrs.amount
-            return sliceNumber(res)
+            const res = NP.times(this.lossPer, this.$attrs.amount)
+            return sliceNumber(res);
         },
     },
 

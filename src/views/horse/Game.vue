@@ -28,20 +28,56 @@
 
                 <div class="bet-cover_item">
                     <ul class="horse-list">
-                        <li v-for="(item, index) in horseList" :key="index" @click="$emit('update:num', item)" class="horse-item">
-                            <img src="@/assets/images/horse1.png" alt="" class="item-img">
+                        <li @click="$emit('update:num', horseList[0])" class="horse-item" :class="{active: num == horseList[0]}">
+                            <img src="@/assets/images/horse/horse1.png" alt="" class="item-img">
+                            <div class="item-num">
+                                <img src="@/assets/images/horse/num1.png" alt="" class="item-num_img">
+                                <i class="item-num_name">Geoffery</i>
+                            </div>
+                        </li>
+                        <li @click="$emit('update:num', horseList[1])" class="horse-item" :class="{active: num == horseList[1]}">
+                            <img src="@/assets/images/horse/horse2.png" alt="" class="item-img">
+                            <div class="item-num">
+                                <img src="@/assets/images/horse/num2.png" alt="" class="item-num_img">
+                                <i class="item-num_name">Solomum</i>
+                            </div>
+                        </li>
+                        <li @click="$emit('update:num', horseList[2])" class="horse-item" :class="{active: num == horseList[2]}">
+                            <img src="@/assets/images/horse/horse3.png" alt="" class="item-img">
+                            <div class="item-num">
+                                <img src="@/assets/images/horse/num3.png" alt="" class="item-num_img">
+                                <i class="item-num_name">Jack</i>
+                            </div>
+                        </li>
+                        <li @click="$emit('update:num', horseList[3])" class="horse-item" :class="{active: num == horseList[3]}">
+                            <img src="@/assets/images/horse/horse4.png" alt="" class="item-img">
+                            <div class="item-num">
+                                <img src="@/assets/images/horse/num4.png" alt="" class="item-num_img">
+                                <i class="item-num_name">Russel</i>
+                            </div>
+                        </li>
+                        <li @click="$emit('update:num', horseList[4])" class="horse-item" :class="{active: num == horseList[4]}">
+                            <img src="@/assets/images/horse/horse5.png" alt="" class="item-img">
+                            <div class="item-num">
+                                <img src="@/assets/images/horse/num5.png" alt="" class="item-num_img">
+                                <i class="item-num_name">Autumn</i>
+                            </div>
+                        </li>
+                        <li @click="$emit('update:num', horseList[5])" class="horse-item" :class="{active: num == horseList[5]}">
+                            <img src="@/assets/images/horse/horse6.png" alt="" class="item-img">
+                            <div class="item-num">
+                                <img src="@/assets/images/horse/num6.png" alt="" class="item-num_img">
+                                <i class="item-num_name">Jasmine</i>
+                            </div>
                         </li>
                     </ul>
 
-                    <div class="main-gas">
-                        <span v-if="gas">{{$t('j')}}(Gas Price): {{gas}}</span>
-                        <span class="main-gas_jackpot">
-                            {{$t('k')}}
-                            <b class="main-gas_primary">
-                                <countTo :startVal='jackpotStart' :decimals="decimal" :endVal='jackpotEnd' :duration='1500'></countTo>
-                            </b>
-                            {{$attrs.symbol}}
-                        </span>
+                    <div class="result-cell">
+                        <div class="result-cell_item">胜率 : {{num}}%</div>
+                        <div class="result-cell_item">赔率 : {{lossPer}}x</div>
+                        <div class="result-cell_item ">获胜金额 : {{bonus}}TRX</div>
+                        <div class="result-cell_line"></div>
+                        <div>奖池: 20 TRX</div>
                     </div>
                 </div>
             </div>
@@ -55,7 +91,9 @@ import TwinkleNumber from '@/components/TwinkleNumber.vue'
 import { sliceNumber } from "@/js/utils"
 import VueSlider from "vue-slider-component"
 import "vue-slider-component/theme/default.css"
-import CountTo from "vue-count-to";
+import CountTo from "vue-count-to"
+import NP from 'number-precision'
+
 
 export default {
     data () {
@@ -72,7 +110,7 @@ export default {
     inheritAttrs: false,
     props: {
         num: {
-            default: 50
+            default: 95
         },
         result: Object,
         jackpotStart: {
@@ -122,10 +160,12 @@ export default {
 
     computed: {
         lossPer() {
-            return ((this.min + this.max) / this.num).toFixed(2);
+            const step1 = NP.plus(this.min, this.max)
+            const step2 = NP.divide(step1, this.num)
+            return step2.toFixed(2)
         },
         bonus() {
-            const res = this.lossPer * this.$attrs.amount;
+            const res = NP.times(this.lossPer, this.$attrs.amount)
             return sliceNumber(res);
         },
     }
@@ -181,18 +221,68 @@ export default {
 
     .horse-list{
         margin-left: -20px;
+        margin-top: 30px;
     }
 
     .horse-item{
         display: inline-block;
-        width: 150px;
-        margin: 20px ;
+        width: 167px;
+        height: 136px;
+        margin-left: 20px ;
+        margin-bottom: 20px ;
         cursor: pointer;
+        background: url(../../assets/images/horse/bg.png) no-repeat;
+        background-size: 100% 100%;
+        overflow: hidden;
+
+        &.active{
+            background: url(../../assets/images/horse/bg_active.png) no-repeat;
+            background-size: 100% 100%;
+        }
     }
 
     .item-img{
         max-width: 100%;
-        
+        margin-top: 10px;
+    }
+
+    .item-num{
+        margin-top: 8px;
+    }
+
+    .item-num_img{
+        vertical-align: middle
+    }
+
+    .item-num_name{
+        vertical-align: middle;
+        font-style:italic;
+        font-size: 14px;
+        color: #fff;
+        margin-left: 10px;
+    }
+
+    .result-cell{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        color: #fff;
+        font-weight: 400;
+    }
+
+    .result-cell_item{
+        position: relative;
+        &:not(:first-child){
+            margin-left: 30px;
+        }
+    }
+
+    .result-cell_line{
+        width: 1px;
+        height: 20px;
+        background: rgba(255, 255, 255, .3);
+        margin: 0 20px;
     }
 
     .main-ani {
@@ -220,28 +310,6 @@ export default {
         &.active {
             box-shadow: 0 0 3px 2px rgba(255, 2552, 255, 0.6);
         }
-    }
-
-  
-
-     .main-gas {
-        position: absolute;
-        z-index: 10;
-        left: 50%;
-        bottom: 8px;
-        transform: translate(-50%, 0);
-        font-size: 14px;
-        color: rgba(255, 255, 255, 0.41);
-        white-space: nowrap;
-    }
-
-    .main-gas_jackpot {
-        margin-left: 20px;
-    }
-
-    .main-gas_primary {
-        color: rgba(255, 255, 255, 0.8);
-        font-size: 16px;
     }
 
 </style>

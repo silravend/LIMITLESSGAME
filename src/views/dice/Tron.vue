@@ -127,7 +127,6 @@ export default {
         },
 
         async getBalance () {
-            console.log('getBalance')
             const balance =  await window.tronWeb.trx.getBalance(this.account)
             this.balance = sliceNumber(window.tronWeb.fromSun(balance), 2)
             this.loading = false
