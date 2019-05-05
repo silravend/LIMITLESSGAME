@@ -250,7 +250,7 @@ export default {
             this.betLoading = true
             const params = await this.getBetParams()
             
-            contract.Commit().watch((err, res) => {
+            contract.Commit().watch({filters: {commit: params.commit.slice(2)}}, (err, res) => {
                 console.log('watch')
                 console.log(err, res)
                 if(err) {
