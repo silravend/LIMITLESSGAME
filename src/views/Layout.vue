@@ -338,15 +338,9 @@ export default {
         Modal
     },
     computed: {
-        
         curLang () {
             return this.langList[this.$i18n.locale]
         }
-    },
-
-    created () {
-        console.log(this.$attrs)
-        console.log(this.$listeners)
     },
 
     watch: {
@@ -379,26 +373,26 @@ export default {
         },
 
         bet() {
-            if (this.betLoading) return;
+            if (this.betLoading || this.loading) return;
 
-            this.$emit("bet");
+            this.$emit("bet")
         },
 
         showIntro() {
-            this.introVisible = true;
+            this.introVisible = true
         },
 
         decrease() {
             if (this.amount <= this.minAmount) return;
-            const amount = parseFloat(this.amount).toFixed(2);
-            const digits = (amount.toString().split(".")[1] || "").length;
+            const amount = parseFloat(this.amount).toFixed(2)
+            const digits = (amount.toString().split(".")[1] || "").length
             const result = (
                 (amount * Math.pow(10, digits) -
                     this.amountStep * Math.pow(10, digits)) /
                 Math.pow(10, digits)
-            ).toFixed(2);
+            ).toFixed(2)
 
-            this.$emit("update:amount", result);
+            this.$emit("update:amount", result)
         },
 
         increase() {

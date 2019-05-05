@@ -95,7 +95,7 @@ export default {
             //等待 troweb 链接完成
             await window.tronWeb.isConnected()
 
-            this.account = window.tronWeb.defaultAddress.base58   
+            this.account = window.tronWeb.defaultAddress.base58
             
             contract = await getContract()
             settleContract = await getSettleContract()
@@ -224,11 +224,28 @@ export default {
             }, 5000)
         },
 
-        async betSubmit() {
+        submitVerify () {
             if (!this.isMainNet() && !this.debug) {
                 this.$error(this.$t('ax'))
                 return
             }
+
+            if (!window.tronWeb.defaultAddress.base58) {
+                this.$warn(this.$t('as'))
+                return false
+            }
+
+            if (this.amount > this.balance) {
+                this.$warn(this.$t('at'))
+                return false
+            }
+
+            return true
+        },
+
+        async betSubmit() {
+            if (!this.submitVerify()) return;
+
             this.betLoading = true
             const params = await this.getBetParams()
             

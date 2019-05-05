@@ -43,7 +43,7 @@ export default {
     ap: 'When the balance in the user\'s wallet is insufficient, it can quickly recharge online through this entrance. The recharge website comes from a third-party payment platform, and has no cooperation with Limitless. The user knows the risk by default when recharging.<br><a href="">I understand, go ahead</a>',
     aq: 'Congratulations! You have won {num} {symbol}',
     ar: 'Sorry, you lose ~',
-    as: 'Please login your Metamask account.',
+    as: 'Please login your account.',
     at: 'Balance is not enough.',
     au: 'User refuse to login Metamask.',
     av: 'Bet fail, please try it later ~',
