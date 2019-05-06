@@ -27,7 +27,7 @@
 </template>
 
 <script>
-import { getBetParams, settleBet, getRecord, getMyRecord, getAmountParams } from "@/api/tron";
+import { getBetParams, settleBet, getRecord, getMyRecord, getAmountParams } from "@/api/dice_tron"
 import { sliceNumber } from '@/js/utils'
 import Game from './Game.vue'
 import calcReward from '@/js/calcReward'

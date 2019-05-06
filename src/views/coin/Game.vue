@@ -3,10 +3,10 @@
         v-bind="$attrs"
         v-on="$listeners"
         :celebrateVisible.sync="celebrateVisible"
-        game="horseracing"
+        game="flipcoin"
     >
         <template v-slot:bg-cover>
-            <div class="bg-cover-wrapper" :class="{result: state != 'bet'}">
+            <div class="bg-cover-wrapper" :class="{result: $attrs.state != 'bet'}">
                 <div class="bg-cover_item">
                     <div class="bg-cover_result">
                         
@@ -24,64 +24,13 @@
         </template>
 
         <template v-slot:bet-cover>
-            <div class="bet-cover-wrapper" :class="{result: state != 'bet'}">
+            <div class="bet-cover-wrapper" :class="{result: $attrs.state == 'result'}">
                 <div class="bet-cover_item">
-                    <video class="horse-video" src="https://api1.limitless.vip/download?url=6.bf99b4d4.mp4"  playsinline="" webkit-playsinline="" x5-playsinline="" style="width: 100%; height: 100%;"></video>
+                    
                 </div>
 
                 <div class="bet-cover_item">
-                    <ul class="horse-list">
-                        <li @click="$emit('update:num', horseList[0])" class="horse-item" :class="{active: num == horseList[0]}">
-                            <img src="@/assets/images/horse/horse1.png" alt="" class="item-img">
-                            <div class="item-num">
-                                <img src="@/assets/images/horse/num1.png" alt="" class="item-num_img">
-                                <i class="item-num_name">Geoffery</i>
-                            </div>
-                        </li>
-                        <li @click="$emit('update:num', horseList[1])" class="horse-item" :class="{active: num == horseList[1]}">
-                            <img src="@/assets/images/horse/horse2.png" alt="" class="item-img">
-                            <div class="item-num">
-                                <img src="@/assets/images/horse/num2.png" alt="" class="item-num_img">
-                                <i class="item-num_name">Solomum</i>
-                            </div>
-                        </li>
-                        <li @click="$emit('update:num', horseList[2])" class="horse-item" :class="{active: num == horseList[2]}">
-                            <img src="@/assets/images/horse/horse3.png" alt="" class="item-img">
-                            <div class="item-num">
-                                <img src="@/assets/images/horse/num3.png" alt="" class="item-num_img">
-                                <i class="item-num_name">Jack</i>
-                            </div>
-                        </li>
-                        <li @click="$emit('update:num', horseList[3])" class="horse-item" :class="{active: num == horseList[3]}">
-                            <img src="@/assets/images/horse/horse4.png" alt="" class="item-img">
-                            <div class="item-num">
-                                <img src="@/assets/images/horse/num4.png" alt="" class="item-num_img">
-                                <i class="item-num_name">Russel</i>
-                            </div>
-                        </li>
-                        <li @click="$emit('update:num', horseList[4])" class="horse-item" :class="{active: num == horseList[4]}">
-                            <img src="@/assets/images/horse/horse5.png" alt="" class="item-img">
-                            <div class="item-num">
-                                <img src="@/assets/images/horse/num5.png" alt="" class="item-num_img">
-                                <i class="item-num_name">Autumn</i>
-                            </div>
-                        </li>
-                        <li @click="$emit('update:num', horseList[5])" class="horse-item" :class="{active: num == horseList[5]}">
-                            <img src="@/assets/images/horse/horse6.png" alt="" class="item-img">
-                            <div class="item-num">
-                                <img src="@/assets/images/horse/num6.png" alt="" class="item-num_img">
-                                <i class="item-num_name">Jasmine</i>
-                            </div>
-                        </li>
-                    </ul>
-
-                    <div class="result-cell">
-                        <div class="result-cell_item">{{$t('h')}} : {{num}}%</div>
-                        <div class="result-cell_item">{{$t('g')}} : {{lossPer}}x</div>
-                        <div class="result-cell_item ">{{$t('i')}} : {{bonus}}TRX</div>
-                        <div class="result-cell_line"></div>
-                        <div>{{$t('k')}}: 20 {{$attrs.symbol}}</div>
-                    </div>
+                    
                 </div>
             </div>
         </template>
@@ -124,9 +73,6 @@ export default {
         gas: {
             default: ""
         },
-        state: {
-            default: 'bet'
-        }
     },
     components: {
         Layout
@@ -137,15 +83,8 @@ export default {
     },
 
     watch: {
-        state (newVal) {
+        '$attrs.state' (newVal) {
             if (newVal == 'result') {
-                let horseIndex
-                for(let [index, item] of this.horseList.entries()) {
-                    if (item == this.result.num) {
-                        horseIndex = index
-                    }
-                }
-                console.log(`投注的号码是${horseIndex + 1}`)
                 this.$el.querySelector('.horse-video').play()
             }
         }
@@ -154,7 +93,7 @@ export default {
     mounted () {
          this.$el.querySelector('.horse-video').addEventListener('ended', () => {
             if (this.result.wins > 0) {
-                this.$success(this.$t('aq',{num: this.result.wins, symbol: this.$attrs.symbol}), 3000)
+                this.$success(this.$t('aq',{num: this.result.wins, symbol: 'TRX'}), 3000)
                 this.celebrateVisible = true
             } else {
                 this.$error(this.$t('ar'))

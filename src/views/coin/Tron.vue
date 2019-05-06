@@ -1,7 +1,8 @@
 <template>
-    <div class="" id="app">
+    <div id="app">
         <game
             ref="app"
+            symbol="TRX"
             :num.sync="num"
             :amount.sync="amount"
             :minAmount="minAmount"
@@ -16,8 +17,8 @@
             :jackpotEnd="jackpotEnd"
             :state="state"
             :result="result"
+            :decimal="0"
             :loading="loading"
-            :celebrateVisible="celebrateVisible"
             @bet="betSubmit"
             @ended="betEnd"
         >
@@ -26,19 +27,18 @@
 </template>
 
 <script>
-import { getGasPrice, getBetParams, settleBet, getRecord, getMyRecord, getAmountParams } from "@/api/horseracing_eth"
-import web3 from '@/js/web3'
+import { getBetParams, settleBet, getRecord, getMyRecord, getAmountParams } from "@/api/flipcoin_tron"
 import { sliceNumber } from '@/js/utils'
 import Game from './Game.vue'
 import calcReward from '@/js/calcReward'
-import { eth as getContract, ethSettle as getSettleContract } from "@/js/contract"
+import { tron as getContract, tronSettle as getSettleContract } from '@/js/contract'
 
 let contract, settleContract
 
 export default {
     data() {
         return {
-            num: 95,
+            num: 50,
             balance: 0,
             amount: 0.01,
             gas: "",
@@ -54,8 +54,9 @@ export default {
             result: {},
             state:"bet",
             loading: true,
-            celebrateVisible: false,
-            debug: true
+            debug: true,
+            amountCache: 50, 
+            numCache: 0.01
         };
     },
     components: {
@@ -65,11 +66,11 @@ export default {
     watch: {
         amount () {
             this.fixAmount()
-        }
-    },
+        },
 
-    computed: {
-      
+        account () {
+            this.getBalance()
+        }
     },
 
     async created() {
@@ -78,51 +79,43 @@ export default {
         this.getAmoutParams()
     },
 
-    async mounted () {
-        if (typeof window.ethereum === "undefined") {
-            this.$refs['app'].showIntro()
-            return;
-        }
-        
-        setTimeout(() => {
-            if (window.ethereum.networkVersion != 1 && !this.debug ){
-                this.$error(this.$t('ax'), 5000)
+    mounted () {
+        setTimeout(async () => {
+            
+            if (typeof window.tronWeb === "undefined") {
+                this.$refs['app'].showIntro()
                 return;
             }
-            if (!window.ethereum.selectedAddress) {
-                this.$warn(this.$t('as'), 5000)
+
+            if (!window.tronWeb.defaultAddress.base58) {
+                this.$error(this.$t('ay'), 5000)
+                return
             }
-        }, 1500)
-        
 
-        //获取账户余额
-        const accounts = await window.ethereum.enable().catch(err => {
-            if (err.code == 4001) {
-                this.$warn(this.$t('au'))
+            //等待 troweb 链接完成
+            await window.tronWeb.isConnected()
+
+            this.account = window.tronWeb.defaultAddress.base58
+            
+            contract = await getContract()
+            settleContract = await getSettleContract()
+
+            if (!contract || !settleContract) {
+                return 
             }
-            return null
-        })
-        if (accounts === null) return;
 
-        this.account = accounts[0]
-        this.getBalance()
-        this.getMyRecord()
-
-        //获取油费
-        const gasRes = await getGasPrice()
-        this.gas = gasRes.gasPrice
-        
-        contract = getContract(this.account)
-        settleContract = getSettleContract(this.account)
-        console.log(settleContract)
-        this.getJackpot()
-        setInterval(() => {
             this.getJackpot()
-        }, 10000)
-        
+            setInterval(() => {
+                this.getJackpot()
+            }, 10000)
+        }, 1000)
     },
 
     methods: {
+        isMainNet () {
+            return window.tronWeb.eventServer.host.indexOf('api.trongrid.io') > -1
+        },
+
         async getAmoutParams () {
             const res = await getAmountParams()
             if (res === null) return;
@@ -133,32 +126,33 @@ export default {
             this.amountStep = res.step
         },
 
-        getBalance () {
-            web3.eth.getBalance(this.account).then(balance => {
-                this.balance = sliceNumber(web3.utils.fromWei(balance, "ether"))
-                this.loading = false
-            })
+        async getBalance () {
+            const balance =  await window.tronWeb.trx.getBalance(this.account)
+            this.balance = sliceNumber(window.tronWeb.fromSun(balance), 2)
+            this.loading = false
         },
         
         async getJackpot () {
             this.jackpotStart = this.jackpotEnd
             const res = await contract.methods.jackpotSize().call()
 
-            this.jackpotEnd = sliceNumber(web3.utils.fromWei(res))
+            this.jackpotEnd = sliceNumber(window.tronWeb.fromSun(res), 2)
         },
 
+
         fixAmount() {
-            let num = parseFloat(this.amount)
+            let num = parseInt(this.amount);
             if (isNaN(num)) {
-                this.amount = "0.01";
+                this.amount = this.minAmount
             } else {
-                if (num < 0.01) {
-                    num = 0.01;
-                } else if (num > 10.2) {
-                    num = 10.2;
+                if (num < this.minAmount) {
+                    num = this.minAmount
+                } else if (num > this.maxAmount) {
+                    num = this.maxAmount
                 }
+
                 this.$nextTick(() => {
-                    this.amount = num.toFixed(2);
+                    this.amount = num
                 })
             }
         },
@@ -167,6 +161,7 @@ export default {
             const ready = async () => {
                 this.amountCache = this.amount
                 this.numCache = this.num
+                
                 const res = await getBetParams({
                     betmask: this.num,
                     amount:  this.amount,
@@ -177,23 +172,23 @@ export default {
                     this.betLoading = false;
                     return 
                 }
+
                 return res
             }
 
             let params = await ready()
             
-            // 如果v的值为128，则重新请求
-            while(params.v == 128) {
+            // 如果v的值为28，则重新请求
+            while(params.v == 28) {
                 params = await ready()
             }
-
             return params
         },
 
-        settle (randomNumber,blockHash) {
+        settle (randomNumber,blockNumber) {
             settleBet({
                 randomNumber: randomNumber,
-                hash: blockHash
+                blockNumber: blockNumber
             })
         },
 
@@ -203,41 +198,39 @@ export default {
             this.betLoading = false
         },
 
-        async getResult (id, blockHash) {
-            let result = await settleContract.methods.getInfo(id, blockHash).call()
+        async getResult (id, blockNumber) {
+            const block = await window.tronWeb.trx.getBlock(parseInt(blockNumber))
+            const blockHash = "0x" + block.blockID
+            let result = await settleContract.getInfo(id, blockHash).call()
             
-            console.log(result)
-
             const sha3Mod100 = parseInt(result[1].toString()) || 100
-            const wins = sliceNumber(calcReward.eth(this.amountCache, this.numCache))
+            const wins = sliceNumber(calcReward.tron(this.amountCache, this.numCache), 2)
             console.log(sha3Mod100, wins)
 
             return { sha3Mod100, wins }
         },
 
         // 手动提前计算
-        async manualSettle (id, blockHash) {
-            const { sha3Mod100, wins } = await this.getResult(id, blockHash)
+        async manualSettle (id, blockNumber) {
+            const { sha3Mod100, wins } = await this.getResult(id, blockNumber)
 
             this.result = {
                 sha3Mod100: sha3Mod100,
                 wins: sha3Mod100 < this.numCache ? wins : 0
             }
-
             this.state = 'wait'
-            
             setTimeout(() => {
                 this.state = 'result'
             }, 5000)
         },
 
         submitVerify () {
-            if (window.ethereum.networkVersion != 1 && !this.debug) {
-                this.$error(this.$t('ax'), 5000)
-                return false
+            if (!this.isMainNet() && !this.debug) {
+                this.$error(this.$t('ax'))
+                return
             }
 
-            if (!window.ethereum.selectedAddress) {
+            if (!window.tronWeb.defaultAddress.base58) {
                 this.$warn(this.$t('as'))
                 return false
             }
@@ -246,6 +239,7 @@ export default {
                 this.$warn(this.$t('at'))
                 return false
             }
+
             return true
         },
 
@@ -255,40 +249,40 @@ export default {
             this.betLoading = true
             const params = await this.getBetParams()
             
-            contract.methods.placeBet(params.betMask, params.modulo, params.commitLastBlock, params.commit, params.r, params.s).send({
-                gas: '150000',
-                gasPrice: web3.utils.toWei(this.gas + '', 'gwei'),
-                from: this.account,
-                value: web3.utils.toWei(this.amount + '', "ether")
-            }).catch( err => {
-                if (err.message.indexOf('User denied') > -1) {
-                    this.$error(this.$t('au'))
-                } else {
+            contract.Commit().watch({filters: {commit: params.commit.slice(2)}}, (err, res) => {
+                console.log('watch')
+                console.log(err, res)
+                if(err) {
                     this.$error(this.$t('av'))
+                    this.betEnd()
+                    return
                 }
-
-                this.betLoading = false
+                this.settle(params.id, res.block)
+                this.manualSettle(params.id, res.block)
             })
 
-            contract.once('Commit', {
-
-            }, async (error, event) => {
-                console.log('commit')
-                this.settle( params.id, event.blockHash)
-                this.manualSettle(params.id, event.blockHash)
+            contract.placeBet(params.betMask, params.modulo, params.commitLastBlock, params.commit, params.r, params.s).send({
+                feeLimit: 100000000,
+                callValue: window.tronWeb.toSun(this.amount),
+                shouldPollResponse:true
+            }).catch(err => {
+                console.log(err)
+                this.$error(this.$t('av'))
+                this.betEnd()
             })
+        },
+
+        prefixRecord (item) {
+            item._update = this.formatDate(item.updatedAt)
+            item._wins = sliceNumber(item.wins, 2)
+            item._link = `https://tronscan.org/#/transaction/${item.betTrx}`
         },
 
         async getRecord () {
             const res =  await getRecord()
             if (res === null) return;
 
-            res.forEach(item => {
-                item._update = this.formatDate(item.updatedAt)
-                item._wins = sliceNumber(item.wins)
-                item._link = `https://etherscan.io/tx/${item.betTrx}`
-            })
-            
+            res.forEach(item => this.prefixRecord(item))
             this.recordList = res
         },
 
@@ -297,28 +291,26 @@ export default {
                 address: this.account
             })
             if (res === null) return;
-            res.forEach(item => {
-                item._update = this.formatDate(item.updatedAt)
-                item._wins = sliceNumber(item.wins)
-                item._link = `https://etherscan.io/tx/${item.betTrx}`
-            })
 
+            res.forEach(item => this.prefixRecord(item))
             this.myRecordList = res
         },
 
         recordWs () {
-            var ws = new WebSocket(process.env.VUE_APP_WS, 'echo-protocol')
+            var ws = new WebSocket(process.env.VUE_APP_WS, 'echo-protocol');
 
             ws.onmessage = evt => {
                 try{
                     const res = JSON.parse(evt.data)
-                    
-                    res._update = this.formatDate(res.updatedAt)
-                    res._wins = sliceNumber(res.wins)
-                    this.recordList.unshift(res)
-                    if (res.address == this.account) {
-                        this.myRecordList.unshift(res)
+                    //Tron 地址以 T 字母开头
+                    if (res.address.indexOf('T') == 0) {
+                        this.prefixRecord(res)
+                        this.recordList.unshift(res)
+                        if (res.address == this.account) {
+                            this.myRecordList.unshift(res)
+                        }
                     }
+                    
                 } catch (err) {
                     this.$error(err.message)
                     console.log(err)

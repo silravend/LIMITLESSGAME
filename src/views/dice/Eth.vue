@@ -26,7 +26,7 @@
 </template>
 
 <script>
-import { getGasPrice, getBetParams, settleBet, getRecord, getMyRecord, getAmountParams } from "@/api";
+import { getGasPrice, getBetParams, settleBet, getRecord, getMyRecord, getAmountParams } from "@/api/dice_eth"
 import web3 from '@/js/web3'
 import { sliceNumber } from '@/js/utils'
 import Game from './Game.vue'

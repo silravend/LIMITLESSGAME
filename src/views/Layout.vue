@@ -1,15 +1,30 @@
 <template>
     <div :class="[$i18n.locale]">
+        <section class="side">
+            <a @click="goByGame('dice')" class="side-item" :class="{active: game == 'dice'}">
+                <img src="@/assets/images/icon_dice.png" alt="" class="side-item_img">
+                <div class="side-item_name">Dice</div>
+            </a>
+            <a @click="goByGame('horseracing')" href="" class="side-item" :class="{active: game == 'horseracing'}">
+                <img src="@/assets/images/icon_horse.png" alt="" class="side-item_img">
+                <div class="side-item_name">Horse</div>
+            </a>
+            <a @click="goByGame('flipcoin')" href="" class="side-item" :class="{active: game == 'flipcoin'}">
+                <img src="@/assets/images/icon_coin.png" alt="" class="side-item_img">
+                <div class="side-item_name">Coin</div>
+            </a>
+        </section>
+
         <header>
             <img src="../assets/images/logo.png" alt="" class="logo">
             <nav>
-                <a href="https://www.limitless.vip" class="nav-item" :class="{active: symbol == 'ETH'}">
+                <a @click="goBySymbol('eth')" class="nav-item" :class="{active: symbol == 'ETH'}">
                     <svg class="icon" aria-hidden="true">
                         <use xlink:href="#icon-ethereum"></use>
                     </svg>
                     <span class="icon-symbol">ETHEREUM</span>
                 </a>
-                <a href="https://www.limitless.vip/dice/tron" class="nav-item" :class="{active: symbol == 'TRX'}">
+                <a @click="goBySymbol('tron')" class="nav-item" :class="{active: symbol == 'TRX'}">
                     <svg class="icon" aria-hidden="true">
                         <use xlink:href="#icon-icon_TRX"></use>
                     </svg>
@@ -18,9 +33,7 @@
                 <div class="nav-primary"></div>
                 <a @click="fairnessVisible = true" class="nav-item">{{$t('a')}}</a>
                 <a @click="inviteVisible = true" class="nav-item">{{$t('b')}}</a>
-                
                 <a @click="introVisible = true" class="nav-item">{{$t('c')}}</a>
-
                 <div @mouseenter="langVisible = true" @mouseleave="langVisible = false" class="lang">
                     <div class="lang-item lang-current">
                         <img :src="curLang.image" alt="" class="lang-img">
@@ -329,6 +342,9 @@ export default {
         
         celebrateVisible: {
             default: false
+        },
+        game: {
+            default: ''
         }
     },
 
@@ -352,6 +368,15 @@ export default {
     },
 
     methods: {
+        goByGame (game) {
+            const symbol = this.symbol == 'ETH' ? 'ethereum' : 'tron'
+            location.href = `https://www.limitless.vip/${game}/${symbol}`
+        },
+
+        goBySymbol (symbol) {
+            location.href = `https://www.limitless.vip/${this.game}/${symbol}`
+        },
+
         changeLang (lang) {
             this.$i18n.locale = lang
             localStorage.setItem('lang', lang)
@@ -572,6 +597,45 @@ body {
         .dashboard-item_ft{
             font-size: 12px;
         }
+    }
+}
+
+.side{
+    position: fixed;
+    z-index: 99;
+    left: 0px;
+    top: 220px;
+
+    .side-item{
+        display: block;
+        width: 100px;
+        height: 70px;
+        background: linear-gradient(to right, rgba(255,173,57,1), rgba(108,13,185,1));
+        background-size: 200%;
+        background-position: 100% 0;
+        border-radius:0px 10px 10px 0px;
+        font-size: 12px;
+        color: #fff;
+        text-align: center;
+        transition: all .6s;
+
+        &.active{
+            background-position: 0 0;
+        }
+
+        &:hover{
+            background-position: 0 0;
+        }
+
+        &:not(:last-child){
+            margin-bottom: 10px;
+        }
+    }
+
+    .side-item_img{
+        width: 40px;
+        height: 40px;
+        margin-top: 8px;
     }
 }
 

@@ -26,7 +26,7 @@
 </template>
 
 <script>
-import { getGasPrice, getBetParams, settleBet, getRecord, getMyRecord, getAmountParams } from "@/api/horseracing_eth"
+import { getGasPrice, getBetParams, settleBet, getRecord, getMyRecord, getAmountParams } from "@/api/flipcoin_eth"
 import web3 from '@/js/web3'
 import { sliceNumber } from '@/js/utils'
 import Game from './Game.vue'
@@ -38,7 +38,7 @@ let contract, settleContract
 export default {
     data() {
         return {
-            num: 95,
+            num: 50,
             balance: 0,
             amount: 0.01,
             gas: "",
@@ -182,8 +182,8 @@ export default {
 
             let params = await ready()
             
-            // 如果v的值为128，则重新请求
-            while(params.v == 128) {
+            // 如果v的值为28，则重新请求
+            while(params.v == 28) {
                 params = await ready()
             }
 

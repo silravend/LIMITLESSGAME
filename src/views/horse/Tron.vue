@@ -27,7 +27,7 @@
 </template>
 
 <script>
-import { getBetParams, settleBet, getRecord, getMyRecord, getAmountParams } from "@/api/tron";
+import { getBetParams, settleBet, getRecord, getMyRecord, getAmountParams } from "@/api/horseracing_tron";
 import { sliceNumber } from '@/js/utils'
 import Game from './Game.vue'
 import calcReward from '@/js/calcReward'
@@ -55,8 +55,8 @@ export default {
             state:"bet",
             loading: true,
             debug: true,
-            amountCache: 50, 
-            numCache: 0.01
+            amountCache: 0.01, 
+            numCache: 95
         };
     },
     components: {
@@ -213,15 +213,16 @@ export default {
         // 手动提前计算
         async manualSettle (id, blockNumber) {
             const { sha3Mod100, wins } = await this.getResult(id, blockNumber)
-
+            
             this.result = {
                 sha3Mod100: sha3Mod100,
+                num: this.numCache,
                 wins: sha3Mod100 < this.numCache ? wins : 0
             }
-            this.state = 'wait'
-            setTimeout(() => {
-                this.state = 'result'
-            }, 5000)
+            this.state = 'result'
+            // setTimeout(() => {
+            //     this.state = 'result'
+            // }, 5000)
         },
 
         submitVerify () {

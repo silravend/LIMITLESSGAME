@@ -3,6 +3,7 @@
         v-bind="$attrs"
         v-on="$listeners"
         :celebrateVisible.sync="celebrateVisible"
+        game="dice"
     >
         <template v-slot:bg-cover>
             <div class="bg-cover-wrapper" :class="{result: state != 'bet'}">
