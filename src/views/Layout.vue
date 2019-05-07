@@ -129,10 +129,8 @@
                     <div class="cell-item">{{item._update}}</div>
                     <div class="cell-item">{{item.address}}</div>
                     <div class="cell-item">{{item.betAmount}}</div>
-                    <div class="cell-item">{{item.betMask}}</div>
-                    <div class="cell-item">
-                        <div class="result-num">{{item.sha3Mod100}}</div>
-                    </div>
+                    <div class="cell-item" v-html="item._bet"></div>
+                    <div class="cell-item" v-html="item._result"></div>
                     <div class="cell-item">
                         <span v-if="item._wins > 0">+ {{item._wins}} {{symbol}}</span>
                         <span v-else> - - </span>
@@ -367,6 +365,10 @@ export default {
         }
     },
 
+    created () {
+        this.recordWs()
+    },
+
     methods: {
         goByGame (game) {
             const symbol = this.symbol == 'ETH' ? 'ethereum' : 'tron'
@@ -577,7 +579,46 @@ export default {
                     }
                 });
             }, 200);
-        }
+        },
+
+        //判断是否属于当前游戏的记录
+        isCurRecord (res) {          
+            let symbol
+            let game
+
+            if (res.address.indexOf('T') == 0) {
+                symbol = 'TRX'
+            }
+            if (res.address.indexOf('0x') == 0) {
+                symbol = 'ETH'
+            }
+            if (res.v == 27 && res.modulo == 100) {
+                game = 'dice'
+            }
+            if (res.v == 127 && res.modulo == 100) {
+                game = 'horseracing'
+            }
+            if (res.v == 27 && res.modulo == 2) {
+                game = 'flipcoin'
+            }
+            if (this.symbol == symbol && this.game == game) return true;
+        },
+
+        recordWs () {
+            var ws = new WebSocket(process.env.VUE_APP_WS, 'echo-protocol')
+
+            ws.onmessage = evt => {
+                try{
+                    const res = JSON.parse(evt.data)
+                    if (this.isCurRecord(res)) {
+                        this.$emit('addRecord', res)
+                    }
+                } catch (err) {
+                    this.$error(err.message)
+                    console.log(err)
+                }
+            }
+        },
     }
 };
 </script>

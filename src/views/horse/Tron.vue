@@ -19,8 +19,10 @@
             :result="result"
             :decimal="0"
             :loading="loading"
+            :horseList="horseList"
             @bet="betSubmit"
             @ended="betEnd"
+            @addRecord="addRecord"
         >
         </game>
     </div>
@@ -56,7 +58,8 @@ export default {
             loading: true,
             debug: true,
             amountCache: 0.01, 
-            numCache: 95
+            numCache: 95,
+            horseList: [95, 75, 48, 38, 18, 10],
         };
     },
     components: {
@@ -75,7 +78,6 @@ export default {
 
     async created() {
         this.getRecord()
-        this.recordWs()
         this.getAmoutParams()
     },
 
@@ -273,10 +275,35 @@ export default {
             })
         },
 
+        //根据数字匹配投注的马的编号
+        mapBetHorse (num) {
+            return this.horseList.indexOf(parseInt(num)) + 1
+        },
+
+        // 根据结果匹配到马的编号
+        mapResultHorse (item) {
+            const betNum = this.mapBetHorse(item.betMask)
+            const result = parseInt(item.sha3Mod100)
+
+            //如果中奖，则直接返回投注的🐎
+            if(item.wins > 0) return betNum;
+
+            let length = this.horseList.length
+            for(let [i, item] of this.horseList.entries()) {
+                //如果大于或等于第一匹马
+                if (i == 0 && result >= item) return betNum == 1 ? 2 : 1;
+
+                //小于当前且 >=后面; 则返回当前；另外循环不可能走到最后一位，因为那样的话，用户必然中奖
+                if (result < item && result >= this.horseList[i + 1]) return i + 1;
+            }
+        },
+
         prefixRecord (item) {
             item._update = this.formatDate(item.updatedAt)
             item._wins = sliceNumber(item.wins, 2)
             item._link = `https://tronscan.org/#/transaction/${item.betTrx}`
+            item._bet = this.mapBetHorse(item.betMask)
+            item._result = item._result = `<div class="result-num">${this.mapResultHorse(item)}</div>`
         },
 
         async getRecord () {
@@ -297,25 +324,11 @@ export default {
             this.myRecordList = res
         },
 
-        recordWs () {
-            var ws = new WebSocket(process.env.VUE_APP_WS, 'echo-protocol');
-
-            ws.onmessage = evt => {
-                try{
-                    const res = JSON.parse(evt.data)
-                    //Tron 地址以 T 字母开头
-                    if (res.address.indexOf('T') == 0) {
-                        this.prefixRecord(res)
-                        this.recordList.unshift(res)
-                        if (res.address == this.account) {
-                            this.myRecordList.unshift(res)
-                        }
-                    }
-                    
-                } catch (err) {
-                    this.$error(err.message)
-                    console.log(err)
-                }
+        addRecord (res) {
+            this.prefixRecord(res)
+            this.recordList.unshift(res)
+            if (res.address == this.account) {
+                this.myRecordList.unshift(res)
             }
         },
 

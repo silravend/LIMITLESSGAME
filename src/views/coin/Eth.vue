@@ -20,6 +20,7 @@
             :celebrateVisible="celebrateVisible"
             @bet="betSubmit"
             @ended="betEnd"
+            @addRecord="addRecord"
         >
         </game>
     </div>
@@ -74,7 +75,6 @@ export default {
 
     async created() {
         this.getRecord()
-        this.recordWs()
         this.getAmoutParams()
     },
 
@@ -306,23 +306,11 @@ export default {
             this.myRecordList = res
         },
 
-        recordWs () {
-            var ws = new WebSocket(process.env.VUE_APP_WS, 'echo-protocol')
-
-            ws.onmessage = evt => {
-                try{
-                    const res = JSON.parse(evt.data)
-                    
-                    res._update = this.formatDate(res.updatedAt)
-                    res._wins = sliceNumber(res.wins)
-                    this.recordList.unshift(res)
-                    if (res.address == this.account) {
-                        this.myRecordList.unshift(res)
-                    }
-                } catch (err) {
-                    this.$error(err.message)
-                    console.log(err)
-                }
+        addRecord (res) {
+            this.prefixRecord(res)
+            this.recordList.unshift(res)
+            if (res.address == this.account) {
+                this.myRecordList.unshift(res)
             }
         },
 

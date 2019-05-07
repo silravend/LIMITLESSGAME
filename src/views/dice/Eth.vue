@@ -20,6 +20,7 @@
             :celebrateVisible="celebrateVisible"
             @bet="betSubmit"
             @ended="betEnd"
+            @addRecord="addRecord"
         >
         </game>
     </div>
@@ -74,7 +75,6 @@ export default {
 
     async created() {
         this.getRecord()
-        this.recordWs()
         this.getAmoutParams()
     },
 
@@ -205,8 +205,6 @@ export default {
 
         async getResult (id, blockHash) {
             let result = await settleContract.methods.getInfo(id, blockHash).call()
-            
-            console.log(result)
 
             const sha3Mod100 = parseInt(result[1].toString()) || 100
             const wins = sliceNumber(calcReward.eth(this.amountCache, this.numCache))
@@ -279,14 +277,20 @@ export default {
             })
         },
 
+        prefixRecord (item) {
+            item._update = this.formatDate(item.updatedAt)
+            item._wins = sliceNumber(item.wins)
+            item._link = `https://etherscan.io/tx/${item.betTrx}`
+            item._bet = item.betMask
+            item._result = `<div class="result-num">${item.sha3Mod100}</div>`
+        },
+
         async getRecord () {
             const res =  await getRecord()
             if (res === null) return;
 
             res.forEach(item => {
-                item._update = this.formatDate(item.updatedAt)
-                item._wins = sliceNumber(item.wins)
-                item._link = `https://etherscan.io/tx/${item.betTrx}`
+                this.prefixRecord(item)
             })
             
             this.recordList = res
@@ -298,31 +302,17 @@ export default {
             })
             if (res === null) return;
             res.forEach(item => {
-                item._update = this.formatDate(item.updatedAt)
-                item._wins = sliceNumber(item.wins)
-                item._link = `https://etherscan.io/tx/${item.betTrx}`
+                this.prefixRecord(item)
             })
 
             this.myRecordList = res
         },
 
-        recordWs () {
-            var ws = new WebSocket(process.env.VUE_APP_WS, 'echo-protocol')
-
-            ws.onmessage = evt => {
-                try{
-                    const res = JSON.parse(evt.data)
-                    
-                    res._update = this.formatDate(res.updatedAt)
-                    res._wins = sliceNumber(res.wins)
-                    this.recordList.unshift(res)
-                    if (res.address == this.account) {
-                        this.myRecordList.unshift(res)
-                    }
-                } catch (err) {
-                    this.$error(err.message)
-                    console.log(err)
-                }
+        addRecord (res) {
+            this.prefixRecord(res)
+            this.recordList.unshift(res)
+            if (res.address == this.account) {
+                this.myRecordList.unshift(res)
             }
         },
 

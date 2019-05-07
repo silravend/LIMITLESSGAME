@@ -6,7 +6,7 @@ export const getGasPrice = () => {
 }
 
 // 获取下注参数
-export const getBetParams = ({ betmask, modulo = 100, amount, address }) => {
+export const getBetParams = ({ betmask, modulo = 2, amount, address }) => {
     return io({
         method: 'get',
         url: '/api/v1.0/flipcoin/tron/getPlaceBetParams',

@@ -21,6 +21,7 @@
             :loading="loading"
             @bet="betSubmit"
             @ended="betEnd"
+            @addRecord="addRecord"
         >
         </game>
     </div>
@@ -38,7 +39,7 @@ let contract, settleContract
 export default {
     data() {
         return {
-            num: 50,
+            num: 1,
             balance: 0,
             amount: 0.01,
             gas: "",
@@ -75,7 +76,6 @@ export default {
 
     async created() {
         this.getRecord()
-        this.recordWs()
         this.getAmoutParams()
     },
 
@@ -204,10 +204,16 @@ export default {
             let result = await settleContract.getInfo(id, blockHash).call()
             
             const sha3Mod100 = parseInt(result[1].toString()) || 100
-            const wins = sliceNumber(calcReward.tron(this.amountCache, this.numCache), 2)
+            const wins = sliceNumber(calcReward.tron(this.amountCache, 50), 2)
             console.log(sha3Mod100, wins)
 
             return { sha3Mod100, wins }
+        },
+
+        isWin (num, result) {
+            if (num == 1 && result % 2 == 0) return true;
+            if (num == 2 && result % 2 == 1) return true;
+            return false 
         },
 
         // 手动提前计算
@@ -216,12 +222,10 @@ export default {
 
             this.result = {
                 sha3Mod100: sha3Mod100,
-                wins: sha3Mod100 < this.numCache ? wins : 0
+                wins: this.isWin(this.numCache, sha3Mod100) ? wins : 0
             }
+            
             this.state = 'wait'
-            setTimeout(() => {
-                this.state = 'result'
-            }, 5000)
         },
 
         submitVerify () {
@@ -296,25 +300,11 @@ export default {
             this.myRecordList = res
         },
 
-        recordWs () {
-            var ws = new WebSocket(process.env.VUE_APP_WS, 'echo-protocol');
-
-            ws.onmessage = evt => {
-                try{
-                    const res = JSON.parse(evt.data)
-                    //Tron 地址以 T 字母开头
-                    if (res.address.indexOf('T') == 0) {
-                        this.prefixRecord(res)
-                        this.recordList.unshift(res)
-                        if (res.address == this.account) {
-                            this.myRecordList.unshift(res)
-                        }
-                    }
-                    
-                } catch (err) {
-                    this.$error(err.message)
-                    console.log(err)
-                }
+        addRecord (res) {
+            this.prefixRecord(res)
+            this.recordList.unshift(res)
+            if (res.address == this.account) {
+                this.myRecordList.unshift(res)
             }
         },
 

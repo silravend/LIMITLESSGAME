@@ -102,7 +102,6 @@ export default {
             activeIndex2: -1,
             min: 1,
             max: 97,
-            horseList: [95, 75, 48, 38, 18, 10],
             celebrateVisible: false
         }
     },
@@ -126,7 +125,8 @@ export default {
         },
         state: {
             default: 'bet'
-        }
+        },
+        horseList: Array
     },
     components: {
         Layout

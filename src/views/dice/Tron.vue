@@ -21,6 +21,7 @@
             :loading="loading"
             @bet="betSubmit"
             @ended="betEnd"
+            @addRecord="addRecord"
         >
         </game>
     </div>
@@ -75,7 +76,6 @@ export default {
 
     async created() {
         this.getRecord()
-        this.recordWs()
         this.getAmoutParams()
     },
 
@@ -276,6 +276,8 @@ export default {
             item._update = this.formatDate(item.updatedAt)
             item._wins = sliceNumber(item.wins, 2)
             item._link = `https://tronscan.org/#/transaction/${item.betTrx}`
+            item._bet = item.betMask
+            item._result = `<div class="result-num">${item.sha3Mod100}</div>`
         },
 
         async getRecord () {
@@ -296,25 +298,11 @@ export default {
             this.myRecordList = res
         },
 
-        recordWs () {
-            var ws = new WebSocket(process.env.VUE_APP_WS, 'echo-protocol');
-
-            ws.onmessage = evt => {
-                try{
-                    const res = JSON.parse(evt.data)
-                    //Tron 地址以 T 字母开头
-                    if (res.address.indexOf('T') == 0) {
-                        this.prefixRecord(res)
-                        this.recordList.unshift(res)
-                        if (res.address == this.account) {
-                            this.myRecordList.unshift(res)
-                        }
-                    }
-                    
-                } catch (err) {
-                    this.$error(err.message)
-                    console.log(err)
-                }
+        addRecord (res) {
+            this.prefixRecord(res)
+            this.recordList.unshift(res)
+            if (res.address == this.account) {
+                this.myRecordList.unshift(res)
             }
         },
 

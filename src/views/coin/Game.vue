@@ -6,7 +6,7 @@
         game="flipcoin"
     >
         <template v-slot:bg-cover>
-            <div class="bg-cover-wrapper" :class="{result: $attrs.state != 'bet'}">
+            <div class="bg-cover-wrapper" :class="{result: state != 'bet'}">
                 <div class="bg-cover_item">
                     <div class="bg-cover_result">
                         
@@ -24,13 +24,14 @@
         </template>
 
         <template v-slot:bet-cover>
-            <div class="bet-cover-wrapper" :class="{result: $attrs.state == 'result'}">
+            <div class="bet-cover-wrapper" :class="{result: state != 'bet'}">
                 <div class="bet-cover_item">
-                    
+                    <img src="@/assets/images/horse/horse1.png" alt="" class="animate-img">
                 </div>
 
                 <div class="bet-cover_item">
-                    
+                    <img @click="$emit('update:num', 1)" src="@/assets/images/horse/horse1.png" alt="" class="item-img">
+                    <img @click="$emit('update:num', 2)" src="@/assets/images/horse/horse2.png" alt="" class="item-img">
                 </div>
             </div>
         </template>
@@ -73,6 +74,9 @@ export default {
         gas: {
             default: ""
         },
+        state: {
+            default: 'bet'
+        }
     },
     components: {
         Layout
@@ -83,24 +87,23 @@ export default {
     },
 
     watch: {
-        '$attrs.state' (newVal) {
-            if (newVal == 'result') {
-                this.$el.querySelector('.horse-video').play()
+        'state' (newVal) {
+            if (newVal == 'wait') {
+                setTimeout(() => {
+                    if (this.result.wins > 0) {
+                        this.$success(this.$t('aq',{num: this.result.wins, symbol: this.$attrs.symbol}), 3000)
+                        this.celebrateVisible = true
+                    } else {
+                        this.$error(this.$t('ar'))
+                    }
+
+                    this.$emit('ended')
+                }, 5000)
             }
         }
     },
 
     mounted () {
-         this.$el.querySelector('.horse-video').addEventListener('ended', () => {
-            if (this.result.wins > 0) {
-                this.$success(this.$t('aq',{num: this.result.wins, symbol: 'TRX'}), 3000)
-                this.celebrateVisible = true
-            } else {
-                this.$error(this.$t('ar'))
-            }
-
-            this.$emit('ended')
-        }, false)
     },
 
     computed: {
@@ -129,6 +132,7 @@ export default {
     .bg-cover_item{
         height: 600px;
         position: relative;
+        
     }
 
     .bg-cover_result{
@@ -151,6 +155,7 @@ export default {
     .bet-cover_item{
         height: 382px;
         position: relative;
+        transform-style:preserve-3d ;
         &:before{
             content: '';
             display: table
@@ -183,6 +188,20 @@ export default {
         &.active{
             background: url(../../assets/images/horse/bg_active.png) no-repeat;
             background-size: 100% 100%;
+        }
+    }
+
+    .animate-img{
+        animation:  coin .3s ease-in 0s infinite running;
+    }
+
+    @keyframes coin{
+        from {
+            transform: rotate3d(0);
+        }
+
+        to {
+            transform: rotate3d(0, 1, 0, 360deg);
         }
     }
 
@@ -256,6 +275,8 @@ export default {
             box-shadow: 0 0 3px 2px rgba(255, 2552, 255, 0.6);
         }
     }
+
+    
 
 </style>
 
