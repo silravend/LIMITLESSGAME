@@ -362,13 +362,13 @@ export default {
             }
         },
         state (newVal) {
-            // if (newVal == 'bet') {
-            //     console.log('stop')
-            //     console.log(this.lampTimer)
-            //     this.stopLampAni()
-            // } else {
-            //     this.startLampAni()
-            // }
+            if (newVal == 'bet') {
+                console.log('stop')
+                console.log(this.lampTimer)
+                this.stopLampAni()
+            } else {
+                this.startLampAni()
+            }
         }
     },
 
@@ -392,12 +392,13 @@ export default {
             this.langVisible = false
         },
         startLampAni () {
+            if (this.lampTimer) clearInterval(this.lampTimer);
+
             this.lampTimer = setInterval(() => {
                 if (this.lampActive >= 2) {
                     this.lampActive = -1
                 }
                 this.lampActive += 1
-                
             }, 200)
         },
 
