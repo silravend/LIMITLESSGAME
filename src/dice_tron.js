@@ -8,7 +8,6 @@ Vue.config.productionTip = false
 
 Vue.use(Notification)
 
-console.log(123213)
 
 
 new Vue({

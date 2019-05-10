@@ -6,7 +6,7 @@
         game="dice"
     >
         <template v-slot:bg-cover>
-            <div class="bg-cover-wrapper" :class="{result: state != 'bet'}">
+            <div class="bg-cover-wrapper" :class="{result: $attrs.state != 'bet'}">
                 <div class="bg-cover_item">
                     <div class="bg-cover_result">
                         
@@ -24,10 +24,10 @@
         </template>
 
         <template v-slot:bet-cover>
-            <div class="bet-cover-wrapper" :class="{result: state != 'bet'}">
+            <div class="bet-cover-wrapper" :class="{result: $attrs.state != 'bet'}">
                 <div class="bet-cover_item">
                     <div class="result-num">
-                        <TwinkleNumber :start="state == 'wait'" :val="result.sha3Mod100" />
+                        <TwinkleNumber :start="$attrs.state == 'wait'" :val="result.sha3Mod100" />
                     </div>
                 </div>
 
@@ -100,6 +100,8 @@ import "vue-slider-component/theme/default.css"
 import CountTo from "vue-count-to"
 import NP from 'number-precision'
 
+NP.enableBoundaryChecking(false)
+
 export default {
     data () {
         return {
@@ -129,9 +131,6 @@ export default {
         gas: {
             default: ""
         },
-        state: {
-            default: 'bet'
-        }
     },
     components: {
         Layout,
@@ -141,7 +140,7 @@ export default {
     },
 
     watch :{
-        state (newVal) {
+        '$attrs.state' (newVal) {
             if (newVal == 'result') {
                 if (this.result.wins > 0) {
                     this.$success(this.$t('aq',{num: this.result.wins, symbol: this.$attrs.symbol}), 3000)
@@ -165,7 +164,8 @@ export default {
         lossPer() {
             const step1 = NP.plus(this.min, this.max)
             const step2 = NP.divide(step1, this.num)
-            return step2.toFixed(2)
+            
+            return NP.round(step2, 2)
         },
         bonus() {
             const res = NP.times(this.lossPer, this.$attrs.amount)

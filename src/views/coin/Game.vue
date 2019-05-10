@@ -6,7 +6,7 @@
         game="flipcoin"
     >
         <template v-slot:bg-cover>
-            <div class="bg-cover-wrapper" :class="{result: state != 'bet'}">
+            <div class="bg-cover-wrapper" :class="{result: $attrs.state != 'bet'}">
                 <div class="bg-cover_item">
                     <div class="bg-cover_result">
                         
@@ -24,7 +24,7 @@
         </template>
 
         <template v-slot:bet-cover>
-            <div class="bet-cover-wrapper" :class="{result: state != 'bet'}">
+            <div class="bet-cover-wrapper" :class="{result: $attrs.state != 'bet'}">
                 <div class="bet-cover_item">
                     <img src="@/assets/images/horse/horse1.png" alt="" class="animate-img">
                 </div>
@@ -73,9 +73,6 @@ export default {
         },
         gas: {
             default: ""
-        },
-        state: {
-            default: 'bet'
         }
     },
     components: {
@@ -87,7 +84,7 @@ export default {
     },
 
     watch: {
-        'state' (newVal) {
+        '$attrs.state' (newVal) {
             if (newVal == 'wait') {
                 setTimeout(() => {
                     if (this.result.wins > 0) {
@@ -121,6 +118,15 @@ export default {
 </script>
 
 <style lang="scss">
+    @keyframes coin{
+        from {
+            transform: rotate3d(0)
+        }
+        to {
+            transform: rotate3d(0, 1, 0, 360deg)
+        }
+    }
+
     .bg-cover-wrapper{
         transform: translate(0, -50%);
         transition: all .3s;
@@ -193,15 +199,6 @@ export default {
 
     .animate-img{
         animation:coin .3s ease-in 0s infinite running;
-    }
-
-    @keyframes coin{
-        from {
-            transform: rotate3d(0)
-        }
-        to {
-            transform: rotate3d(0, 1, 0, 360deg)
-        }
     }
 
     .item-img{

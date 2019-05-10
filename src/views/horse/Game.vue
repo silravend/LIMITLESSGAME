@@ -6,7 +6,7 @@
         game="horseracing"
     >
         <template v-slot:bg-cover>
-            <div class="bg-cover-wrapper" :class="{result: state != 'bet'}">
+            <div class="bg-cover-wrapper" :class="{result: $attrs.state != 'bet'}">
                 <div class="bg-cover_item">
                     <div class="bg-cover_result">
                         <video class="horse-video" :src="result.video ? 'https://api1.limitless.vip/download?url=' + result.video : ''" autoplay  playsinline="" webkit-playsinline="" x5-playsinline="" style="height: 100%;"></video>    
@@ -24,7 +24,7 @@
         </template>
 
         <template v-slot:bet-cover>
-            <div class="bet-cover-wrapper" :class="{result: state != 'bet'}">
+            <div class="bet-cover-wrapper" :class="{result: $attrs.state != 'bet'}">
                 <div class="bet-cover_item">
                     
                 </div>
@@ -122,9 +122,6 @@ export default {
         },
         gas: {
             default: ""
-        },
-        state: {
-            default: 'bet'
         },
         horseList: Array
     },

@@ -18,13 +18,13 @@
         <header>
             <img src="../assets/images/logo.png" alt="" class="logo">
             <nav>
-                <a style="display:none" @click="goBySymbol('eth')" class="nav-item" :class="{active: symbol == 'ETH'}">
+                <a @click="goBySymbol('eth')" class="nav-item" :class="{active: symbol == 'ETH'}">
                     <svg class="icon" aria-hidden="true">
                         <use xlink:href="#icon-ethereum"></use>
                     </svg>
                     <span class="icon-symbol">ETHEREUM</span>
                 </a>
-                <a style="display:none" @click="goBySymbol('tron')" class="nav-item" :class="{active: symbol == 'TRX'}">
+                <a @click="goBySymbol('tron')" class="nav-item" :class="{active: symbol == 'TRX'}">
                     <svg class="icon" aria-hidden="true">
                         <use xlink:href="#icon-icon_TRX"></use>
                     </svg>
@@ -271,7 +271,6 @@ export default {
     name: "layout",
     inheritAttrs: false,
     data() {
-        
         return {
             langList:{
                 zh: {
@@ -339,14 +338,17 @@ export default {
         },
         game: {
             default: ''
+        },
+        state: {
+            default: 'bet'
         }
     },
 
     components: {
         BeatLoader,
-        
         Modal
     },
+
     computed: {
         curLang () {
             return this.langList[this.$i18n.locale]
@@ -358,6 +360,15 @@ export default {
             if (newVal) {
                 this.celebrate()
             }
+        },
+        state (newVal) {
+            // if (newVal == 'bet') {
+            //     console.log('stop')
+            //     console.log(this.lampTimer)
+            //     this.stopLampAni()
+            // } else {
+            //     this.startLampAni()
+            // }
         }
     },
 

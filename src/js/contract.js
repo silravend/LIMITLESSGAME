@@ -13,13 +13,13 @@ export const ethSettle = account => {
 }
 
 export const tron = () => {
-    const address = 'TR4pfjyXuUFy1nQPEZfYb7BD6ywhPuoBmF'
+    const address = 'TTrE9TMH5KzHZfrqT8rY5UBBCLkr6X8HeJ'
     const tronWeb = window.tronWeb
     return tronWeb.contract().at(address).catch(err => console.log(err))
 }
 
 export const tronSettle = () => {
-    const address = 'TWnQSEwNLQG2JpsarWGFF1RpEXrhcmG4e7'
+    const address = 'TCbgmsxSxMv2a8svzRBkjJ7xcLsSrn5rjA'
     const tronWeb = window.tronWeb
     return tronWeb.contract().at(address).catch(err => console.log(err))
 }
