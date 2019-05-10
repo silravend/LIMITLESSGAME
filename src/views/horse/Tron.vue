@@ -34,6 +34,7 @@ import { sliceNumber } from '@/js/utils'
 import Game from './Game.vue'
 import calcReward from '@/js/calcReward'
 import { tron as getContract, tronSettle as getSettleContract } from '@/js/contract'
+import { getVideoUrl } from '@/api/horseracing_tron'
 
 let contract, settleContract
 
@@ -56,7 +57,7 @@ export default {
             result: {},
             state:"bet",
             loading: true,
-            debug: true,
+            debug: false,
             amountCache: 0.01, 
             numCache: 95,
             horseList: [95, 75, 48, 38, 18, 10],
@@ -212,19 +213,27 @@ export default {
             return { sha3Mod100, wins }
         },
 
+        //获取赛马的视频地址
+        async getVideo ({wins, sha3Mod100}) {
+            let winner = this.mapResultHorse({betMask: this.numCache, wins: wins, sha3Mod100: sha3Mod100})
+            let video = await getVideoUrl({winner: winner})
+            return video
+        },
+
         // 手动提前计算
-        async manualSettle (id, blockNumber) {
-            const { sha3Mod100, wins } = await this.getResult(id, blockNumber)
-            
-            this.result = {
+        async manualSettle (id, blockHash) {
+            const { sha3Mod100, wins } = await this.getResult(id, blockHash)
+
+            let result = {
                 sha3Mod100: sha3Mod100,
-                num: this.numCache,
                 wins: sha3Mod100 < this.numCache ? wins : 0
             }
+            
+            const video = await this.getVideo(result)
+            result.video = video
+
+            this.result = result
             this.state = 'result'
-            // setTimeout(() => {
-            //     this.state = 'result'
-            // }, 5000)
         },
 
         submitVerify () {
@@ -288,7 +297,6 @@ export default {
             //如果中奖，则直接返回投注的🐎
             if(item.wins > 0) return betNum;
 
-            let length = this.horseList.length
             for(let [i, item] of this.horseList.entries()) {
                 //如果大于或等于第一匹马
                 if (i == 0 && result >= item) return betNum == 1 ? 2 : 1;

@@ -2,6 +2,7 @@
     <div class="" id="app">
         <game
             ref="app"
+            symbol="ETH"
             :num.sync="num"
             :amount.sync="amount"
             :minAmount="minAmount"
@@ -33,6 +34,7 @@ import { sliceNumber } from '@/js/utils'
 import Game from './Game.vue'
 import calcReward from '@/js/calcReward'
 import { eth as getContract, ethSettle as getSettleContract } from "@/js/contract"
+import { getVideoUrl } from '@/api/horseracing_eth'
 
 let contract, settleContract
 
@@ -114,7 +116,7 @@ export default {
         
         contract = getContract(this.account)
         settleContract = getSettleContract(this.account)
-        console.log(settleContract)
+
         this.getJackpot()
         setInterval(() => {
             this.getJackpot()
@@ -205,26 +207,33 @@ export default {
 
         async getResult (id, blockHash) {
             let result = await settleContract.methods.getInfo(id, blockHash).call()
-            
-            console.log(result)
 
             const sha3Mod100 = parseInt(result[1].toString()) || 100
             const wins = sliceNumber(calcReward.eth(this.amountCache, this.numCache))
-            console.log(sha3Mod100, wins)
 
             return { sha3Mod100, wins }
+        },
+
+        //获取赛马的视频地址
+        async getVideo ({wins, sha3Mod100}) {
+            let winner = this.mapResultHorse({betMask: this.numCache, wins: wins, sha3Mod100: sha3Mod100})
+            let video = await getVideoUrl({winner: winner})
+            return video
         },
 
         // 手动提前计算
         async manualSettle (id, blockHash) {
             const { sha3Mod100, wins } = await this.getResult(id, blockHash)
 
-            this.result = {
+            let result = {
                 sha3Mod100: sha3Mod100,
-                num: this.numCache,
                 wins: sha3Mod100 < this.numCache ? wins : 0
             }
+            
+            const video = await this.getVideo(result)
+            result.video = video
 
+            this.result = result
             this.state = 'result'
         },
 
@@ -282,14 +291,13 @@ export default {
         },
 
         // 根据结果匹配到马的编号
-        mapResultHorse (item) {
-            const betNum = this.mapBetHorse(item.betMask)
-            const result = parseInt(item.sha3Mod100)
+        mapResultHorse ({betMask, wins, sha3Mod100}) {
+            const betNum = this.mapBetHorse(betMask)
+            const result = parseInt(sha3Mod100)
 
             //如果中奖，则直接返回投注的🐎
-            if(item.wins > 0) return betNum;
+            if(wins > 0) return betNum;
 
-            let length = this.horseList.length
             for(let [i, item] of this.horseList.entries()) {
                 //如果大于或等于第一匹马
                 if (i == 0 && result >= item) return betNum == 1 ? 2 : 1;
@@ -331,10 +339,16 @@ export default {
         },
 
         addRecord (res) {
-            this.prefixRecord(res)
-            this.recordList.unshift(res)
+            //如果是用户自己的投注，则延迟50s，等视频播放完成后再追加
             if (res.address == this.account) {
-                this.myRecordList.unshift(res)
+                setTimeout(() => {
+                    this.prefixRecord(res)
+                    this.recordList.unshift(res)
+                    this.myRecordList.unshift(res)
+                }, 50000)
+            }else {
+                this.prefixRecord(res)
+                this.recordList.unshift(res)
             }
         },
 

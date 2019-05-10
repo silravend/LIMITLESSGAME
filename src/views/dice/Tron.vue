@@ -55,7 +55,7 @@ export default {
             result: {},
             state:"bet",
             loading: true,
-            debug: true,
+            debug: false,
             amountCache: 50, 
             numCache: 0.01
         };

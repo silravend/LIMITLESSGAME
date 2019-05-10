@@ -192,16 +192,15 @@ export default {
     }
 
     .animate-img{
-        animation:  coin .3s ease-in 0s infinite running;
+        animation:coin .3s ease-in 0s infinite running;
     }
 
     @keyframes coin{
         from {
-            transform: rotate3d(0);
+            transform: rotate3d(0)
         }
-
         to {
-            transform: rotate3d(0, 1, 0, 360deg);
+            transform: rotate3d(0, 1, 0, 360deg)
         }
     }
 
@@ -275,8 +274,5 @@ export default {
             box-shadow: 0 0 3px 2px rgba(255, 2552, 255, 0.6);
         }
     }
-
-    
-
 </style>
 

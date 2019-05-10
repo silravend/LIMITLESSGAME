@@ -1,30 +1,30 @@
 <template>
     <div :class="[$i18n.locale]">
         <section class="side">
-            <a @click="goByGame('dice')" class="side-item" :class="{active: game == 'dice'}">
+            <div @click="goByGame('dice')" class="side-item" :class="{active: game == 'dice'}">
                 <img src="@/assets/images/icon_dice.png" alt="" class="side-item_img">
                 <div class="side-item_name">Dice</div>
-            </a>
-            <a @click="goByGame('horseracing')" href="" class="side-item" :class="{active: game == 'horseracing'}">
+            </div>
+            <div @click="goByGame('horseracing')" class="side-item" :class="{active: game == 'horseracing'}">
                 <img src="@/assets/images/icon_horse.png" alt="" class="side-item_img">
                 <div class="side-item_name">Horse</div>
-            </a>
-            <a @click="goByGame('flipcoin')" href="" class="side-item" :class="{active: game == 'flipcoin'}">
+            </div>
+            <div class="side-item" :class="{active: game == 'flipcoin'}">
                 <img src="@/assets/images/icon_coin.png" alt="" class="side-item_img">
-                <div class="side-item_name">Coin</div>
-            </a>
+                <div class="side-item_name">Coming soon</div>
+            </div>
         </section>
 
         <header>
             <img src="../assets/images/logo.png" alt="" class="logo">
             <nav>
-                <a @click="goBySymbol('eth')" class="nav-item" :class="{active: symbol == 'ETH'}">
+                <a style="display:none" @click="goBySymbol('eth')" class="nav-item" :class="{active: symbol == 'ETH'}">
                     <svg class="icon" aria-hidden="true">
                         <use xlink:href="#icon-ethereum"></use>
                     </svg>
                     <span class="icon-symbol">ETHEREUM</span>
                 </a>
-                <a @click="goBySymbol('tron')" class="nav-item" :class="{active: symbol == 'TRX'}">
+                <a style="display:none" @click="goBySymbol('tron')" class="nav-item" :class="{active: symbol == 'TRX'}">
                     <svg class="icon" aria-hidden="true">
                         <use xlink:href="#icon-icon_TRX"></use>
                     </svg>
@@ -147,13 +147,11 @@
                     <div class="cell-item">{{item._update}}</div>
                     <div class="cell-item">{{item.address}}</div>
                     <div class="cell-item">{{item.betAmount}}</div>
-                    <div class="cell-item">{{item.betMask}}</div>
-                    <div class="cell-item">
-                        <div class="result-num">{{item.sha3Mod100}}</div>
-                    </div>
+                    <div class="cell-item" v-html="item._bet"></div>
+                    <div class="cell-item" v-html="item._result"></div>
                     <div class="cell-item">
                         <span v-if="item._wins > 0">+ {{item._wins}} {{symbol}}</span>
-                        <span v-else> -- </span>
+                        <span v-else> - - </span>
                     </div>
                     <div class="cell-item">{{item.jackpot}}</div>
                     <div class="cell-item">
@@ -232,7 +230,7 @@
 
         <modal v-if="inviteVisible" :visible.sync="inviteVisible" :title="$t('b')" :btnText="$t('ad')">
             <div class="modal-text">
-                {{$t('al')}}https://limitless.vip/dice?invite=
+                {{$t('al')}}https://www.limitless.vip/game?invite=
             </div>
         </modal>
 
@@ -268,8 +266,6 @@
 import BeatLoader from "vue-spinner/src/BeatLoader.vue"
 import Confetti from "canvas-confetti"
 import Modal from "@/components/Modal.vue"
-
-let contract;
 
 export default {
     name: "layout",
@@ -648,7 +644,6 @@ body {
     top: 220px;
 
     .side-item{
-        display: block;
         width: 100px;
         height: 70px;
         background: linear-gradient(to right, rgba(255,173,57,1), rgba(108,13,185,1));
@@ -659,6 +654,7 @@ body {
         color: #fff;
         text-align: center;
         transition: all .6s;
+        cursor: pointer;
 
         &.active{
             background-position: 0 0;
@@ -813,10 +809,6 @@ main {
         transform: translate(-50%, 0);
         overflow: hidden;
     }
-
-    
-
-  
     .bet-cover{
         position: absolute;
         z-index: 10;
@@ -828,9 +820,6 @@ main {
         transform: translate(-50%, 0);
         overflow: hidden;
     }
-
-
-    
 
     .main-wrapper {
         position: absolute;

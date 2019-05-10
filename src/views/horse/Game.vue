@@ -9,7 +9,7 @@
             <div class="bg-cover-wrapper" :class="{result: state != 'bet'}">
                 <div class="bg-cover_item">
                     <div class="bg-cover_result">
-                        
+                        <video class="horse-video" :src="result.video ? 'https://api1.limitless.vip/download?url=' + result.video : ''" autoplay  playsinline="" webkit-playsinline="" x5-playsinline="" style="height: 100%;"></video>    
                     </div> 
                 </div>
 
@@ -26,7 +26,7 @@
         <template v-slot:bet-cover>
             <div class="bet-cover-wrapper" :class="{result: state != 'bet'}">
                 <div class="bet-cover_item">
-                    <video class="horse-video" src="https://api1.limitless.vip/download?url=6.bf99b4d4.mp4"  playsinline="" webkit-playsinline="" x5-playsinline="" style="width: 100%; height: 100%;"></video>
+                    
                 </div>
 
                 <div class="bet-cover_item">
@@ -78,9 +78,9 @@
                     <div class="result-cell">
                         <div class="result-cell_item">{{$t('h')}} : {{num}}%</div>
                         <div class="result-cell_item">{{$t('g')}} : {{lossPer}}x</div>
-                        <div class="result-cell_item ">{{$t('i')}} : {{bonus}}TRX</div>
+                        <div class="result-cell_item ">{{$t('i')}} : {{bonus}}{{$attrs.symbol}}</div>
                         <div class="result-cell_line"></div>
-                        <div>{{$t('k')}}: 20 {{$attrs.symbol}}</div>
+                        <div>{{$t('k')}}: <countTo :startVal='jackpotStart' :decimals="decimal" :endVal='jackpotEnd' :duration='1500'></countTo> {{$attrs.symbol}}</div>
                     </div>
                 </div>
             </div>
@@ -91,8 +91,8 @@
 <script>
 import Layout from '../Layout.vue'
 import { sliceNumber } from "@/js/utils"
+import CountTo from "vue-count-to"
 import NP from 'number-precision'
-
 
 export default {
     data () {
@@ -129,26 +129,12 @@ export default {
         horseList: Array
     },
     components: {
-        Layout
+        Layout,
+        CountTo
     },
 
     created () {
-        console.log(this.$listeners)
-    },
 
-    watch: {
-        state (newVal) {
-            if (newVal == 'result') {
-                let horseIndex
-                for(let [index, item] of this.horseList.entries()) {
-                    if (item == this.result.num) {
-                        horseIndex = index
-                    }
-                }
-                console.log(`投注的号码是${horseIndex + 1}`)
-                this.$el.querySelector('.horse-video').play()
-            }
-        }
     },
 
     mounted () {
@@ -179,6 +165,18 @@ export default {
 </script>
 
 <style lang="scss">
+    .en{
+        .result-cell{
+            font-size: 12px;
+        }
+
+        .result-cell_item{
+            &:not(:first-child){
+                margin-left: 20px;
+            }
+        }
+    }
+
     .bg-cover-wrapper{
         transform: translate(0, -50%);
         transition: all .3s;
@@ -188,7 +186,7 @@ export default {
     }
 
     .bg-cover_item{
-        height: 600px;
+        height: 382px;
         position: relative;
     }
 
@@ -283,6 +281,7 @@ export default {
             margin-left: 30px;
         }
     }
+
 
     .result-cell_line{
         width: 1px;

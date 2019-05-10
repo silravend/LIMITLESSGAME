@@ -48,7 +48,7 @@ export const getAmountParams = () => {
 // 获取视频地址
 export const getVideoUrl = ({ winner }) => {
     return io({
-        method: 'winner',
+        method: 'get',
         url: '/api/v1.0/horseracing/ethereum/getVideoUrl',
         params: { winner }
     })

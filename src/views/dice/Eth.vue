@@ -2,6 +2,7 @@
     <div class="" id="app">
         <game
             ref="app"
+            symbol="ETH"
             :num.sync="num"
             :amount.sync="amount"
             :minAmount="minAmount"
@@ -56,7 +57,7 @@ export default {
             state:"bet",
             loading: true,
             celebrateVisible: false,
-            debug: true
+            debug: false
         };
     },
     components: {
