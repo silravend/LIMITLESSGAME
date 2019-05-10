@@ -48,7 +48,7 @@ module.exports = {
             // 模板来源
             template: 'public/horse_ethereum.html',
             // 在 dist/horse_ethereum.html 的输出
-            filename: 'horse_ethereum.html',
+            filename: 'horseracing_ethereum.html',
             // 当使用 title 选项时，
             // template 中的 title 标签需要是 <title><%= htmlWebpackPlugin.options.title %></title>
             title: 'eth',
@@ -63,7 +63,7 @@ module.exports = {
             // 模板来源
             template: 'public/horse_tron.html',
             // 在 dist/tron.html 的输出
-            filename: 'horse_tron.html',
+            filename: 'horseracing_tron.html',
             // 当使用 title 选项时，
             // template 中的 title 标签需要是 <title><%= htmlWebpackPlugin.options.title %></title>
             title: 'tron',
@@ -108,8 +108,8 @@ module.exports = {
             rewrites: [
                 { from: /\/dice_eth/, to: '/dice_ethereum.html' },
                 { from: /\/dice_tron/, to: '/dice_tron.html' },
-                { from: /\/horse_eth/, to: '/horse_ethereum.html' },
-                { from: /\/horse_tron/, to: '/horse_tron.html' },
+                { from: /\/horse_eth/, to: '/horseracing_ethereum.html' },
+                { from: /\/horse_tron/, to: '/horseracing_tron.html' },
                 { from: /\/coin_eth/, to: '/coin_ethereum.html' },
                 { from: /\/coin_tron/, to: '/coin_tron.html' }
             ]
