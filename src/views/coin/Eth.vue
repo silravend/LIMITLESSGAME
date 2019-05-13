@@ -311,7 +311,7 @@ export default {
 
         formatDate(dateString) {
             let date = new Date(dateString)
-            let s = `${date.getHours()}:${date.getMinutes()}:${date.getMinutes()}`
+            let s = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
             return s.replace(/(\b\d\b)/g, '0$1')
         }
     }
