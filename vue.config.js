@@ -1,7 +1,10 @@
 const path = require('path')
 
 module.exports = {
-    publicPath: '/',
+    publicPath: process.env.NODE_ENV === 'production'
+    ? 'https://api1.limitless.vip/download?url='
+    : '/',
+    assetsDir: './',
     configureWebpack: config => {
         if (process.env.NODE_ENV === 'development') {
             config.devtool = 'source-map'

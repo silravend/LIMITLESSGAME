@@ -54,7 +54,7 @@
 
         <main>
             <div class="common-cover">
-                <img src="../assets/images/main-wrapper.png" alt="" class="main-wrapper">
+                <img :src="`https://api1.limitless.vip/download?url=main-wrapper-${fullSymbol}.png`" alt="" class="main-wrapper">
                  <div class="main-balance">
                     <img src="../assets/images/balance.png" class="main-balance_img" />
                     <div class="main-balance_text">
@@ -162,7 +162,7 @@
         </section>
 
         <section class="footer">
-            <div class="footer-bg"><img src="@/assets/images/footer-bg.png" class="footer-bg_img"></div>
+            <div class="footer-bg"><img src="https://api1.limitless.vip/download?url=footer-bg.png" class="footer-bg_img"></div>
             
             <div class="footer-desc">
                 <div class="footer-desc_title">{{$t('x')}}</div>
@@ -352,6 +352,10 @@ export default {
     computed: {
         curLang () {
             return this.langList[this.$i18n.locale]
+        },
+        
+        fullSymbol () {
+            return this.symbol == 'ETH' ? 'ethereum' : 'tron'
         }
     },
 
@@ -378,8 +382,7 @@ export default {
 
     methods: {
         goByGame (game) {
-            const symbol = this.symbol == 'ETH' ? 'ethereum' : 'tron'
-            location.href = `https://www.limitless.vip/${game}/${symbol}`
+            location.href = `https://www.limitless.vip/${game}/${this.fullSymbol}`
         },
 
         goBySymbol (symbol) {
@@ -637,7 +640,7 @@ export default {
 @import "@/css/animate/fade-in-top.scss";
 
 body {
-    background: #0e002d url(../assets/images/bg.jpg) no-repeat;
+    background: #0e002d url(https://api1.limitless.vip/download?url=bg.jpg) no-repeat;
     background-size: 100% auto;
 }
 
