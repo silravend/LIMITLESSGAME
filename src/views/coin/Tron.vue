@@ -205,7 +205,6 @@ export default {
             
             const sha3Mod100 = parseInt(result[1].toString()) || 100
             const wins = sliceNumber(calcReward.tron(this.amountCache, 50), 2)
-            console.log(sha3Mod100, wins)
 
             return { sha3Mod100, wins }
         },
@@ -254,8 +253,6 @@ export default {
             const params = await this.getBetParams()
             
             contract.Commit().watch({filters: {commit: params.commit.slice(2)}}, (err, res) => {
-                console.log('watch')
-                console.log(err, res)
                 if(err) {
                     this.$error(this.$t('av'))
                     this.betEnd()

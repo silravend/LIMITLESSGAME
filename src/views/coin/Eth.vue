@@ -114,7 +114,6 @@ export default {
         
         contract = getContract(this.account)
         settleContract = getSettleContract(this.account)
-        console.log(settleContract)
         this.getJackpot()
         setInterval(() => {
             this.getJackpot()
@@ -205,12 +204,9 @@ export default {
 
         async getResult (id, blockHash) {
             let result = await settleContract.methods.getInfo(id, blockHash).call()
-            
-            console.log(result)
 
             const sha3Mod100 = parseInt(result[1].toString()) || 100
             const wins = sliceNumber(calcReward.eth(this.amountCache, this.numCache))
-            console.log(sha3Mod100, wins)
 
             return { sha3Mod100, wins }
         },
@@ -273,7 +269,6 @@ export default {
             contract.once('Commit', {
 
             }, async (error, event) => {
-                console.log('commit')
                 this.settle( params.id, event.blockHash)
                 this.manualSettle(params.id, event.blockHash)
             })

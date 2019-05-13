@@ -274,7 +274,6 @@ export default {
             contract.once('Commit', {
 
             }, async (error, event) => {
-                console.log('commit')
                 this.settle( params.id, event.blockHash)
                 this.manualSettle(params.id, event.blockHash)
             })
