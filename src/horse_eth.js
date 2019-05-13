@@ -5,6 +5,7 @@ import Notification from '@/components/notification'
 import "@/fonts/iconfont.js"
 
 
+
 Vue.config.productionTip = false
 
 Vue.use(Notification)

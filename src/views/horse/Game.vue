@@ -32,8 +32,8 @@
                 <div class="bet-cover_item">
                     <ul class="horse-list">
                         <li @click="$emit('update:num', horseList[0])" class="horse-item" :class="{active: num == horseList[0]}">
-                            <img v-if="num == horseList[0]" src="@/assets/images/horse/horse1.gif" alt="" class="item-img">
-                            <img v-else src="@/assets/images/horse/horse1.png" alt="" class="item-img">
+                            <img v-show="num == horseList[0]" src="https://api1.limitless.vip/download?url=horse1.gif" alt="" class="item-img">
+                            <img v-show="num != horseList[0]" src="@/assets/images/horse/horse1.png" alt="" class="item-img">
                             
                             <div class="item-num">
                                 <img src="@/assets/images/horse/num1.png" alt="" class="item-num_img">
@@ -41,40 +41,40 @@
                             </div>
                         </li>
                         <li @click="$emit('update:num', horseList[1])" class="horse-item" :class="{active: num == horseList[1]}">
-                            <img v-if="num == horseList[1]" src="@/assets/images/horse/horse2.gif" alt="" class="item-img">
-                            <img v-else src="@/assets/images/horse/horse2.png" alt="" class="item-img">
+                            <img v-show="num == horseList[1]" src="https://api1.limitless.vip/download?url=horse2.gif" alt="" class="item-img">
+                            <img v-show="num != horseList[1]" src="@/assets/images/horse/horse2.png" alt="" class="item-img">
                             <div class="item-num">
                                 <img src="@/assets/images/horse/num2.png" alt="" class="item-num_img">
                                 <i class="item-num_name">Solomum</i>
                             </div>
                         </li>
                         <li @click="$emit('update:num', horseList[2])" class="horse-item" :class="{active: num == horseList[2]}">
-                            <img v-if="num == horseList[2]" src="@/assets/images/horse/horse3.gif" alt="" class="item-img">
-                            <img v-else src="@/assets/images/horse/horse3.png" alt="" class="item-img">
+                            <img v-show="num == horseList[2]" src="https://api1.limitless.vip/download?url=horse3.gif" alt="" class="item-img">
+                            <img v-show="num != horseList[2]" src="@/assets/images/horse/horse3.png" alt="" class="item-img">
                             <div class="item-num">
                                 <img src="@/assets/images/horse/num3.png" alt="" class="item-num_img">
-                                <i class="item-num_name">Jack</i>
+                                <i class="item-num_name">Tronic</i>
                             </div>
                         </li>
                         <li @click="$emit('update:num', horseList[3])" class="horse-item" :class="{active: num == horseList[3]}">
-                            <img v-if="num == horseList[3]" src="@/assets/images/horse/horse4.gif" alt="" class="item-img">
-                            <img v-else src="@/assets/images/horse/horse4.png" alt="" class="item-img">
+                            <img v-show="num == horseList[3]" src="https://api1.limitless.vip/download?url=horse4.gif" alt="" class="item-img">
+                            <img v-show="num != horseList[3]" src="@/assets/images/horse/horse4.png" alt="" class="item-img">
                             <div class="item-num">
                                 <img src="@/assets/images/horse/num4.png" alt="" class="item-num_img">
                                 <i class="item-num_name">Russel</i>
                             </div>
                         </li>
                         <li @click="$emit('update:num', horseList[4])" class="horse-item" :class="{active: num == horseList[4]}">
-                            <img v-if="num == horseList[4]" src="@/assets/images/horse/horse5.gif" alt="" class="item-img">
-                            <img v-else src="@/assets/images/horse/horse5.png" alt="" class="item-img">
+                            <img v-show="num == horseList[4]" src="https://api1.limitless.vip/download?url=horse5.gif" alt="" class="item-img">
+                            <img v-show="num != horseList[4]" src="@/assets/images/horse/horse5.png" alt="" class="item-img">
                             <div class="item-num">
                                 <img src="@/assets/images/horse/num5.png" alt="" class="item-num_img">
                                 <i class="item-num_name">Autumn</i>
                             </div>
                         </li>
                         <li @click="$emit('update:num', horseList[5])" class="horse-item" :class="{active: num == horseList[5]}">
-                            <img v-if="num == horseList[5]" src="@/assets/images/horse/horse6.gif" alt="" class="item-img">
-                            <img v-else src="@/assets/images/horse/horse6.png" alt="" class="item-img">
+                            <img v-show="num == horseList[5]" src="https://api1.limitless.vip/download?url=horse6.gif" alt="" class="item-img">
+                            <img v-show="num != horseList[5]" src="@/assets/images/horse/horse6.png" alt="" class="item-img">
                             <div class="item-num">
                                 <img src="@/assets/images/horse/num6.png" alt="" class="item-num_img">
                                 <i class="item-num_name">Jasmine</i>
