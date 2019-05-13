@@ -1,10 +1,7 @@
 const path = require('path')
 
 module.exports = {
-    publicPath: process.env.NODE_ENV === 'production'
-    ? 'https://api1.limitless.vip/download?url='
-    : '/',
-    assetsDir: './',
+    publicPath: '/',
     configureWebpack: config => {
         if (process.env.NODE_ENV === 'development') {
             config.devtool = 'source-map'
@@ -49,7 +46,7 @@ module.exports = {
             // page 的入口
             entry: 'src/horse_eth.js',
             // 模板来源
-            template: 'public/horseracing_ethereum.html',
+            template: 'public/horse_ethereum.html',
             // 在 dist/horse_ethereum.html 的输出
             filename: 'horseracing_ethereum.html',
             // 当使用 title 选项时，
@@ -64,7 +61,7 @@ module.exports = {
             // page 的入口
             entry: 'src/horse_tron.js',
             // 模板来源
-            template: 'public/horseracing_tron.html',
+            template: 'public/horse_tron.html',
             // 在 dist/tron.html 的输出
             filename: 'horseracing_tron.html',
             // 当使用 title 选项时，
