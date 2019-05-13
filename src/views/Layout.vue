@@ -367,8 +367,6 @@ export default {
         },
         state (newVal) {
             if (newVal == 'bet') {
-                console.log('stop')
-                console.log(this.lampTimer)
                 this.stopLampAni()
             } else {
                 this.startLampAni()
