@@ -99,6 +99,7 @@ export default {
             await window.tronWeb.isConnected()
 
             this.account = window.tronWeb.defaultAddress.base58
+            this.getMyRecord()
             
             contract = await getContract()
             settleContract = await getSettleContract()
