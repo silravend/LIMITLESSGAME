@@ -32,42 +32,49 @@
                 <div class="bet-cover_item">
                     <ul class="horse-list">
                         <li @click="$emit('update:num', horseList[0])" class="horse-item" :class="{active: num == horseList[0]}">
-                            <img src="@/assets/images/horse/horse1.png" alt="" class="item-img">
+                            <img v-if="num == horseList[0]" src="@/assets/images/horse/horse1.gif" alt="" class="item-img">
+                            <img v-else src="@/assets/images/horse/horse1.png" alt="" class="item-img">
+                            
                             <div class="item-num">
                                 <img src="@/assets/images/horse/num1.png" alt="" class="item-num_img">
                                 <i class="item-num_name">Geoffery</i>
                             </div>
                         </li>
                         <li @click="$emit('update:num', horseList[1])" class="horse-item" :class="{active: num == horseList[1]}">
-                            <img src="@/assets/images/horse/horse2.png" alt="" class="item-img">
+                            <img v-if="num == horseList[1]" src="@/assets/images/horse/horse2.gif" alt="" class="item-img">
+                            <img v-else src="@/assets/images/horse/horse2.png" alt="" class="item-img">
                             <div class="item-num">
                                 <img src="@/assets/images/horse/num2.png" alt="" class="item-num_img">
                                 <i class="item-num_name">Solomum</i>
                             </div>
                         </li>
                         <li @click="$emit('update:num', horseList[2])" class="horse-item" :class="{active: num == horseList[2]}">
-                            <img src="@/assets/images/horse/horse3.png" alt="" class="item-img">
+                            <img v-if="num == horseList[2]" src="@/assets/images/horse/horse3.gif" alt="" class="item-img">
+                            <img v-else src="@/assets/images/horse/horse3.png" alt="" class="item-img">
                             <div class="item-num">
                                 <img src="@/assets/images/horse/num3.png" alt="" class="item-num_img">
                                 <i class="item-num_name">Jack</i>
                             </div>
                         </li>
                         <li @click="$emit('update:num', horseList[3])" class="horse-item" :class="{active: num == horseList[3]}">
-                            <img src="@/assets/images/horse/horse4.png" alt="" class="item-img">
+                            <img v-if="num == horseList[3]" src="@/assets/images/horse/horse4.gif" alt="" class="item-img">
+                            <img v-else src="@/assets/images/horse/horse4.png" alt="" class="item-img">
                             <div class="item-num">
                                 <img src="@/assets/images/horse/num4.png" alt="" class="item-num_img">
                                 <i class="item-num_name">Russel</i>
                             </div>
                         </li>
                         <li @click="$emit('update:num', horseList[4])" class="horse-item" :class="{active: num == horseList[4]}">
-                            <img src="@/assets/images/horse/horse5.png" alt="" class="item-img">
+                            <img v-if="num == horseList[4]" src="@/assets/images/horse/horse5.gif" alt="" class="item-img">
+                            <img v-else src="@/assets/images/horse/horse5.png" alt="" class="item-img">
                             <div class="item-num">
                                 <img src="@/assets/images/horse/num5.png" alt="" class="item-num_img">
                                 <i class="item-num_name">Autumn</i>
                             </div>
                         </li>
                         <li @click="$emit('update:num', horseList[5])" class="horse-item" :class="{active: num == horseList[5]}">
-                            <img src="@/assets/images/horse/horse6.png" alt="" class="item-img">
+                            <img v-if="num == horseList[5]" src="@/assets/images/horse/horse6.gif" alt="" class="item-img">
+                            <img v-else src="@/assets/images/horse/horse6.png" alt="" class="item-img">
                             <div class="item-num">
                                 <img src="@/assets/images/horse/num6.png" alt="" class="item-num_img">
                                 <i class="item-num_name">Jasmine</i>
@@ -239,6 +246,11 @@ export default {
         &.active{
             background: url(../../assets/images/horse/bg_active.png) no-repeat;
             background-size: 100% 100%;
+
+            .item-img{
+                width: 129px;
+                margin-top: 4px;
+            }
         }
     }
 

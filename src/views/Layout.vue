@@ -18,7 +18,7 @@
         <header>
             <img src="../assets/images/logo.png" alt="" class="logo">
             <nav>
-                <a @click="goBySymbol('eth')" class="nav-item" :class="{active: symbol == 'ETH'}">
+                <a @click="goBySymbol('ethereum')" class="nav-item" :class="{active: symbol == 'ETH'}">
                     <svg class="icon" aria-hidden="true">
                         <use xlink:href="#icon-ethereum"></use>
                     </svg>

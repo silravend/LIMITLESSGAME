@@ -35,6 +35,7 @@ import Game from './Game.vue'
 import calcReward from '@/js/calcReward'
 import { eth as getContract, ethSettle as getSettleContract } from "@/js/contract"
 import { getVideoUrl } from '@/api/horseracing_eth'
+import { eth as ethAddr } from '@/js/address_config'
 
 let contract, settleContract
 
@@ -144,7 +145,8 @@ export default {
         
         async getJackpot () {
             this.jackpotStart = this.jackpotEnd
-            const res = await contract.methods.jackpotSize().call()
+            // const res = await contract.methods.jackpotSize().call()
+            const res = await web3.eth.getBalance(ethAddr)
 
             this.jackpotEnd = sliceNumber(web3.utils.fromWei(res))
         },

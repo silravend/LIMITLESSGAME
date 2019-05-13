@@ -34,6 +34,7 @@ import { sliceNumber } from '@/js/utils'
 import Game from './Game.vue'
 import calcReward from '@/js/calcReward'
 import { eth as getContract, ethSettle as getSettleContract } from "@/js/contract"
+import { eth as ethAddr } from '@/js/address_config'
 
 let contract, settleContract
 
@@ -115,7 +116,7 @@ export default {
         
         contract = getContract(this.account)
         settleContract = getSettleContract(this.account)
-        console.log(settleContract)
+
         this.getJackpot()
         setInterval(() => {
             this.getJackpot()
@@ -143,7 +144,8 @@ export default {
         
         async getJackpot () {
             this.jackpotStart = this.jackpotEnd
-            const res = await contract.methods.jackpotSize().call()
+            // const res = await contract.methods.jackpotSize().call()
+            const res = await web3.eth.getBalance(ethAddr)
 
             this.jackpotEnd = sliceNumber(web3.utils.fromWei(res))
         },
@@ -209,7 +211,7 @@ export default {
 
             const sha3Mod100 = parseInt(result[1].toString()) || 100
             const wins = sliceNumber(calcReward.eth(this.amountCache, this.numCache))
-            console.log(sha3Mod100, wins)
+            
 
             return { sha3Mod100, wins }
         },

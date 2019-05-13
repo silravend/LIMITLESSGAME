@@ -17,7 +17,7 @@
             :jackpotEnd="jackpotEnd"
             :state="state"
             :result="result"
-            :decimal="0"
+            :decimal="1"
             :loading="loading"
             :horseList="horseList"
             @bet="betSubmit"
