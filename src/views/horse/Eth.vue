@@ -33,9 +33,9 @@
 <script>
 import { getGasPrice, getBetParams, settleBet, getRecord, getMyRecord, getAmountParams, getHighRoller } from "@/api/horseracing_eth"
 import web3 from '@/js/web3'
-import { sliceNumber } from '@/js/utils'
+import { sliceNumber, foldString } from '@/js/utils'
 import Game from './Game.vue'
-import {calcEthReward} from '@/js/game'
+import {calcEthReward, calcLossPer} from '@/js/game'
 import { eth as getContract, ethSettle as getSettleContract } from "@/js/contract"
 import { getVideoUrl } from '@/api/horseracing_eth'
 import { eth as ethAddr } from '@/js/address_config'
@@ -173,6 +173,7 @@ export default {
                 })
             }
         },
+        
 
         async getBetParams () {
             const ready = async () => {
