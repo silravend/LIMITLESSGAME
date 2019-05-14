@@ -13,6 +13,7 @@
             :betLoading="betLoading"
             :recordList="recordList"
             :myRecordList="myRecordList"
+            :adRecordList="adRecordList"
             :jackpotStart="jackpotStart"
             :jackpotEnd="jackpotEnd"
             :state="state"
@@ -20,6 +21,8 @@
             :decimal="1"
             :loading="loading"
             :horseList="horseList"
+            :min="min"
+            :max="max"
             @bet="betSubmit"
             @ended="betEnd"
             @addRecord="addRecord"
@@ -29,10 +32,10 @@
 </template>
 
 <script>
-import { getBetParams, settleBet, getRecord, getMyRecord, getAmountParams } from "@/api/horseracing_tron";
-import { sliceNumber } from '@/js/utils'
+import { getBetParams, settleBet, getRecord, getMyRecord, getAmountParams, getHighRoller } from "@/api/horseracing_tron";
+import { sliceNumber, foldString } from '@/js/utils'
 import Game from './Game.vue'
-import calcReward from '@/js/calcReward'
+import { calcTronReward, calcLossPer } from '@/js/game'
 import { tron as getContract, tronSettle as getSettleContract } from '@/js/contract'
 import { getVideoUrl } from '@/api/horseracing_tron'
 
@@ -49,6 +52,7 @@ export default {
             account: "",
             recordList: [],
             myRecordList: [],
+            adRecordList: [],
             jackpotStart: 0,
             jackpotEnd: 0,
             minAmount: 0.01,
@@ -60,6 +64,8 @@ export default {
             debug: false,
             amountCache: 0.01, 
             numCache: 95,
+            min: 1,
+            max: 97,
             horseList: [95, 75, 48, 38, 18, 10],
         };
     },
@@ -80,6 +86,7 @@ export default {
     async created() {
         this.getRecord()
         this.getAmoutParams()
+        this.getHighRoller()
     },
 
     mounted () {
@@ -113,6 +120,10 @@ export default {
                 this.getJackpot()
             }, 10000)
         }, 1000)
+
+        // setInterval(() => {
+        //     this.recordList.unshift(this.recordList[0])
+        // }, 5000)
     },
 
     methods: {
@@ -142,7 +153,6 @@ export default {
 
             this.jackpotEnd = sliceNumber(window.tronWeb.fromSun(res), 2)
         },
-
 
         fixAmount() {
             let num = parseInt(this.amount);
@@ -208,7 +218,7 @@ export default {
             let result = await settleContract.getInfo(id, blockHash).call()
             
             const sha3Mod100 = parseInt(result[1].toString()) || 100
-            const wins = sliceNumber(calcReward.tron(this.amountCache, this.numCache), 2)
+            const wins = sliceNumber(calcTronReward(this.amountCache, this.numCache), 2)
 
             return { sha3Mod100, wins }
         },
@@ -310,7 +320,8 @@ export default {
             item._wins = sliceNumber(item.wins, 2)
             item._link = `https://tronscan.org/#/transaction/${item.betTrx}`
             item._bet = this.mapBetHorse(item.betMask)
-            item._result = item._result = `<div class="result-num">${this.mapResultHorse(item)}</div>`
+            item._result = `<div class="result-num">${this.mapResultHorse(item)}</div>`
+
         },
 
         async getRecord () {
@@ -318,6 +329,7 @@ export default {
             if (res === null) return;
 
             res.forEach(item => this.prefixRecord(item))
+
             this.recordList = res
         },
 
@@ -332,10 +344,22 @@ export default {
         },
 
         addRecord (res) {
-            this.prefixRecord(res)
-            this.recordList.unshift(res)
             if (res.address == this.account) {
-                this.myRecordList.unshift(res)
+                setTimeout(() => {
+                    this.prefixRecord(res)
+                    this.recordList.unshift(res)
+                    this.myRecordList.unshift(res)
+                }, 50000)
+            }else {
+                this.prefixRecord(res)
+                this.recordList.unshift(res)
+            }
+
+            if (this.recordList.length > 25) {
+                this.recordList.pop()
+            }
+            if (this.myRecordList.length > 25) {
+                this.myRecordList.pop()
             }
         },
 
@@ -343,6 +367,18 @@ export default {
             let date = new Date(dateString)
             let s = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
             return s.replace(/(\b\d\b)/g, '0$1')
+        },
+
+        async getHighRoller () {
+            const res = await getHighRoller()
+            if (res === null) return;
+            
+            res.forEach(item => {
+                item._lossPer = calcLossPer({min: this.min, max: this.max, bet: item.betMask})
+                item._shortcutAddr = foldString(item.address)
+            })
+
+            this.adRecordList = res
         }
     }
 };

@@ -51,4 +51,5 @@ export default {
     ax: '测试网络不支持，请切换到主网',
     ay: '请在TronLink登录您的账户',
     az: '恭喜您赢得 {num} TRX',
+    ba: '恭喜 {addr} 赢取 <span class="slider-item_primary">{wins}</span>  {symbol}，赔率 <span class="slider-item_primary">{lossPer}</span>'
 }

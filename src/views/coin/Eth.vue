@@ -307,6 +307,13 @@ export default {
             if (res.address == this.account) {
                 this.myRecordList.unshift(res)
             }
+
+            if (this.recordList.length > 20) {
+                this.recordList.pop()
+            }
+            if (this.myRecordList.length > 20) {
+                this.myRecordList.pop()
+            }
         },
 
         formatDate(dateString) {

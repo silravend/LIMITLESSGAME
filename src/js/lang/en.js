@@ -51,4 +51,5 @@ export default {
     ax: 'Please switch to the main network.',
     ay: 'Please login your TronLink account.',
     az: 'Congratulations! You have won {num} TRX',
+    ba: 'Congratulations, {addr} won <span class="slider-item_primary">{wins}</span>  {symbol}, payout <span class="slider-item_primary">{lossPer}</span>'
 }

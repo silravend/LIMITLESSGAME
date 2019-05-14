@@ -13,12 +13,15 @@
             :betLoading="betLoading"
             :recordList="recordList"
             :myRecordList="myRecordList"
+            :adRecordList="adRecordList"
             :jackpotStart="jackpotStart"
             :jackpotEnd="jackpotEnd"
             :state="state"
             :result="result"
             :loading="loading"
             :horseList="horseList"
+            :min="min"
+            :max="max"
             @bet="betSubmit"
             @ended="betEnd"
             @addRecord="addRecord"
@@ -28,11 +31,11 @@
 </template>
 
 <script>
-import { getGasPrice, getBetParams, settleBet, getRecord, getMyRecord, getAmountParams } from "@/api/horseracing_eth"
+import { getGasPrice, getBetParams, settleBet, getRecord, getMyRecord, getAmountParams, getHighRoller } from "@/api/horseracing_eth"
 import web3 from '@/js/web3'
 import { sliceNumber } from '@/js/utils'
 import Game from './Game.vue'
-import calcReward from '@/js/calcReward'
+import {calcEthReward} from '@/js/game'
 import { eth as getContract, ethSettle as getSettleContract } from "@/js/contract"
 import { getVideoUrl } from '@/api/horseracing_eth'
 import { eth as ethAddr } from '@/js/address_config'
@@ -50,6 +53,7 @@ export default {
             account: "",
             recordList: [],
             myRecordList: [],
+            adRecordList: [],
             jackpotStart: 0,
             jackpotEnd: 0,
             minAmount: 0.01,
@@ -58,6 +62,8 @@ export default {
             result: {},
             state:"bet",
             loading: true,
+            min:1,
+            max: 97,
             horseList: [95, 75, 48, 38, 18, 10],
             debug: true
         };
@@ -79,6 +85,7 @@ export default {
     async created() {
         this.getRecord()
         this.getAmoutParams()
+        this.getHighRoller()
     },
 
     async mounted () {
@@ -211,7 +218,7 @@ export default {
             let result = await settleContract.methods.getInfo(id, blockHash).call()
 
             const sha3Mod100 = parseInt(result[1].toString()) || 100
-            const wins = sliceNumber(calcReward.eth(this.amountCache, this.numCache))
+            const wins = sliceNumber(calcEthReward(this.amountCache, this.numCache))
 
             return { sha3Mod100, wins }
         },
@@ -352,12 +359,31 @@ export default {
                 this.prefixRecord(res)
                 this.recordList.unshift(res)
             }
+
+            if (this.recordList.length > 20) {
+                this.recordList.pop()
+            }
+            if (this.myRecordList.length > 20) {
+                this.myRecordList.pop()
+            }
         },
 
         formatDate(dateString) {
             let date = new Date(dateString)
             let s = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
             return s.replace(/(\b\d\b)/g, '0$1')
+        },
+
+        async getHighRoller () {
+            const res = await getHighRoller()
+            if (res === null) return;
+            
+            res.forEach(item => {
+                item._lossPer = calcLossPer({min: this.min, max: this.max, bet: item.betMask})
+                item._shortcutAddr = foldString(item.address)
+            })
+
+            this.adRecordList = res
         }
     }
 };

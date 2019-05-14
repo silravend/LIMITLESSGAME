@@ -44,3 +44,8 @@ export const getMyRecord = ({ address }) => {
 export const getAmountParams = () => {
     return io.get('/api/v1.0/dice/tron/getSuggestBetAmount')
 }
+
+//获取高额投注记录
+export const getHighRoller = () => {
+    return io.get('/api/v1.0/dice/tron/getBetsHighRoller')
+}

@@ -100,6 +100,7 @@ import Layout from '../Layout.vue'
 import { sliceNumber } from "@/js/utils"
 import CountTo from "vue-count-to"
 import NP from 'number-precision'
+import { calcLossPer } from '@/js/game'
 
 export default {
     data () {
@@ -107,8 +108,6 @@ export default {
             aniLength: 29,
             activeIndex: -1,
             activeIndex2: -1,
-            min: 1,
-            max: 97,
             celebrateVisible: false
         }
     },
@@ -129,6 +128,12 @@ export default {
         },
         gas: {
             default: ""
+        },
+        min: {
+            default:1
+        },
+        max: {
+            default: 97
         },
         horseList: Array
     },
@@ -156,9 +161,11 @@ export default {
 
     computed: {
         lossPer() {
-            const step1 = NP.plus(this.min, this.max)
-            const step2 = NP.divide(step1, this.num)
-            return step2.toFixed(2)
+            return calcLossPer({
+                min: this.min,
+                max: this.max,
+                bet: this.num
+            })
         },
         bonus() {
             const res = NP.times(this.lossPer, this.$attrs.amount)

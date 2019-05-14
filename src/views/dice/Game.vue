@@ -108,8 +108,6 @@ export default {
             aniLength: 30,
             activeIndex: -1,
             activeIndex2: -1,
-            min: 1,
-            max: 97,
             celebrateVisible: false
         }
     },
@@ -131,6 +129,12 @@ export default {
         gas: {
             default: ""
         },
+        min: {
+            default:1
+        },
+        max: {
+            default: 97
+        }
     },
     components: {
         Layout,

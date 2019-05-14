@@ -52,6 +52,15 @@
             </nav>
         </header>
 
+        <section class="slider">
+            <div class="slider-contain">
+                <div v-for="item in adRecordList" :key="item.id" class="slider-item" v-html="$t('ba',{addr: item._shortcutAddr, wins: item.wins, symbol: symbol, lossPer: item._lossPer})">
+                </div>
+                <div v-for="item in adRecordList" :key="item.commit" class="slider-item" v-html="$t('ba',{addr: item._shortcutAddr, wins: item.wins, symbol: symbol, lossPer: item._lossPer})">
+                </div>
+            </div>
+        </section>
+
         <main>
             <div class="common-cover">
                 <img :src="`https://api1.limitless.vip/download?url=main-wrapper-${fullSymbol}.png`" alt="" class="main-wrapper">
@@ -125,39 +134,43 @@
             </div>
 
             <div v-if="tabActive == 0" class="table-list">
-                <div v-for="(item, index) in recordList" :key="index" class="table-cell" :class="{success: item._wins > 0}">
-                    <div class="cell-item">{{item._update}}</div>
-                    <div class="cell-item">{{item.address}}</div>
-                    <div class="cell-item">{{item.betAmount}}</div>
-                    <div class="cell-item" v-html="item._bet"></div>
-                    <div class="cell-item" v-html="item._result"></div>
-                    <div class="cell-item">
-                        <span v-if="item._wins > 0">+ {{item._wins}} {{symbol}}</span>
-                        <span v-else> - - </span>
+                <transition-group name="list" tag="div">
+                    <div v-for="item in recordList" :key="item.id" class="table-cell" :class="{success: item._wins > 0}">
+                        <div class="cell-item">{{item._update}}</div>
+                        <div class="cell-item">{{item.address}}</div>
+                        <div class="cell-item">{{item.betAmount}}</div>
+                        <div class="cell-item" v-html="item._bet"></div>
+                        <div class="cell-item" v-html="item._result"></div>
+                        <div class="cell-item">
+                            <span v-if="item._wins > 0">+ {{item._wins}} {{symbol}}</span>
+                            <span v-else> - - </span>
+                        </div>
+                        <div class="cell-item">{{item.jackpot}}</div>
+                        <div class="cell-item">
+                            <a class="cell-item_link" :href="item._link" target="_blank">{{$t('w')}}</a>
+                        </div>
                     </div>
-                    <div class="cell-item">{{item.jackpot}}</div>
-                    <div class="cell-item">
-                        <a class="cell-item_link" :href="item._link" target="_blank">{{$t('w')}}</a>
-                    </div>
-                </div>
+                </transition-group>
             </div>
 
             <div v-if="tabActive == 1" class="table-list">
-                <div v-for="(item, index) in myRecordList" :key="index" class="table-cell" :class="{success: item._wins > 0}">
-                    <div class="cell-item">{{item._update}}</div>
-                    <div class="cell-item">{{item.address}}</div>
-                    <div class="cell-item">{{item.betAmount}}</div>
-                    <div class="cell-item" v-html="item._bet"></div>
-                    <div class="cell-item" v-html="item._result"></div>
-                    <div class="cell-item">
-                        <span v-if="item._wins > 0">+ {{item._wins}} {{symbol}}</span>
-                        <span v-else> - - </span>
+                <transition-group name="list" tag="div">
+                    <div v-for="item in myRecordList" :key="item.id" class="table-cell" :class="{success: item._wins > 0}">
+                        <div class="cell-item">{{item._update}}</div>
+                        <div class="cell-item">{{item.address}}</div>
+                        <div class="cell-item">{{item.betAmount}}</div>
+                        <div class="cell-item" v-html="item._bet"></div>
+                        <div class="cell-item" v-html="item._result"></div>
+                        <div class="cell-item">
+                            <span v-if="item._wins > 0">+ {{item._wins}} {{symbol}}</span>
+                            <span v-else> - - </span>
+                        </div>
+                        <div class="cell-item">{{item.jackpot}}</div>
+                        <div class="cell-item">
+                            <a class="cell-item_link" :href="item._link" target="_blank">{{$t('w')}}</a>
+                        </div>
                     </div>
-                    <div class="cell-item">{{item.jackpot}}</div>
-                    <div class="cell-item">
-                        <a class="cell-item_link" :href="item._link" target="_blank">{{$t('w')}}</a>
-                    </div>
-                </div>
+                </transition-group>
             </div>
         </section>
 
@@ -267,6 +280,9 @@ import BeatLoader from "vue-spinner/src/BeatLoader.vue"
 import Confetti from "canvas-confetti"
 import Modal from "@/components/Modal.vue"
 
+import { getBetParams, settleBet, getRecord, getMyRecord, getAmountParams } from "@/api/horseracing_tron";
+import { setTimeout } from 'timers';
+
 export default {
     name: "layout",
     inheritAttrs: false,
@@ -301,7 +317,7 @@ export default {
             langVisible: false,
 
             lampActive: -1,
-            lampTimer: null
+            lampTimer: null,
         };
     },
 
@@ -332,7 +348,7 @@ export default {
         },
         recordList: Array,
         myRecordList: Array,
-        
+        adRecordList: Array,
         celebrateVisible: {
             default: false
         },
@@ -341,7 +357,8 @@ export default {
         },
         state: {
             default: 'bet'
-        }
+        },
+        
     },
 
     components: {
@@ -379,6 +396,7 @@ export default {
     },
 
     methods: {
+
         goByGame (game) {
             location.href = `https://www.limitless.vip/${game}/${this.fullSymbol}`
         },
@@ -650,6 +668,54 @@ body {
     }
 }
 
+.list-enter-active{
+    transition: all 1s;
+}
+.list-enter, .list-leave-to {
+    opacity: 0;
+    transform: translateY(30px);
+}
+
+
+.slider{
+    height: 50px;
+    line-height: 50px;
+    width: 1024px;
+    margin: 70px auto 0;
+    background: url(../assets/images/bg_adspace.png) no-repeat;
+    background-size: 100% 100%; 
+    overflow: hidden;
+    white-space: nowrap;
+    position: relative;
+
+    .slider-contain{
+        position: absolute;
+        left: 0px;
+        animation: slidein 20s linear  infinite normal
+    }
+
+    .slider-item{
+        display: inline-block;
+        vertical-align: middle;
+        margin:0 20px;
+        color: rgba(220, 124, 4, 1)
+    }
+
+    .slider-item_primary{
+        color: #ffad39
+    }
+}
+
+@keyframes slidein {
+    from {
+        transform: translateX(0)
+    }
+    to {
+        transform: translateX(-50%)
+    }
+}
+
+
 .side{
     position: fixed;
     z-index: 99;
@@ -795,7 +861,7 @@ header {
 
 main {
     width: 1352px;
-    margin: 30px auto 0;
+    margin: 0px auto 0;
     text-align: center;
     position: relative;
     height:765px;

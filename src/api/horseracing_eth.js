@@ -53,3 +53,8 @@ export const getVideoUrl = ({ winner }) => {
         params: { winner }
     })
 }
+
+//获取高额投注记录
+export const getHighRoller = () => {
+    return io.get('/api/v1.0/horseracing/ethereum/getBetsHighRoller')
+}
