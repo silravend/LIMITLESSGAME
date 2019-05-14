@@ -274,14 +274,9 @@
 </template>
 
 <script>
-
-
 import BeatLoader from "vue-spinner/src/BeatLoader.vue"
 import Confetti from "canvas-confetti"
 import Modal from "@/components/Modal.vue"
-
-import { getBetParams, settleBet, getRecord, getMyRecord, getAmountParams } from "@/api/horseracing_tron";
-import { setTimeout } from 'timers';
 
 export default {
     name: "layout",
@@ -703,6 +698,11 @@ body {
 
     .slider-item_primary{
         color: #ffad39
+    }
+
+    .icon{
+        color: #ffad39;
+        margin-right: 5px;
     }
 }
 
