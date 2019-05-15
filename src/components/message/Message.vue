@@ -1,6 +1,6 @@
 <template>
-    <transition name="notify">
-        <div v-if="visible" class="notification-comp" :class="[type]">
+    <transition name="message">
+        <div v-if="visible" class="message-comp" :class="[type]">
             <svg v-if="type == 'success' " class="icon" aria-hidden="true">
                 <use xlink:href="#icon-success-circle"></use>
             </svg>
@@ -52,7 +52,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-    .notification-comp{
+    .message-comp{
         position: fixed;
         z-index: 10001;
         left: 50%;
@@ -90,11 +90,11 @@ export default {
         vertical-align: middle
     }
 
-    .notify-enter-active, .notify-leave-active {
+    .message-enter-active, .message-leave-active {
         transition: all .5s;
     }
 
-    .notify-enter, .notify-leave-to /* .fade-leave-active below version 2.1.8 */ {
+    .message-enter, .message-leave-to /* .fade-leave-active below version 2.1.8 */ {
         opacity: 0;
         transform: translate(-50%, -20px)
     }

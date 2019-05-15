@@ -51,5 +51,9 @@ export default {
     ax: '주 네트워크로 전환하십시오.',
     ay: '너 TronLink 장부에 기입하다.',
     az: '축하해!네가 이겼다 {num} TRX',
-    ba: '<svg class="icon" aria-hidden="true"><use xlink:href="#icon-qingzhu"></use></svg><svg class="icon" aria-hidden="true"><use xlink:href="#icon-qingzhu"></use></svg>  축하 {addr} <span class="slider-item_primary">{wins}</span> {symbol} 승리, 지출 <span class="slider-item_primary">{lossPer}x</span>'
+    ba: '<svg class="icon" aria-hidden="true"><use xlink:href="#icon-qingzhu"></use></svg><svg class="icon" aria-hidden="true"><use xlink:href="#icon-qingzhu"></use></svg>  축하 {addr} <span class="slider-item_primary">{wins}</span> {symbol} 승리, 지출 <span class="slider-item_primary">{lossPer}x</span>',
+    bb: '전갈',
+    bc: '미친 경마',
+    bd: '곧 출시 예정',
+    be: '승리'
 }

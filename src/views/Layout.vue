@@ -3,15 +3,15 @@
         <section class="side">
             <div @click="goByGame('dice')" class="side-item" :class="{active: game == 'dice'}">
                 <img src="@/assets/images/icon_dice.png" alt="" class="side-item_img">
-                <div class="side-item_name">Dice</div>
+                <div class="side-item_name">{{$t('bb')}}</div>
             </div>
             <div @click="goByGame('horseracing')" class="side-item" :class="{active: game == 'horseracing'}">
                 <img src="@/assets/images/icon_horse.png" alt="" class="side-item_img">
-                <div class="side-item_name">Horse</div>
+                <div class="side-item_name">{{$t('bc')}}</div>
             </div>
             <div class="side-item" :class="{active: game == 'flipcoin'}">
                 <img src="@/assets/images/icon_coin.png" alt="" class="side-item_img">
-                <div class="side-item_name">Coming soon</div>
+                <div class="side-item_name">{{$t('bd')}}</div>
             </div>
         </section>
 
@@ -277,6 +277,7 @@
 import BeatLoader from "vue-spinner/src/BeatLoader.vue"
 import Confetti from "canvas-confetti"
 import Modal from "@/components/Modal.vue"
+import { foldString } from '@/js/utils'
 
 export default {
     name: "layout",
@@ -390,6 +391,9 @@ export default {
         this.recordWs()
     },
 
+    mounted () {
+    },
+
     methods: {
 
         goByGame (game) {
@@ -473,114 +477,6 @@ export default {
             this.$emit("update:amount", this.balance)
         },
 
-        async startAni() {
-            this.aniPaused = false;
-            const step1 = () => {
-                const inter = Math.ceil(
-                    (Math.random() * 10 + 2) * 1000 / this.aniLength
-                );
-                return new Promise(resolve => {
-                    let timer = setInterval(() => {
-                        this.activeIndex += 1;
-                        if (
-                            this.activeIndex >= this.aniLength ||
-                            this.aniPaused
-                        ) {
-                            clearInterval(timer);
-                            this.activeIndex = -1;
-                            resolve();
-                        }
-                    }, inter);
-                });
-            };
-
-            const step2 = () => {
-                const inter = Math.ceil(
-                    (Math.random() * 10 + 2) * 1000 / this.aniLength
-                );
-                return new Promise(resolve => {
-                    let timer = setInterval(() => {
-                        this.activeIndex += 1;
-                        if (
-                            this.activeIndex >= this.aniLength ||
-                            this.aniPaused
-                        ) {
-                            clearInterval(timer);
-                            this.activeIndex = -1;
-                            resolve();
-                        }
-                    }, inter);
-                });
-            };
-
-            const step3 = () => {
-                const inter = Math.ceil(
-                    (Math.random() * 10 + 2) * 1000 / this.aniLength
-                );
-                this.activeIndex = this.aniLength;
-
-                return new Promise(resolve => {
-                    let timer = setInterval(() => {
-                        this.activeIndex -= 1;
-
-                        if (this.activeIndex == -1 || this.aniPaused) {
-                            clearInterval(timer);
-
-                            this.activeIndex = -1;
-                            resolve();
-                        }
-                    }, inter);
-                });
-            };
-
-            const step4 = () => {
-                const inter = Math.ceil(
-                    (Math.random() * 10 + 2) * 1000 / this.aniLength
-                );
-                this.activeIndex2 = this.aniLength;
-
-                return new Promise(resolve => {
-                    let timer = setInterval(() => {
-                        this.activeIndex += 1;
-                        this.activeIndex2 -= 1;
-
-                        if (
-                            this.activeIndex >= this.aniLength ||
-                            this.aniPaused
-                        ) {
-                            clearInterval(timer);
-
-                            this.activeIndex = -1;
-                            this.activeIndex2 = -1;
-                            resolve();
-                        }
-                    }, inter);
-                });
-            };
-
-            const aniRandom = fn => {
-                if (this.aniPaused) return;
-                const time = (Math.random() * 5 + 1) * 1000;
-                return new Promise(resolve => {
-                    setTimeout(async () => {
-                        await fn();
-                        resolve();
-                    }, time);
-                });
-            };
-
-            await step1();
-            await aniRandom(step2);
-            await aniRandom(step3);
-            while (!this.aniPaused) {
-                await aniRandom(step4);
-            }
-        },
-
-        stopAni() {
-            this.aniPaused = true;
-        },
-
         // 中奖后的庆祝效果
         celebrate() {
             var end = Date.now() + 5 * 1000
@@ -603,26 +499,41 @@ export default {
             }, 200);
         },
 
+        //根据地址判定币种
+        mapSymbolByAddr (address) {
+            if (address.indexOf('T') == 0) {
+                return 'TRX'
+            }
+            if (address.indexOf('0x') == 0) {
+                return 'ETH'
+            }
+        },
+
+        //匹配出对应的游戏
+        mapGame (v, modulo) {
+            if (v == 27 && modulo == 100) {
+                return 'dice'
+            }
+            if (v == 127 && modulo == 100) {
+                return 'horseracing'
+            }
+            if (v == 27 && modulo == 2) {
+                return 'flipcoin'
+            }
+        },
+
+        //根据游戏匹配对应的翻译
+        translateGame (game) {
+
+            if (game == 'dice') return this.$t('bb')
+            if (game == 'horseracing') return this.$t('bc')
+        },
+
         //判断是否属于当前游戏的记录
         isCurRecord (res) {          
-            let symbol
-            let game
+            let symbol = this.mapSymbolByAddr(res.address)
+            let game = this.mapGame(res.v, res.modulo)
 
-            if (res.address.indexOf('T') == 0) {
-                symbol = 'TRX'
-            }
-            if (res.address.indexOf('0x') == 0) {
-                symbol = 'ETH'
-            }
-            if (res.v == 27 && res.modulo == 100) {
-                game = 'dice'
-            }
-            if (res.v == 127 && res.modulo == 100) {
-                game = 'horseracing'
-            }
-            if (res.v == 27 && res.modulo == 2) {
-                game = 'flipcoin'
-            }
             if (this.symbol == symbol && this.game == game) return true;
         },
 
@@ -634,6 +545,14 @@ export default {
                     const res = JSON.parse(evt.data)
                     if (this.isCurRecord(res)) {
                         this.$emit('addRecord', res)
+                    }
+                    if (res.wins > 0) {
+                        const game = this.mapGame(res.v, res.modulo)
+                        const gameName = this.translateGame(game)
+
+                        this.$notify({
+                            text: `<div>${foldString(res.address)} ${gameName} ${this.$t('be')} <span class="notification-primary">${res.wins}</span> ${this.mapSymbolByAddr(res.address)}</div>`
+                        })
                     }
                 } catch (err) {
                     this.$error(err.message)
@@ -1282,5 +1201,9 @@ main {
         text-decoration: underline;
         color: #00e812;
     }
+}
+
+.notification-primary{
+    color: #ffad39
 }
 </style>

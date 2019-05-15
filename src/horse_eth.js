@@ -1,15 +1,16 @@
 import Vue from 'vue'
 import App from './views/horse/Eth.vue'
 import i18n from '@/js/lang'
-import Notification from '@/components/notification'
+import Message from '@/components/message'
+import Notify from '@/components/notify'
 import "@/fonts/iconfont.js"
 
 
 
 Vue.config.productionTip = false
 
-Vue.use(Notification)
-
+Vue.use(Message)
+Vue.use(Notify)
 
 new Vue({
   i18n,

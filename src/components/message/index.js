@@ -1,9 +1,9 @@
-import compConfig from './Notification.vue'
+import compConfig from './Message.vue'
 
 export default {
     install (Vue) {
         const Comp = Vue.extend(compConfig)
-        Vue.prototype.$notify = ({ type, text, duration } = {}) => {
+        Vue.prototype.$message = ({ type, text, duration } = {}) => {
             const vm = new Comp({
                 propsData: { type, text, duration }
             })
@@ -13,7 +13,7 @@ export default {
         }
 
         Vue.prototype.$success = function ( text = '',  duration = 2500 ) {
-            this.$notify({
+            this.$message({
                 type: 'success',
                 text,
                 duration
@@ -21,7 +21,7 @@ export default {
         }
 
         Vue.prototype.$error = function ( text = '',  duration = 2500 ) {
-            this.$notify({
+            this.$message({
                 type: 'error',
                 text,
                 duration
@@ -29,7 +29,7 @@ export default {
         }
 
         Vue.prototype.$warn = function ( text = '',  duration = 2500 ) {
-            this.$notify({
+            this.$message({
                 type: 'warning',
                 text,
                 duration
