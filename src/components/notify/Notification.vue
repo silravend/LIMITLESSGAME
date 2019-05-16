@@ -39,6 +39,7 @@ export default {
 <style lang="scss" scoped>
     .notification-comp{
        position: fixed;
+       z-index: 99;
        bottom: 20px;
        right: 20px;
        padding: 0 40px;
