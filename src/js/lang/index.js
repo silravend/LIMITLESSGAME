@@ -7,7 +7,7 @@ import kr from './kr'
 Vue.use(VueI18n)
 
 const i18n = new VueI18n({
-    locale: localStorage.getItem('lang') || 'zh',
+    locale: localStorage.getItem('lang') || 'en',
     messages: {
         en,
         zh,
