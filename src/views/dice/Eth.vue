@@ -5,6 +5,7 @@
             symbol="ETH"
             :num.sync="num"
             :amount.sync="amount"
+            :introVisible.sync="introVisible"
             :minAmount="minAmount"
             :maxAmount="maxAmount"
             :amountStep="amountStep"
@@ -32,14 +33,12 @@
 
 <script>
 import { getGasPrice, getBetParams, settleBet, getRecord, getMyRecord, getAmountParams, getHighRoller } from "@/api/dice_eth"
-import web3 from '@/js/web3'
-import { sliceNumber, foldString } from '@/js/utils'
+import { sliceNumber, foldString, tryDo } from '@/js/utils'
 import Game from './Game.vue'
 import { calcEthReward, calcLossPer } from '@/js/game'
-import { eth as getContract, ethSettle as getSettleContract } from "@/js/contract"
-import { eth as ethAddr } from '@/js/address_config'
+import EthService from '@/js/eth'
 
-let contract, settleContract
+const eth = new EthService()
 
 export default {
     data() {
@@ -64,7 +63,8 @@ export default {
             celebrateVisible: false,
             min:1,
             max: 97,
-            debug: false
+            debug: false,
+            introVisible: false
         };
     },
     components: {
@@ -88,41 +88,39 @@ export default {
     },
 
     async mounted () {
-        if (typeof window.ethereum === "undefined") {
-            this.$refs['app'].showIntro()
+        if (!eth.checkInstalled()) {
+            this.introVisible = true
             return;
         }
         
         setTimeout(() => {
-            if (window.ethereum.networkVersion != 1 && !this.debug ){
+            if (!eth.checkMainNet() && !this.debug ){
                 this.$error(this.$t('ax'), 5000)
                 return;
             }
-            if (!window.ethereum.selectedAddress) {
+            if (!eth.checkAddress()) {
                 this.$warn(this.$t('as'), 5000)
             }
         }, 1500)
         
 
-        //获取账户余额
-        const accounts = await window.ethereum.enable().catch(err => {
+        //获取账户
+        const [account, err] = await tryDo(eth.getAccount())
+        if (err) {
             if (err.code == 4001) {
                 this.$warn(this.$t('au'))
             }
-            return null
-        })
-        if (accounts === null) return;
+            return 
+        }
 
-        this.account = accounts[0]
+        this.account = account
         this.getBalance()
+        this.loading = false
         this.getMyRecord()
 
         //获取油费
         const gasRes = await getGasPrice()
         this.gas = gasRes.gasPrice
-        
-        contract = getContract(this.account)
-        settleContract = getSettleContract(this.account)
 
         this.getJackpot()
         setInterval(() => {
@@ -142,19 +140,14 @@ export default {
             this.amountStep = res.step
         },
 
-        getBalance () {
-            web3.eth.getBalance(this.account).then(balance => {
-                this.balance = sliceNumber(web3.utils.fromWei(balance, "ether"))
-                this.loading = false
-            })
+        async getBalance () {
+            this.balance = await eth.getBalance()
         },
         
         async getJackpot () {
             this.jackpotStart = this.jackpotEnd
-            // const res = await contract.methods.jackpotSize().call()
-            const res = await web3.eth.getBalance(ethAddr)
 
-            this.jackpotEnd = sliceNumber(web3.utils.fromWei(res))
+            this.jackpotEnd = await eth.getJackpot()
         },
 
         fixAmount() {
@@ -214,11 +207,8 @@ export default {
         },
 
         async getResult (id, blockHash) {
-            let result = await settleContract.methods.getInfo(id, blockHash).call()
-
-            const sha3Mod100 = parseInt(result[1].toString()) || 100
+            const sha3Mod100 = await eth.getResult(id, blockHash)
             const wins = sliceNumber(calcEthReward(this.amountCache, this.numCache))
-            
 
             return { sha3Mod100, wins }
         },
@@ -263,27 +253,21 @@ export default {
             this.betLoading = true
             const params = await this.getBetParams()
             
-            contract.methods.placeBet(params.betMask, params.modulo, params.commitLastBlock, params.commit, params.r, params.s).send({
-                gas: '150000',
-                gasPrice: web3.utils.toWei(this.gas + '', 'gwei'),
-                from: this.account,
-                value: web3.utils.toWei(this.amount + '', "ether")
-            }).catch( err => {
+            const [event, err] = await tryDo(eth.bet(params, this.gas, this.amount))
+            if (err) {
+                console.log('bet err')
+                console.log(err)
                 if (err.message.indexOf('User denied') > -1) {
                     this.$error(this.$t('au'))
                 } else {
                     this.$error(this.$t('av'))
                 }
-
                 this.betLoading = false
-            })
-
-            contract.once('Commit', {
-
-            }, async (error, event) => {
-                this.settle( params.id, event.blockHash)
-                this.manualSettle(params.id, event.blockHash)
-            })
+                return
+            }
+            console.log('commit')
+            this.settle( params.id, event.blockHash)
+            this.manualSettle(params.id, event.blockHash)
         },
 
         prefixRecord (item) {

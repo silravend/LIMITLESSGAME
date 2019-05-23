@@ -27,3 +27,16 @@ export const sliceNumber = (number, digit = 4) => {
 export const foldString = (string, start = 3, end = 4) => {
     return `${string.slice(0,3)}...${string.slice(-end)}`
 }
+
+/**
+ * 用于报错捕获的promise执行,返回固定格式的[res, err]
+ * @param {promise} promise 
+ */
+export const tryDo = async (promise) => {
+    try{
+        const res = await promise
+        return [res, null]
+    } catch(err) {
+        return [null, err]
+    }
+}

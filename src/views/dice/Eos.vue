@@ -1,11 +1,10 @@
 <template>
-    <div id="app">
+    <div class="" id="app">
         <game
             ref="app"
-            symbol="TRX"
+            symbol="ETH"
             :num.sync="num"
             :amount.sync="amount"
-            :introVisible.sync="introVisible"
             :minAmount="minAmount"
             :maxAmount="maxAmount"
             :amountStep="amountStep"
@@ -19,8 +18,8 @@
             :jackpotEnd="jackpotEnd"
             :state="state"
             :result="result"
-            :decimal="1"
             :loading="loading"
+            :celebrateVisible="celebrateVisible"
             :min="min"
             :max="max"
             @bet="betSubmit"
@@ -32,13 +31,34 @@
 </template>
 
 <script>
-import { getBetParams, settleBet, getRecord, getMyRecord, getAmountParams, getHighRoller } from "@/api/dice_tron"
-import { sliceNumber, foldString, tryDo } from '@/js/utils'
+import { getGasPrice, getBetParams, settleBet, getRecord, getMyRecord, getAmountParams, getHighRoller } from "@/api/dice_eth"
+import { sliceNumber, foldString } from '@/js/utils'
 import Game from './Game.vue'
-import { calcTronReward, calcLossPer } from '@/js/game'
+import { calcEthReward, calcLossPer } from '@/js/game'
+import { eth as getContract, ethSettle as getSettleContract } from "@/js/contract"
+import { eth as ethAddr } from '@/js/address_config'
+import ScatterService from '@/js/eos'
 
-import TronService from '@/js/tron'
-const tron = new TronService()
+import { Api, JsonRpc, RpcError, JsSignatureProvider } from 'eosjs'
+import ScatterJS, { Network } from 'scatterjs-core'
+import ScatterEOS from 'scatterjs-plugin-eosjs2'
+ScatterJS.plugins(new ScatterEOS())
+
+let scatter
+let contract, settleContract
+
+const network = Network.fromJson({
+    blockchain:'eos',
+    host:'nodes.get-scatter.com',
+    port:443,
+    protocol:'https',
+    chainId:'aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906' // <-- this is the MAINNET
+});
+// Notice that our eosjs reference isn't reactive ( in the data() method like the rest ).
+// You don't want to set it onto the data of this component,
+// but you CAN set it as a VUEX state property if you wanted.
+let eos;
+const rpc = new JsonRpc(network.fullhost());
 
 export default {
     data() {
@@ -60,12 +80,10 @@ export default {
             result: {},
             state:"bet",
             loading: true,
-            debug: false,
-            amountCache: 50, 
-            numCache: 0.01,
-            min: 1,
+            celebrateVisible: false,
+            min:1,
             max: 97,
-            introVisible: false
+            debug: false
         };
     },
     components: {
@@ -75,43 +93,51 @@ export default {
     watch: {
         amount () {
             this.fixAmount()
-        },
+        }
+    },
+
+    computed: {
+      
     },
 
     async created() {
+        const ss = new ScatterService()
+        const account = await ss.login()
+        if (account == -1) {
+            console.log('未检测到Scatter')
+            return;
+        }
+        
+        this.account = account.name
+        this.balance = await ss.getBalance()
+        this.loading = false
+
+
         this.getRecord()
         this.getAmoutParams()
         this.getHighRoller()
     },
 
-    mounted () {
-        setTimeout(async () => {
-            
-            if (!tron.checkInstalled()) {
-                this.introVisible = true
-                return;
-            }
+    async mounted () {
+        
 
-            if (!tron.getAccount()) {
-                this.$error(this.$t('ay'), 5000)
-                return
-            }
+    
+        return;
+        
+        this.getMyRecord()
 
-            //等待 troweb 链接完成
-            await tron.isConnected()
-            this.account = tron.getAccount()
-            await this.getBalance()
-            this.loading = false
+        //获取油费
+        const gasRes = await getGasPrice()
+        this.gas = gasRes.gasPrice
+        
+        contract = getContract(this.account)
+        settleContract = getSettleContract(this.account)
 
-            //初始化合约
-            await tron.initContract()
-
-            this.getMyRecord()
+        this.getJackpot()
+        setInterval(() => {
             this.getJackpot()
-            setInterval(() => {
-                this.getJackpot()
-            }, 10000)
-        }, 1000)
+        }, 10000)
+        
     },
 
     methods: {
@@ -124,36 +150,27 @@ export default {
             this.maxAmount = res.maxAmount
             this.amountStep = res.step
         },
-
-        async getBalance () {
-            const [balance, err] = await tryDo(tron.getBalance())
-            if (err) {
-                console.log(err)
-                return 
-            }
-            this.balance = balance
-        },
         
         async getJackpot () {
             this.jackpotStart = this.jackpotEnd
+            // const res = await contract.methods.jackpotSize().call()
+            const res = await web3.eth.getBalance(ethAddr)
 
-            this.jackpotEnd = await tron.getJackpot()
+            this.jackpotEnd = sliceNumber(web3.utils.fromWei(res))
         },
 
-
         fixAmount() {
-            let num = parseInt(this.amount);
+            let num = parseFloat(this.amount)
             if (isNaN(num)) {
-                this.amount = this.minAmount
+                this.amount = "0.01";
             } else {
-                if (num < this.minAmount) {
-                    num = this.minAmount
-                } else if (num > this.maxAmount) {
-                    num = this.maxAmount
+                if (num < 0.01) {
+                    num = 0.01;
+                } else if (num > 10.2) {
+                    num = 10.2;
                 }
-
                 this.$nextTick(() => {
-                    this.amount = num
+                    this.amount = num.toFixed(2);
                 })
             }
         },
@@ -162,7 +179,6 @@ export default {
             const ready = async () => {
                 this.amountCache = this.amount
                 this.numCache = this.num
-                
                 const res = await getBetParams({
                     betmask: this.num,
                     amount:  this.amount,
@@ -173,7 +189,6 @@ export default {
                     this.betLoading = false;
                     return 
                 }
-
                 return res
             }
 
@@ -183,13 +198,14 @@ export default {
             while(params.v == 28) {
                 params = await ready()
             }
+
             return params
         },
 
-        settle (randomNumber,blockNumber) {
+        settle (randomNumber,blockHash) {
             settleBet({
                 randomNumber: randomNumber,
-                blockNumber: blockNumber
+                hash: blockHash
             })
         },
 
@@ -199,34 +215,39 @@ export default {
             this.betLoading = false
         },
 
-        async getResult (id, blockNumber) {
-            const sha3Mod100 = await tron.getResult(id, blockNumber)
-            const wins = sliceNumber(calcTronReward(this.amountCache, this.numCache), 2)
+        async getResult (id, blockHash) {
+            let result = await settleContract.methods.getInfo(id, blockHash).call()
+
+            const sha3Mod100 = parseInt(result[1].toString()) || 100
+            const wins = sliceNumber(calcEthReward(this.amountCache, this.numCache))
+            
 
             return { sha3Mod100, wins }
         },
 
         // 手动提前计算
-        async manualSettle (id, blockNumber) {
-            const { sha3Mod100, wins } = await this.getResult(id, blockNumber)
+        async manualSettle (id, blockHash) {
+            const { sha3Mod100, wins } = await this.getResult(id, blockHash)
 
             this.result = {
                 sha3Mod100: sha3Mod100,
                 wins: sha3Mod100 < this.numCache ? wins : 0
             }
+
             this.state = 'wait'
+            
             setTimeout(() => {
                 this.state = 'result'
             }, 5000)
         },
 
         submitVerify () {
-            if (!tron.checkMainNet() && !this.debug) {
-                this.$error(this.$t('ax'))
-                return
+            if (window.ethereum.networkVersion != 1 && !this.debug) {
+                this.$error(this.$t('ax'), 5000)
+                return false
             }
 
-            if (!window.tronWeb.defaultAddress.base58) {
+            if (!window.ethereum.selectedAddress) {
                 this.$warn(this.$t('as'))
                 return false
             }
@@ -235,7 +256,6 @@ export default {
                 this.$warn(this.$t('at'))
                 return false
             }
-
             return true
         },
 
@@ -244,22 +264,34 @@ export default {
 
             this.betLoading = true
             const params = await this.getBetParams()
+            
+            contract.methods.placeBet(params.betMask, params.modulo, params.commitLastBlock, params.commit, params.r, params.s).send({
+                gas: '150000',
+                gasPrice: web3.utils.toWei(this.gas + '', 'gwei'),
+                from: this.account,
+                value: web3.utils.toWei(this.amount + '', "ether")
+            }).catch( err => {
+                if (err.message.indexOf('User denied') > -1) {
+                    this.$error(this.$t('au'))
+                } else {
+                    this.$error(this.$t('av'))
+                }
 
-            const [res, err] = await tryDo(tron.bet(params, this.amount))
-            if (err) {
-                console.log(err)
-                this.$error(this.$t('av'))
-                this.betEnd()
-                return
-            }
-            this.settle(params.id, res.block)
-            this.manualSettle(params.id, res.block)
+                this.betLoading = false
+            })
+
+            contract.once('Commit', {
+
+            }, async (error, event) => {
+                this.settle( params.id, event.blockHash)
+                this.manualSettle(params.id, event.blockHash)
+            })
         },
 
         prefixRecord (item) {
             item._update = this.formatDate(item.updatedAt)
-            item._wins = sliceNumber(item.wins, 2)
-            item._link = `https://tronscan.org/#/transaction/${item.betTrx}`
+            item._wins = sliceNumber(item.wins)
+            item._link = `https://etherscan.io/tx/${item.betTrx}`
             item._bet = item.betMask
             item._result = `<div class="result-num">${item.sha3Mod100}</div>`
         },
@@ -268,7 +300,10 @@ export default {
             const res =  await getRecord()
             if (res === null) return;
 
-            res.forEach(item => this.prefixRecord(item))
+            res.forEach(item => {
+                this.prefixRecord(item)
+            })
+            
             this.recordList = res
         },
 
@@ -277,8 +312,10 @@ export default {
                 address: this.account
             })
             if (res === null) return;
+            res.forEach(item => {
+                this.prefixRecord(item)
+            })
 
-            res.forEach(item => this.prefixRecord(item))
             this.myRecordList = res
         },
 

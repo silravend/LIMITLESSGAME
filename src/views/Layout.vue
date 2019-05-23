@@ -33,7 +33,7 @@
                 <div class="nav-primary"></div>
                 <a @click="fairnessVisible = true" class="nav-item">{{$t('a')}}</a>
                 <a @click="inviteVisible = true" class="nav-item">{{$t('b')}}</a>
-                <a @click="introVisible = true" class="nav-item">{{$t('c')}}</a>
+                <a @click="$emit('update:introVisible', true)" class="nav-item">{{$t('c')}}</a>
                 <div @mouseenter="langVisible = true" @mouseleave="langVisible = false" class="lang">
                     <div class="lang-item lang-current">
                         <img :src="curLang.image" alt="" class="lang-img">
@@ -214,7 +214,7 @@
             <div class="footer-copyright">Copyright © 2019 limitless.vip | All rights reserved</div>
         </section>
 
-        <modal v-if="introVisible" :visible.sync="introVisible" :title="$t('ac')" :btnText="$t('ad')">
+        <modal v-if="introVisible" :visible="introVisible" @update:visible="$emit('update:introVisible', false)" :title="$t('ac')" :btnText="$t('ad')">
             <div class="modal-text">
                 <p>{{$t('ae')}}</p>
                 <p>{{$t('af')}}</p>
@@ -305,7 +305,7 @@ export default {
             
             power: 1,
             tabActive: 0,
-            introVisible: false,
+
             fairnessVisible: false,
             inviteVisible: false,
             vipVisible: false,
@@ -354,7 +354,9 @@ export default {
         state: {
             default: 'bet'
         },
-        
+        introVisible: {
+            default: false
+        }
     },
 
     components: {
@@ -392,6 +394,7 @@ export default {
     },
 
     mounted () {
+        
     },
 
     methods: {
@@ -429,10 +432,6 @@ export default {
             if (this.betLoading || this.loading) return;
 
             this.$emit("bet")
-        },
-
-        showIntro() {
-            this.introVisible = true
         },
 
         decrease() {
@@ -524,9 +523,9 @@ export default {
 
         //根据游戏匹配对应的翻译
         translateGame (game) {
-
-            if (game == 'dice') return this.$t('bb')
-            if (game == 'horseracing') return this.$t('bc')
+            console.log(this, this.$t)
+            if (game == 'dice') return this.$t('bb');
+            if (game == 'horseracing') return this.$t('bc');
         },
 
         //判断是否属于当前游戏的记录
@@ -549,13 +548,15 @@ export default {
                     if (res.wins > 0) {
                         const game = this.mapGame(res.v, res.modulo)
                         const gameName = this.translateGame(game)
+                        const text = this.$t('be')
+                        const symbol = this.mapSymbolByAddr(res.address)
 
                         this.$notify({
-                            text: `<div>${foldString(res.address)} ${gameName} ${this.$t('be')} <span class="notification-primary">${res.wins}</span> ${this.mapSymbolByAddr(res.address)}</div>`
+                            text: `<div>${foldString(res.address)} ${gameName} ${text} <span class="notification-primary">${res.wins}</span> ${symbol}</div>`
                         })
                     }
                 } catch (err) {
-                    this.$error(err.message)
+                    // this.$error(err.message)
                     console.log(err)
                 }
             }

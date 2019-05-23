@@ -5,6 +5,7 @@
             symbol="TRX"
             :num.sync="num"
             :amount.sync="amount"
+            :introVisible.sync="introVisible"
             :minAmount="minAmount"
             :maxAmount="maxAmount"
             :amountStep="amountStep"
@@ -33,13 +34,13 @@
 
 <script>
 import { getBetParams, settleBet, getRecord, getMyRecord, getAmountParams, getHighRoller } from "@/api/horseracing_tron";
-import { sliceNumber, foldString } from '@/js/utils'
+import { sliceNumber, foldString, tryDo } from '@/js/utils'
 import Game from './Game.vue'
 import { calcTronReward, calcLossPer } from '@/js/game'
-import { tron as getContract, tronSettle as getSettleContract } from '@/js/contract'
 import { getVideoUrl } from '@/api/horseracing_tron'
 
-let contract, settleContract
+import TronService from '@/js/tron'
+const tron = new TronService()
 
 export default {
     data() {
@@ -67,6 +68,7 @@ export default {
             min: 1,
             max: 97,
             horseList: [95, 75, 48, 38, 18, 10],
+            introVisible: false
         };
     },
     components: {
@@ -76,10 +78,6 @@ export default {
     watch: {
         amount () {
             this.fixAmount()
-        },
-
-        account () {
-            this.getBalance()
         }
     },
 
@@ -92,28 +90,25 @@ export default {
     mounted () {
         setTimeout(async () => {
             
-            if (typeof window.tronWeb === "undefined") {
-                this.$refs['app'].showIntro()
+            if (!tron.checkInstalled()) {
+                this.introVisible = true
                 return;
             }
 
-            if (!window.tronWeb.defaultAddress.base58) {
+            if (!tron.getAccount()) {
                 this.$error(this.$t('ay'), 5000)
                 return
             }
 
             //等待 troweb 链接完成
-            await window.tronWeb.isConnected()
-
-            this.account = window.tronWeb.defaultAddress.base58
+            await tron.isConnected()
+            this.account = tron.getAccount()
+            await this.getBalance()
+            this.loading = false
             this.getMyRecord()
             
-            contract = await getContract()
-            settleContract = await getSettleContract()
-
-            if (!contract || !settleContract) {
-                return 
-            }
+            //初始化合约
+            await tron.initContract()
 
             this.getJackpot()
             setInterval(() => {
@@ -121,9 +116,6 @@ export default {
             }, 10000)
         }, 1000)
 
-        // setInterval(() => {
-        //     this.recordList.unshift(this.recordList[0])
-        // }, 5000)
     },
 
     methods: {
@@ -142,16 +134,17 @@ export default {
         },
 
         async getBalance () {
-            const balance =  await window.tronWeb.trx.getBalance(this.account)
-            this.balance = sliceNumber(window.tronWeb.fromSun(balance), 2)
-            this.loading = false
+            const [balance, err] = await tryDo(tron.getBalance())
+            if (err) {
+                console.log(err)
+                return 
+            }
+            this.balance = balance
         },
         
         async getJackpot () {
             this.jackpotStart = this.jackpotEnd
-            const res = await contract.methods.jackpotSize().call()
-
-            this.jackpotEnd = sliceNumber(window.tronWeb.fromSun(res), 2)
+            this.jackpotEnd = await tron.getJackpot()
         },
 
         fixAmount() {
@@ -213,11 +206,7 @@ export default {
         },
 
         async getResult (id, blockNumber) {
-            const block = await window.tronWeb.trx.getBlock(parseInt(blockNumber))
-            const blockHash = "0x" + block.blockID
-            let result = await settleContract.getInfo(id, blockHash).call()
-            
-            const sha3Mod100 = parseInt(result[1].toString()) || 100
+            const sha3Mod100 = await tron.getResult(id, blockNumber)
             const wins = sliceNumber(calcTronReward(this.amountCache, this.numCache), 2)
 
             return { sha3Mod100, wins }
@@ -271,26 +260,15 @@ export default {
             this.betLoading = true
             const params = await this.getBetParams()
             
-            contract.Commit().watch({filters: {commit: params.commit.slice(2)}}, (err, res) => {
-                if(err) {
-                    console.log(err)
-                    this.$error(this.$t('av'))
-                    this.betEnd()
-                    return
-                }
-                this.settle(params.id, res.block)
-                this.manualSettle(params.id, res.block)
-            })
-
-            contract.placeBet(params.betMask, params.modulo, params.commitLastBlock, params.commit, params.r, params.s).send({
-                feeLimit: 100000000,
-                callValue: window.tronWeb.toSun(this.amount),
-                shouldPollResponse:true
-            }).catch(err => {
+            const [res, err] = await tryDo(tron.bet(params, this.amount))
+            if (err) {
                 console.log(err)
                 this.$error(this.$t('av'))
                 this.betEnd()
-            })
+                return
+            }
+            this.settle(params.id, res.block)
+            this.manualSettle(params.id, res.block)
         },
 
         //根据数字匹配投注的马的编号

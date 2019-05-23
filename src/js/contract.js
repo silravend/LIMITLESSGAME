@@ -1,5 +1,5 @@
-import ethAbi from './eth_abi'
-import backendAbi from './backend_abi'
+import ethAbi from './eth/eth_abi'
+import backendAbi from './eth/backend_abi'
 import web3 from './web3'
 import {eth as ethAddr, ethSettle as ethSettleAddr, tron as tronAddr, tronSettle as tronSettleAddr } from './address_config'
 
