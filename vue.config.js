@@ -1,7 +1,7 @@
 const path = require('path')
 
 module.exports = {
-    publicPath: '/',
+    publicPath: process.env.NODE_ENV === 'development' ? '/' : 'https://limitless.ink/',
     configureWebpack: config => {
         if (process.env.NODE_ENV === 'development') {
             config.devtool = 'source-map'

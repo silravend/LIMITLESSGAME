@@ -63,7 +63,7 @@
 
         <main>
             <div class="common-cover">
-                <img :src="`https://api1.limitless.vip/download?url=main-wrapper-${fullSymbol}.png`" alt="" class="main-wrapper">
+                <img :src="`https://limitless.ink/main-wrapper-${fullSymbol}.png`" alt="" class="main-wrapper">
                  <div class="main-balance">
                     <img src="../assets/images/balance.png" class="main-balance_img" />
                     <div class="main-balance_text">
@@ -175,7 +175,7 @@
         </section>
 
         <section class="footer">
-            <div class="footer-bg"><img src="https://api1.limitless.vip/download?url=footer-bg.png" class="footer-bg_img"></div>
+            <div class="footer-bg"><img src="https://limitless.ink/footer-bg.png" class="footer-bg_img"></div>
             
             <div class="footer-desc">
                 <div class="footer-desc_title">{{$t('x')}}</div>
@@ -571,7 +571,7 @@ export default {
 @import "@/css/animate/fade-in-top.scss";
 
 body {
-    background: #0e002d url(https://api1.limitless.vip/download?url=bg.jpg) no-repeat;
+    background: #0e002d url(https://limitless.ink/bg.jpg) no-repeat;
     background-size: 100% auto;
 }
 
