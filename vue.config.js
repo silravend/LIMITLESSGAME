@@ -12,6 +12,7 @@ module.exports = {
         // }
     },
     productionSourceMap: false,
+    filenameHashing: false,
     pages: {
         dice_eth: {
             // page 的入口
