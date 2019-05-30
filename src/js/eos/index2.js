@@ -1,31 +1,27 @@
-import { Api, Rpc, RpcError, JsSignatureProvider } from "eosjs2";
-import ScatterJS, { Network } from "scatterjs-core";
-import ScatterEOS from "scatterjs-plugin-eosjs2";
-ScatterJS.plugins(new ScatterEOS());
+import ScatterJS from 'scatterjs-core';
+import ScatterEOS from 'scatterjs-plugin-eosjs';
+import Eos from 'eosjs';
 
-// const network = Network.fromJson({
-//     blockchain: "eos",
-//     host: "nodes.get-scatter.com",
-//     port: 443,
-//     protocol: "https",
-//     chainId: "aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906" // <-- this is the MAINNET
-// });
+console.log(Eos)
 
-const network = Network.fromJson({
-    blockchain: "eos",
-    host: "jungle2.cryptolions.io",
-    port: 80,
-    protocol: "http",
-    chainId: "e70aaab8997e1dfce58fbfac80cbbb8fecec7b99cf982a9444273cbc64c41473" // <-- this is the tesetnet
-});
+// Don't forget to tell ScatterJS which plugins you are using.
+ScatterJS.plugins( new ScatterEOS() );
 
-const rpc = new Rpc.JsonRpc(network.fullhost());
+// Networks are used to reference certain blockchains.
+// They let you get accounts and help you build signature providers.
+const network = {
+    blockchain:'eos',
+    protocol:'https',
+    host:'nodes.get-scatter.com',
+    port:443,
+    chainId:'aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906'
+}
 
 class ScatterService {
     scatter = null;
     account = null;
     eos = null;
-    constructor({ name = "gamecontract" } = {}) {
+    constructor({ name = "xiongzhend13" } = {}) {
         this.name = name;
     }
 
@@ -33,12 +29,8 @@ class ScatterService {
         const connected = await ScatterJS.scatter.connect("limitless");
 
         if (connected) {
-            this.scatter = ScatterJS.scatter
-
-            console.log(this.scatter.eos)
-
-            this.eos = this.scatter.eos(network, Api, { rpc });
-            console.log(this.eos)
+            this.scatter = ScatterJS.scatter;
+            
             window.ScatterJS = null;
         }
 
@@ -56,12 +48,10 @@ class ScatterService {
             x => x.blockchain === "eos"
         );
 
-        return this.account
-    }
+        this.eos = this.scatter.eos(network, Eos, { expireInSeconds:60 });
+        console.log(this.eos);
 
-    async getContract () {
-        const res = await this.eos.getContract(this.name)
-        return res
+        return this.account
     }
 
     logout() {
@@ -93,14 +83,21 @@ class ScatterService {
         return resultWithConfig
     }
 
-    async tranfer () {
-        const tokenDetails = {contract:'eosio.token', symbol:'EOS', memo:'Hello world', decimals:4};
-        const res = await this.scatter.requestTransfer(network, 'gamecontract', '5 EOS', tokenDetails)
-        console.log(res)
-    }
-
     async bet() {
-        this.tranfer()        
+        // const res = await this.eos.contract(this.name);
+        console.log(this.eos.contracts())
+        return
+
+        try {
+            const res = await this.takeAction('replacebet', {
+                from: this.account.name,
+                quantity: '0.001 EOS'
+            })
+            console.log(res)
+        } catch (err) {
+            console.error(err)
+        }
+        
     }
 
     async getBalance() {
@@ -109,7 +106,6 @@ class ScatterService {
             this.account.name,
             "EOS"
         );
-        console.log(balance)
         return balance[0].split(" ")[0];
     }
 }

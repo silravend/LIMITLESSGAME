@@ -37,28 +37,9 @@ import Game from './Game.vue'
 import { calcEthReward, calcLossPer } from '@/js/game'
 import { eth as getContract, ethSettle as getSettleContract } from "@/js/contract"
 import { eth as ethAddr } from '@/js/address_config'
-import ScatterService from '@/js/eos'
+import ScatterService from '@/js/eos/index'
 
-import { Api, JsonRpc, RpcError, JsSignatureProvider } from 'eosjs'
-import ScatterJS, { Network } from 'scatterjs-core'
-import ScatterEOS from 'scatterjs-plugin-eosjs2'
-ScatterJS.plugins(new ScatterEOS())
-
-let scatter
-let contract, settleContract
-
-const network = Network.fromJson({
-    blockchain:'eos',
-    host:'nodes.get-scatter.com',
-    port:443,
-    protocol:'https',
-    chainId:'aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906' // <-- this is the MAINNET
-});
-// Notice that our eosjs reference isn't reactive ( in the data() method like the rest ).
-// You don't want to set it onto the data of this component,
-// but you CAN set it as a VUEX state property if you wanted.
-let eos;
-const rpc = new JsonRpc(network.fullhost());
+const eos = new ScatterService()
 
 export default {
     data() {
@@ -101,15 +82,15 @@ export default {
     },
 
     async created() {
-        const ss = new ScatterService()
-        const account = await ss.login()
+        
+        const account = await eos.login()
         if (account == -1) {
             console.log('未检测到Scatter')
             return;
         }
         
         this.account = account.name
-        this.balance = await ss.getBalance()
+        this.balance = await eos.getBalance()
         this.loading = false
 
 
@@ -260,6 +241,9 @@ export default {
         },
 
         async betSubmit() {
+            await eos.bet()
+
+            return 
             if (!this.submitVerify()) return;
 
             this.betLoading = true
