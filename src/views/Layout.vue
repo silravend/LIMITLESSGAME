@@ -69,7 +69,7 @@
 
         <main>
             <div class="common-cover">
-                <img :src="`https://limitless.ink/main-wrapper-${fullSymbol}.png`" alt="" class="main-wrapper">
+                <img :src="`https://limitless.ink/main-wrapper-${fullSymbol}1.png`" alt="" class="main-wrapper">
                  <div class="main-balance">
                     <img src="../assets/images/balance.png" class="main-balance_img" />
                     <div class="main-balance_text">
@@ -304,6 +304,12 @@ export default {
                     image: require('@/assets/ico/kr.png')
                 }
             },
+
+            tokenList: {
+                ETH: 'ethereum',
+                TRX: 'tron',
+                EOS: 'eos'
+            },
             
             aniPaused: false,
             activeIndex: -1,
@@ -376,7 +382,7 @@ export default {
         },
         
         fullSymbol () {
-            return this.symbol == 'ETH' ? 'ethereum' : 'tron'
+            return this.tokenList[this.symbol]
         }
     },
 
