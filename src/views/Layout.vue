@@ -30,7 +30,7 @@
                     </svg>
                     <span class="icon-symbol">TRON</span>
                 </a>
-                <a @click="goBySymbol('tron')" class="nav-item" :class="{active: symbol == 'EOS'}">
+                <a @click="goBySymbol('eos')" class="nav-item" :class="{active: symbol == 'EOS'}">
                     <svg class="icon" aria-hidden="true">
                         <use xlink:href="#icon-EOS"></use>
                     </svg>
