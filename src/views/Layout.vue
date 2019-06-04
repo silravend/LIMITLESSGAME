@@ -28,7 +28,13 @@
                     <svg class="icon" aria-hidden="true">
                         <use xlink:href="#icon-icon_TRX"></use>
                     </svg>
-                    <span class="icon-symbol">Tron</span>
+                    <span class="icon-symbol">TRON</span>
+                </a>
+                <a @click="goBySymbol('tron')" class="nav-item" :class="{active: symbol == 'EOS'}">
+                    <svg class="icon" aria-hidden="true">
+                        <use xlink:href="#icon-EOS"></use>
+                    </svg>
+                    <span class="icon-symbol">EOS</span>
                 </a>
                 <div class="nav-primary"></div>
                 <a @click="fairnessVisible = true" class="nav-item">{{$t('a')}}</a>
@@ -52,7 +58,7 @@
             </nav>
         </header>
 
-        <section class="slider">
+        <section v-if="adRecordList.length > 0"  class="slider">
             <div class="slider-contain">
                 <div v-for="item in adRecordList" :key="item.id" class="slider-item" v-html="$t('ba',{addr: item._shortcutAddr, wins: item.wins, symbol: symbol, lossPer: item._lossPer})">
                 </div>
@@ -505,6 +511,9 @@ export default {
             }
             if (address.indexOf('0x') == 0) {
                 return 'ETH'
+            }
+            if (address.length == 12) {
+                return 'EOS'
             }
         },
 

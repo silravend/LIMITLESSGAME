@@ -25,7 +25,7 @@ class ScatterService {
     scatter = null;
     account = null;
     eos = null;
-    constructor({ name = "gamecontract" } = {}) {
+    constructor({ name = "xiongzhend13" } = {}) {
         this.name = name;
     }
 
@@ -35,11 +35,8 @@ class ScatterService {
         if (connected) {
             this.scatter = ScatterJS.scatter
 
-            console.log(this.scatter.eos)
-
-            this.eos = this.scatter.eos(network, Api, { rpc });
-            console.log(this.eos)
-            window.ScatterJS = null;
+            this.eos = this.scatter.eos(network, Api, { rpc })
+            window.ScatterJS = null
         }
 
         return connected;
@@ -57,11 +54,6 @@ class ScatterService {
         );
 
         return this.account
-    }
-
-    async getContract () {
-        const res = await this.eos.getContract(this.name)
-        return res
     }
 
     logout() {
@@ -93,14 +85,20 @@ class ScatterService {
         return resultWithConfig
     }
 
-    async tranfer () {
-        const tokenDetails = {contract:'eosio.token', symbol:'EOS', memo:'Hello world', decimals:4};
-        const res = await this.scatter.requestTransfer(network, 'gamecontract', '5 EOS', tokenDetails)
-        console.log(res)
+    async getJackpot () {
+        let ret = await rpc.get_table_rows({
+            code: this.name,
+            scope: this.name,
+            table: "globals",
+            limit: 1
+        })
+        return ret.rows[0].jackpot / 10000
     }
 
-    async bet() {
-        this.tranfer()        
+    async bet({betMask, id, commit, commitLastBlock, r, s}, amount) {
+        const tokenDetails = {contract:'eosio.token', symbol:'EOS', memo:`${betMask}-${id}-${commit}-${commitLastBlock}-${r}-${s}`, decimals:4};
+        const res = await this.scatter.requestTransfer(network, this.name, `${amount} EOS`, tokenDetails)
+        return res
     }
 
     async getBalance() {

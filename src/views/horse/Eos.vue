@@ -20,7 +20,7 @@
             :state="state"
             :result="result"
             :loading="loading"
-            :celebrateVisible="celebrateVisible"
+            :horseList="horseList"
             :min="min"
             :max="max"
             :decimal="1"
@@ -33,18 +33,20 @@
 </template>
 
 <script>
-import { getBetParams, settleBet, getRecord, getMyRecord, getAmountParams, getHighRoller } from "@/api/dice_eos"
+import { getGasPrice, getBetParams, settleBet, getRecord, getMyRecord, getAmountParams, getHighRoller } from "@/api/horseracing_eos"
 import { sliceNumber, foldString, tryDo } from '@/js/utils'
 import Game from './Game.vue'
-import { calcEosReward, calcLossPer } from '@/js/game'
-import ScatterService from '@/js/eos/index'
+import {calcEosReward, calcLossPer} from '@/js/game'
+import { getVideoUrl } from '@/api/horseracing_eth'
 
-const eos = new ScatterService()
+import EosService from '@/js/eos'
+
+const eos = new EosService()
 
 export default {
     data() {
         return {
-            num: 50,
+            num: 95,
             balance: 0,
             amount: 0.01,
             gas: "",
@@ -61,10 +63,10 @@ export default {
             result: {},
             state:"bet",
             loading: true,
-            celebrateVisible: false,
             min:1,
             max: 97,
-            debug: false,
+            horseList: [95, 75, 48, 38, 18, 10],
+            debug: true,
             introVisible: false
         };
     },
@@ -83,7 +85,6 @@ export default {
     },
 
     async created() {
-        
         const account = await eos.login()
         if (account == -1) {
             this.$error(this.$t('bf'), 10000)
@@ -105,11 +106,10 @@ export default {
         setInterval(() => {
             this.getJackpot()
         }, 10000)
-        
     },
 
     methods: {
-        async getBalance () {
+         async getBalance () {
             const [balance, err] = await tryDo(eos.getBalance())
             if (err) {
                 console.log(err)
@@ -127,9 +127,10 @@ export default {
             this.maxAmount = res.maxAmount
             this.amountStep = res.step
         },
-        
+
+    
         async getJackpot () {
-            this.jackpotStart = this.jackpotEnd
+             this.jackpotStart = this.jackpotEnd
             const res = await eos.getJackpot()
             
             this.jackpotEnd = res
@@ -151,6 +152,7 @@ export default {
                 })
             }
         },
+        
 
         async getBetParams () {
             const ready = async () => {
@@ -172,32 +174,26 @@ export default {
             let params = await ready()
             
             // 如果v的值为28，则重新请求
-            while(params.v == 28) {
+            while(params.v == 128) {
                 params = await ready()
             }
 
             return params
         },
 
-        betEnd () {
-            this.getBalance()
-            this.state = 'bet'
-            this.betLoading = false
-        },
-
         async settle (randomNumber,blockNumber, transaction_id) {
-            const { sha3Mod100 } = await settleBet({ randomNumber, blockNumber, transaction_id, beneficiary: this.account })
+            const { sha3Mod100 } = await settleBet({ randomNumber, blockNumber, transaction_id, beneficiary: this.account})
             const wins = sliceNumber(calcEosReward(this.amountCache, this.numCache))
-            this.result = {
+            let result = {
                 sha3Mod100: sha3Mod100,
                 wins: sha3Mod100 < this.numCache ? wins : 0
             }
 
-            this.state = 'wait'
-            
-            setTimeout(() => {
-                this.state = 'result'
-            }, 5000)
+            const video = await this.getVideo(result)
+            result.video = video
+
+            this.result = result
+            this.state = 'result'
         },
 
         submitVerify () {
@@ -213,11 +209,19 @@ export default {
             return true
         },
 
-        async betSubmit() {
+        betEnd () {
+            this.getBalance()
+            this.state = 'bet'
+            this.betLoading = false
+        },
+
+         async betSubmit() {
             if (!this.submitVerify()) return;
 
             this.betLoading = true
+
             const params = await this.getBetParams()
+
             const [res, err] = await tryDo(eos.bet(params, this.amount))
             if (err) {
                 console.log(err)
@@ -228,12 +232,41 @@ export default {
             this.settle(params.id, res.processed.block_num, res.transaction_id)
         },
 
+        //获取赛马的视频地址
+        async getVideo ({wins, sha3Mod100}) {
+            let winner = this.mapResultHorse({betMask: this.numCache, wins: wins, sha3Mod100: sha3Mod100})
+            let video = await getVideoUrl({winner: winner})
+            return video
+        },
+       
+         //根据数字匹配投注的马的编号
+        mapBetHorse (num) {
+            return this.horseList.indexOf(parseInt(num)) + 1
+        },
+
+        // 根据结果匹配到马的编号
+        mapResultHorse ({betMask, wins, sha3Mod100}) {
+            const betNum = this.mapBetHorse(betMask)
+            const result = parseInt(sha3Mod100)
+
+            //如果中奖，则直接返回投注的🐎
+            if(wins > 0) return betNum;
+
+            for(let [i, item] of this.horseList.entries()) {
+                //如果大于或等于第一匹马
+                if (i == 0 && result >= item) return betNum == 1 ? 2 : 1;
+
+                //小于当前且 >=后面; 则返回当前；另外循环不可能走到最后一位，因为那样的话，用户必然中奖
+                if (result < item && result >= this.horseList[i + 1]) return i + 1;
+            }
+        },
+
         prefixRecord (item) {
             item._update = this.formatDate(item.updatedAt)
             item._wins = sliceNumber(item.wins)
             item._link = `https://bloks.io/transaction/${item.betTrx}`
-            item._bet = item.betMask
-            item._result = `<div class="result-num">${item.sha3Mod100}</div>`
+            item._bet = this.mapBetHorse(item.betMask)
+            item._result = item._result = `<div class="result-num">${this.mapResultHorse(item)}</div>`
         },
 
         async getRecord () {
@@ -260,10 +293,16 @@ export default {
         },
 
         addRecord (res) {
-            this.prefixRecord(res)
-            this.recordList.unshift(res)
+            //如果是用户自己的投注，则延迟50s，等视频播放完成后再追加
             if (res.address == this.account) {
-                this.myRecordList.unshift(res)
+                setTimeout(() => {
+                    this.prefixRecord(res)
+                    this.recordList.unshift(res)
+                    this.myRecordList.unshift(res)
+                }, 50000)
+            }else {
+                this.prefixRecord(res)
+                this.recordList.unshift(res)
             }
 
             if (this.recordList.length > 20) {

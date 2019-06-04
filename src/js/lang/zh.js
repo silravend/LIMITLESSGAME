@@ -55,5 +55,6 @@ export default {
     bb: '过山车',
     bc: '疯狂赛马',
     bd: '即将开启',
-    be: '赢取'
+    be: '赢取',
+    bf: '未能检测到Scatter'
 }

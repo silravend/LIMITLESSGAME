@@ -55,5 +55,6 @@ export default {
     bb: '전갈',
     bc: '미친 경마',
     bd: '곧 출시 예정',
-    be: '승리'
+    be: '승리',
+    bf: 'Scatter 감지에 실패했습니다.'
 }

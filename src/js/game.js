@@ -30,6 +30,19 @@ export const calcTronReward = (amount, num) => {
 }
 
 /**
+ * 根据投注金额提前计算出EOS奖金，提高开奖速度
+ * {number} amount 投注的金额
+ * {number} num 投注的值
+ */
+
+export const calcEosReward = (amount, num) => {
+    const jackpotFee = amount >= 1 ? 0.01 : 0
+    const bankerFee = Math.max(amount * 0.01, 0.03)
+    
+    return NP.divide(NP.minus(amount, jackpotFee, bankerFee) * 100 , num)
+}
+
+/**
  * 计算赔率
  * {number} bet 投注的数字
  * {number} min 游戏设定的最小值

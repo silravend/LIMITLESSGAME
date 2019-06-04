@@ -55,5 +55,6 @@ export default {
     bb: 'Dice',
     bc: 'Horse',
     bd: 'Coming soon',
-    be: 'won'
+    be: 'won',
+    bf: 'Failed to detect Scatter'
 }
