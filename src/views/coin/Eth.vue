@@ -2,6 +2,7 @@
     <div class="" id="app">
         <game
             ref="app"
+            :account="account"
             :num.sync="num"
             :amount.sync="amount"
             :minAmount="minAmount"

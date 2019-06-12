@@ -3,6 +3,7 @@
         <game
             ref="app"
             symbol="ETH"
+            :account="account"
             :num.sync="num"
             :amount.sync="amount"
             :introVisible.sync="introVisible"

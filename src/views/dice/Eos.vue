@@ -3,6 +3,7 @@
         <game
             ref="app"
             symbol="EOS"
+            :account="account"
             :num.sync="num"
             :amount.sync="amount"
             :introVisible.sync="introVisible"

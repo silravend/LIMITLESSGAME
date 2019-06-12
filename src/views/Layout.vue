@@ -1342,7 +1342,7 @@ main {
     display: flex;
     align-items: center;
     position: relative;
-    
+    overflow: hidden;
 
     
 

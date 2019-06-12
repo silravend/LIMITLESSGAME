@@ -3,6 +3,7 @@
         <game
             ref="app"
             symbol="TRX"
+            :account="account"
             :num.sync="num"
             :amount.sync="amount"
             :introVisible.sync="introVisible"
