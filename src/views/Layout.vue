@@ -950,7 +950,7 @@ main {
         top: 300px;
 
         &.left {
-            left: 295px;
+            left: 298px;
             .main-lamp_item {
                 background: url(../assets/images/lamp_l.png) no-repeat;
                 background-size: 100% 100%;
@@ -963,7 +963,7 @@ main {
         }
 
         &.right {
-            right: 299px;
+            right: 300px;
             .main-lamp_item {
                 background: url(../assets/images/lamp_r.png) no-repeat;
                 background-size: 100% 100%;
