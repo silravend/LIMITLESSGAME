@@ -17,7 +17,7 @@
                     <slot></slot>
                 </div>
 
-                <div class="comp-btn">
+                <div v-if="footerVisible" class="comp-btn">
                      <Btn @click.native="confirm" v-if="btnText" class="">
                         {{btnText}}
                     </Btn>
@@ -44,6 +44,9 @@ export default {
         title: String,
         btnText: String,
         closeVisible: Boolean,
+        footerVisible: {
+            default: true
+        },
         visible: {
             default: false
         }
@@ -139,7 +142,7 @@ export default {
             color:rgba(255,255,255,1);
             line-height:26px;
             margin: 40px 50px 0;
-            max-height: 400px;
+            max-height: 450px;
             overflow: auto;
         }
 

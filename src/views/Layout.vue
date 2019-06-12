@@ -14,13 +14,13 @@
                 <div class="side-item_name">{{$t('bd')}}</div>
             </div>
             
-            <div @click="dividendsVisible = true" class="side-item">
+            <div @click="showDividends" class="side-item">
                 <svg class="icon" aria-hidden="true">
                     <use xlink:href="#icon-paimai"></use>
                 </svg>
                 <div class="side-item_name">{{$t('bg')}}</div>
             </div>
-             <div @click="boxVisible = true" class="side-item">
+             <div @click="showBox" class="side-item">
                 <svg class="icon" aria-hidden="true">
                     <use xlink:href="#icon-baoxiang"></use>
                 </svg>
@@ -267,7 +267,7 @@
             </div>
         </modal>
 
-        <modal v-if="dividendsVisible" :visible.sync="dividendsVisible" title="LIMITLESS TOKEN" :btnText="$t('ad')">
+        <modal v-if="dividendsVisible" :visible.sync="dividendsVisible" :closeVisible="true" :footerVisible="false" :title="$t('bg')" :btnText="$t('ad')">
             <div class="dividends-modal">
                 <div>{{$t('bh')}}</div>
                 <div> 0 / 500000000</div>
@@ -277,24 +277,24 @@
                     <div class="main-desc">
                         {{$t('bj')}} <br>({{$t('bk')}}: 0) TRX
                     </div>
-                    <Btn :height="30">{{$t('bl')}}</Btn>
+                    <Btn :height="30" :font-size="16">{{$t('bl')}}</Btn>
                 </div>
 
                 <div class="modal-actions">
                     <div class="actions-item">
                         <div class="actions-item_title">{{$t('bm')}}</div>
                         <input placeholder="0 LT" class="actions-item_input" type="text">
-                        <Btn :height="30">{{$t('bn')}}</Btn>
+                        <Btn :height="30" :font-size="16">{{$t('bn')}}</Btn>
                     </div>
                     <div class="actions-item">
                         <div class="actions-item_title">{{$t('bl')}}</div>
                         <input placeholder="0 LT" class="actions-item_input" type="text">
-                        <Btn :height="30">{{$t('bo')}}</Btn>
+                        <Btn :height="30" :font-size="16">{{$t('bo')}}</Btn>
                     </div>
                     <div class="actions-item">
                         <div class="actions-item_title">{{$t('bp')}}</div>
                         <input placeholder="0 LT" class="actions-item_input" type="text">
-                        <Btn :height="30">{{$t('bl')}}</Btn>
+                        <Btn :height="30" :font-size="16">{{$t('bl')}}</Btn>
                     </div>
                 </div>
             </div>
@@ -491,6 +491,20 @@ export default {
     },
 
     methods: {
+
+        showDividends () {
+            if (!this.account) {
+                return this.$error(this.$t('as'))
+            }
+            this.dividendsVisible = true
+        },
+
+        showBox () {
+            if (!this.account) {
+                return this.$error(this.$t('as'))
+            }
+            this.boxVisible = true
+        },
 
         async openBox (item) {
             const res = await openTreasureBox({address: this.account, boxid: item.id})

@@ -57,7 +57,7 @@ export default {
     bd: '即将开启',
     be: '赢取',
     bf: '未能检测到Scatter',
-    bg: '分红',
+    bg: '分红池',
     bh: '阶段: 20-1 (玩LIMITLESS游戏获取LT)',
     bi: '可提现的分红',
     bj: '总共有0 LT通过网络锁定 - 您将收到NaN TRX红利。',
