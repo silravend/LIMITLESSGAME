@@ -1343,9 +1343,7 @@ main {
     align-items: center;
     position: relative;
     overflow: hidden;
-
     
-
     .box-item{
         flex:1;
         text-align: center
