@@ -3,6 +3,7 @@
         <game
             ref="app"
             symbol="ETH"
+            :account="account"
             :num.sync="num"
             :amount.sync="amount"
             :introVisible.sync="introVisible"
@@ -302,6 +303,7 @@ export default {
         },
 
         addRecord (res) {
+            console.log(res)
             this.prefixRecord(res)
             this.recordList.unshift(res)
             if (res.address == this.account) {

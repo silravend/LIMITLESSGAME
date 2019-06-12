@@ -13,6 +13,19 @@
                 <img src="@/assets/images/icon_coin.png" alt="" class="side-item_img">
                 <div class="side-item_name">{{$t('bd')}}</div>
             </div>
+            
+            <div @click="dividendsVisible = true" class="side-item">
+                <svg class="icon" aria-hidden="true">
+                    <use xlink:href="#icon-paimai"></use>
+                </svg>
+                <div class="side-item_name">{{$t('bg')}}</div>
+            </div>
+             <div @click="boxVisible = true" class="side-item">
+                <svg class="icon" aria-hidden="true">
+                    <use xlink:href="#icon-baoxiang"></use>
+                </svg>
+                <div class="side-item_name">{{$t('bq')}}</div>
+            </div>
         </section>
 
         <header>
@@ -58,7 +71,7 @@
             </nav>
         </header>
 
-        <section v-if="adRecordList.length > 0"  class="slider">
+        <section class="slider">
             <div class="slider-contain">
                 <div v-for="item in adRecordList" :key="item.id" class="slider-item" v-html="$t('ba',{addr: item._shortcutAddr, wins: item.wins, symbol: symbol, lossPer: item._lossPer})">
                 </div>
@@ -141,7 +154,7 @@
 
             <div v-if="tabActive == 0" class="table-list">
                 <transition-group name="list" tag="div">
-                    <div v-for="item in recordList" :key="item.id" class="table-cell" :class="{success: item._wins > 0}">
+                    <div v-for="(item, index) in recordList" :key="index" class="table-cell" :class="{success: item._wins > 0}">
                         <div class="cell-item">{{item._update}}</div>
                         <div class="cell-item">{{item.address}}</div>
                         <div class="cell-item">{{item.betAmount}}</div>
@@ -217,18 +230,21 @@
                 </a>
             </div>
 
-            <div class="footer-copyright">Copyright © 2019 limitless.vip | All rights reserved</div>
+            <div class="footer-copyright">Copyright © 2019 limitless.vip | All rights reserved | frisbeegu@gmail.com</div>
         </section>
 
         <modal v-if="introVisible" :visible="introVisible" @update:visible="$emit('update:introVisible', false)" :title="$t('ac')" :btnText="$t('ad')">
             <div class="modal-text">
                 <p>{{$t('ae')}}</p>
                 <p>{{$t('af')}}</p>
-                <p>Metamask:
+                <p>Metamask ( Ethereum ):
                     <a href="https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn" target="_blank">https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn</a>
                 </p>
-                <p>TronLink:
+                <p>TronLink ( Tron ):
                     <a href="https://chrome.google.com/webstore/detail/tronlink/ibnejdfjmmkpcnlpebklmnkoeoihofec" target="_blank">https://chrome.google.com/webstore/detail/tronlink/ibnejdfjmmkpcnlpebklmnkoeoihofec</a>
+                </p>
+                <p>Scatter ( Eos ):
+                    <a href="https://get-scatter.com/" target="_blank">https://get-scatter.com/</a>
                 </p>
                 <p v-html="$t('ag')">
                     
@@ -236,6 +252,51 @@
                 <p>
                     <a href="https://api1.limitless.vip/download?url=plugins_and_tutorials.zip" target="_blank">https://api1.limitless.vip/download?url=plugins_and_tutorials.zip</a>
                 </p>
+            </div>
+        </modal>
+
+        <modal v-if="boxVisible" :visible.sync="boxVisible" :pretty="true" :title="$t('bq')" :btnText="$t('ad')">
+            <div class="box-list">
+                <div v-for="(item, index) in boxes" :key="index" @click="openBox(item)" class="box-item">
+                    <div class="box-item_title">{{item.curr_state}} / {{item.cond_state}}</div>
+                    <div class="box-item_img">
+                        <img v-if="item.opened" :src="boxImgs[index].opened">
+                        <img v-else :src="boxImgs[index].default">
+                    </div>
+                </div>
+            </div>
+        </modal>
+
+        <modal v-if="dividendsVisible" :visible.sync="dividendsVisible" title="LIMITLESS TOKEN" :btnText="$t('ad')">
+            <div class="dividends-modal">
+                <div>{{$t('bh')}}</div>
+                <div> 0 / 500000000</div>
+                <div class="modal-main">
+                    <div class="main-title">{{$t('bi')}}</div>
+                    <div class="main-symbol">0 TRX</div>
+                    <div class="main-desc">
+                        {{$t('bj')}} <br>({{$t('bk')}}: 0) TRX
+                    </div>
+                    <Btn :height="30">{{$t('bl')}}</Btn>
+                </div>
+
+                <div class="modal-actions">
+                    <div class="actions-item">
+                        <div class="actions-item_title">{{$t('bm')}}</div>
+                        <input placeholder="0 LT" class="actions-item_input" type="text">
+                        <Btn :height="30">{{$t('bn')}}</Btn>
+                    </div>
+                    <div class="actions-item">
+                        <div class="actions-item_title">{{$t('bl')}}</div>
+                        <input placeholder="0 LT" class="actions-item_input" type="text">
+                        <Btn :height="30">{{$t('bo')}}</Btn>
+                    </div>
+                    <div class="actions-item">
+                        <div class="actions-item_title">{{$t('bp')}}</div>
+                        <input placeholder="0 LT" class="actions-item_input" type="text">
+                        <Btn :height="30">{{$t('bl')}}</Btn>
+                    </div>
+                </div>
             </div>
         </modal>
 
@@ -283,7 +344,9 @@
 import BeatLoader from "vue-spinner/src/BeatLoader.vue"
 import Confetti from "canvas-confetti"
 import Modal from "@/components/Modal.vue"
+import Btn from '@/components/Btn.vue'
 import { foldString } from '@/js/utils'
+import { getTreasureBox, openTreasureBox } from '@/api/common'
 
 export default {
     name: "layout",
@@ -305,6 +368,15 @@ export default {
                 }
             },
 
+            boxes: [],
+            boxImgs: [
+                {default: require('../assets/images/box1.png'), opened: require('../assets/images/box1_active.png')},
+                {default: require('../assets/images/box2.png'), opened: require('../assets/images/box2_active.png')},
+                {default: require('../assets/images/box3.png'), opened: require('../assets/images/box3_active.png')},
+                {default: require('../assets/images/box4.png'), opened: require('../assets/images/box4_active.png')},
+                {default: require('../assets/images/box5.png'), opened: require('../assets/images/box5_active.png')},
+            ],
+
             tokenList: {
                 ETH: 'ethereum',
                 TRX: 'tron',
@@ -323,6 +395,8 @@ export default {
             vipVisible: false,
             rechargeVisible: false,
             langVisible: false,
+            boxVisible: false,
+            dividendsVisible: false,
 
             lampActive: -1,
             lampTimer: null,
@@ -330,6 +404,9 @@ export default {
     },
 
     props: {
+        account: {
+            default: ''
+        },
         symbol: {
             default: "ETH"
         },
@@ -373,7 +450,8 @@ export default {
 
     components: {
         BeatLoader,
-        Modal
+        Modal,
+        Btn
     },
 
     computed: {
@@ -398,6 +476,9 @@ export default {
             } else {
                 this.startLampAni()
             }
+        },
+        async account (newVal) {
+            this.getTreasureBox()
         }
     },
 
@@ -410,6 +491,19 @@ export default {
     },
 
     methods: {
+
+        async openBox (item) {
+            const res = await openTreasureBox({address: this.account, boxid: item.id})
+            if (res !== null ){
+                this.$success(res.message[this.$i18n.locale], 3000)
+                item.opened = 1
+            }
+        },
+
+        async getTreasureBox () {
+            const res = await getTreasureBox(this.account)
+            this.boxes = res.treasure_boxes
+        },
 
         goByGame (game) {
             location.href = `https://www.limitless.vip/${game}/${this.fullSymbol}`
@@ -538,7 +632,6 @@ export default {
 
         //根据游戏匹配对应的翻译
         translateGame (game) {
-            console.log(this, this.$t)
             if (game == 'dice') return this.$t('bb');
             if (game == 'horseracing') return this.$t('bc');
         },
@@ -655,7 +748,8 @@ body {
     position: fixed;
     z-index: 99;
     left: 0px;
-    top: 220px;
+    top: 50%;
+    transform: translate(0, -50%);
 
     .side-item{
         width: 100px;
@@ -681,6 +775,13 @@ body {
         &:not(:last-child){
             margin-bottom: 10px;
         }
+    }
+
+    .icon{
+        color: #fff;
+        font-size: 36px;
+        margin-bottom: 5px;
+        margin-top: 8px;
     }
 
     .side-item_img{
@@ -1221,5 +1322,74 @@ main {
 
 .notification-primary{
     color: #ffad39
+}
+
+.box-list{
+    display: flex;
+    align-items: center;
+    position: relative;
+    
+
+    
+
+    .box-item{
+        flex:1;
+        text-align: center
+    }
+
+    .box-item_img{
+        height: 96px;
+        line-height: 96px;
+        cursor: pointer;
+    }
+
+    img{
+        width: 110px;
+        vertical-align: middle;
+    }
+}
+
+.dividends-modal{
+    text-align: center;
+
+    .modal-main{
+        border: 1px solid #734ead;
+        border-radius: 4px;
+        margin: 0px 0 30px 0;
+        padding: 30px;
+    }
+
+    .main-title{
+        font-size: 20px;
+    }
+
+    .main-symbol{
+        color: #0c4ede;
+        font-size: 24px;
+        margin: 10px 0;
+    }
+
+    .main-desc{
+        font-size: 14px;
+        margin-bottom: 20px;
+    }
+
+    .modal-actions{
+        display: flex;
+        align-items: center;
+    }
+
+    .actions-item{
+        flex: 1;
+    }
+
+    .actions-item_input{
+        text-align: center;
+        width: 140px;
+        height: 30px;
+        line-height: 30px;
+        border: none;
+        margin-bottom: 10px;
+    }
 }
 </style>

@@ -25,7 +25,7 @@ class ScatterService {
     scatter = null;
     account = null;
     eos = null;
-    constructor({ name = "xiongzhend13" } = {}) {
+    constructor({ name = "limitless125" } = {}) {
         this.name = name;
     }
 

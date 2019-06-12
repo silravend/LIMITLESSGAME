@@ -56,5 +56,16 @@ export default {
     bc: 'Horse',
     bd: 'Coming soon',
     be: 'won',
-    bf: 'Failed to detect Scatter'
+    bf: 'Failed to detect Scatter',
+    bg: 'Dividends',
+    bh: 'Stage: 20-1 (Play LIMITLESS to mine LT)',
+    bi: 'Available Dividends',
+    bj: 'A total of 0 LT is lock across the network - You will receive NaN TRX Dividends.',
+    bk: 'Withdrawable',
+    bl: 'Withdraw',
+    bm: 'Available',
+    bn: 'LOCK',
+    bo: 'UNLOCK',
+    bp: 'Frozen',
+    bq: 'Treasure'
 }

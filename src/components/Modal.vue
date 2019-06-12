@@ -2,6 +2,11 @@
     <div class="modal-comp">
         <transition name="modal" @after-leave="$emit('update:visible', false)">
             <div v-if="compVisile" class="comp-contain">
+                <img v-if="pretty" src="../assets/images/alert_LT.png" alt="" class="comp-bg bg-lt">
+                <img v-if="pretty" src="../assets/images/alert_RT.png" alt="" class="comp-bg bg-rt">
+                <img v-if="pretty" src="../assets/images/alert_LB.png" alt="" class="comp-bg bg-lb">
+                <img v-if="pretty" src="../assets/images/alert_RB.png" alt="" class="comp-bg bg-rb">
+
                 <div v-if="closeVisible" @click="close" class="comp-close">
                     <img src="@/assets/images/modal-close.png" alt="" class="comp-close_img">
                 </div>
@@ -12,9 +17,12 @@
                     <slot></slot>
                 </div>
 
-                <div @click="confirm" v-if="btnText" class="comp-btn">
-                    {{btnText}}
+                <div class="comp-btn">
+                     <Btn @click.native="confirm" v-if="btnText" class="">
+                        {{btnText}}
+                    </Btn>
                 </div>
+               
             </div>
         </transition>
         <x-mask v-if="compVisile" :visible.sync="compVisile"></x-mask>
@@ -23,6 +31,7 @@
 
 <script>
 import XMask from './XMask.vue'
+import Btn from './Btn.vue'
 
 export default {
     data () {
@@ -31,6 +40,7 @@ export default {
         }
     },
     props: {
+        pretty: Boolean,
         title: String,
         btnText: String,
         closeVisible: Boolean,
@@ -39,7 +49,8 @@ export default {
         }
     },
     components: {
-        XMask
+        XMask,
+        Btn
     },
     
     mounted () {
@@ -64,7 +75,7 @@ export default {
         .comp-contain{
             position: fixed;
             z-index: 1000;
-            top: 40%;
+            top: 50%;
             left: 50%;
             transform: translate3d(-50%, -50%, 0);
             width: 750px;
@@ -72,6 +83,32 @@ export default {
             border:3px solid rgba(115, 78, 173, 1);
             border-radius:12px;
             padding-bottom: 35px;
+        }
+
+        .comp-bg{
+            position: absolute;
+            z-index: 9;
+            width: 106px;
+        }
+
+        .bg-lt{
+            left: 0px;
+            top: 0px;
+        }
+
+        .bg-lb{
+            left: 0px;
+            bottom: 0px;
+        }
+
+        .bg-rt{
+            right: 0px;
+            top: 0px;
+        }
+
+        .bg-rb{
+            right: 0px;
+            bottom: 0px;
         }
 
         .comp-close{
@@ -102,21 +139,14 @@ export default {
             color:rgba(255,255,255,1);
             line-height:26px;
             margin: 40px 50px 0;
+            max-height: 400px;
+            overflow: auto;
         }
 
         .comp-btn{
-            font-size:20px;
-            font-weight:bold;
-            color:rgba(128,216,255,1);
-            line-height:26px;
-            text-align: center;
-            width: 144px;
-            height: 48px;
-            line-height: 48px;
-            background: url(../assets/images/modal-btn.png) no-repeat;
-            background-size: 100% 100%;
+            
             margin: 60px auto 0px;
-            cursor: pointer;
+            text-align: center
         }
 
         .modal-enter-active, .modal-leave-active {
