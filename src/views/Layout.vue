@@ -264,7 +264,7 @@
                     </div>
 
                     <div class="item-bd">
-                        <div>{{$t('br')}}: {{item.description[$i18n.locale]}} {{item.curr_state}} / {{item.cond_state}}</div>
+                        <div>{{$t('br')}}: {{item.description[$i18n.locale]}}  ( {{item.curr_state}} / {{item.cond_state}} )</div>
                         <div>{{$t('bs')}}: {{item.contents[$i18n.locale]}}</div>
                     </div>
 
@@ -1390,6 +1390,7 @@ main {
     .item-bd{
         flex: 1;
         margin-left: 15px;
+        font-size: 12px;
 
     }
 
@@ -1403,11 +1404,11 @@ main {
     .ft-btn{
         width: 100px;
         text-align: center;
-        height: 45px;
-        line-height: 45px;
+        height: 30px;
+        line-height: 30px;
         background: #066fa7;
         cursor: pointer;
-        font-size: 16px;
+        font-size: 12px;
         color: #fff;
 
         &.disabled{
