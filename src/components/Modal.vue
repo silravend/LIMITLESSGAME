@@ -8,7 +8,9 @@
                 <img v-if="pretty" src="../assets/images/alert_RB.png" alt="" class="comp-bg bg-rb">
 
                 <div v-if="closeVisible" @click="close" class="comp-close">
-                    <img src="@/assets/images/modal-close.png" alt="" class="comp-close_img">
+                   <svg class="icon" aria-hidden="true">
+                    <use xlink:href="#icon-guanbi"></use>
+                </svg>
                 </div>
 
                 <div v-if="title" class="comp-title">{{title}}</div>
@@ -119,8 +121,9 @@ export default {
             z-index: 9;
             right: 20px;
             top: 20px;
-            font-size: 0px;
             cursor: pointer;
+            font-size: 26px;
+            color: #fff;
         }
 
         .comp-close_img{

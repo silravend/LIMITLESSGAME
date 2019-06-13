@@ -67,5 +67,9 @@ export default {
     bn: 'LOCK',
     bo: 'UNLOCK',
     bp: 'Frozen',
-    bq: 'Treasure'
+    bq: 'Treasure',
+    br: 'Condition',
+    bs: 'Reward',
+    bt: 'Open',
+    bu: 'Inactivated'
 }

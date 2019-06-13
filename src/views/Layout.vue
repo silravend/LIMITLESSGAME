@@ -258,10 +258,23 @@
         <modal v-if="boxVisible" :visible.sync="boxVisible" :pretty="true" :title="$t('bq')" :btnText="$t('ad')">
             <div class="box-list">
                 <div v-for="(item, index) in boxes" :key="index" @click="openBox(item)" class="box-item">
-                    <div class="box-item_title">{{item.curr_state}} / {{item.cond_state}}</div>
-                    <div class="box-item_img">
-                        <img v-if="item.opened" :src="boxImgs[index].opened">
-                        <img v-else :src="boxImgs[index].default">
+                    <div class="item-hd">
+                        <img class="item-hd_img" v-if="item.opened" :src="boxImgs[index].opened">
+                        <img class="item-hd_img" v-else :src="boxImgs[index].default">
+                    </div>
+
+                    <div class="item-bd">
+                        <div>{{$t('br')}}: {{item.description[$i18n.locale]}} {{item.curr_state}} / {{item.cond_state}}</div>
+                        <div>{{$t('bs')}}: {{item.contents[$i18n.locale]}}</div>
+                    </div>
+
+                    <div class="item-ft">
+                        <svg v-if="item.opened" class="icon" aria-hidden="true">
+                            <use xlink:href="#icon-success"></use>
+                        </svg>
+                        <div v-else class="ft-btn" :class="item._state">
+                            {{item._btnText}}                              
+                        </div>
                     </div>
                 </div>
             </div>
@@ -476,9 +489,6 @@ export default {
             } else {
                 this.startLampAni()
             }
-        },
-        async account (newVal) {
-            this.getTreasureBox()
         }
     },
 
@@ -503,10 +513,12 @@ export default {
             if (!this.account) {
                 return this.$error(this.$t('as'))
             }
+            this.getTreasureBox()
             this.boxVisible = true
         },
 
         async openBox (item) {
+            if (item._state == 'disabled') return;
             const res = await openTreasureBox({address: this.account, boxid: item.id})
             if (res !== null ){
                 this.$success(res.message[this.$i18n.locale], 3000)
@@ -516,7 +528,22 @@ export default {
 
         async getTreasureBox () {
             const res = await getTreasureBox(this.account)
-            this.boxes = res.treasure_boxes
+            if (res !== null ){
+                res.treasure_boxes.forEach(item => {
+                    if (!item.opened) {
+                        if (item.curr_state >= item.cond_state) {
+                            item._btnText = this.$t('bt')
+                            item._state = 'open'
+                        } else {
+                            item._btnText = this.$t('bu')
+                            item._state = 'disabled'
+                        } 
+                    }
+                })
+                
+                this.boxes = res.treasure_boxes
+            }
+            
         },
 
         goByGame (game) {
@@ -1339,26 +1366,57 @@ main {
 }
 
 .box-list{
-    display: flex;
-    align-items: center;
     position: relative;
     overflow: hidden;
     
     .box-item{
-        flex:1;
-        text-align: center
+        display: flex;
+        align-items: center;
     }
 
-    .box-item_img{
-        height: 96px;
-        line-height: 96px;
-        cursor: pointer;
+    .item-hd{
+        height: 90px;
+        width: 90px;
+        line-height: 90px;
+        text-align: center;
     }
-
-    img{
-        width: 110px;
+    
+    .item-hd_img{
         vertical-align: middle;
+        max-width: 100%;
+        max-height: 100%
     }
+
+    .item-bd{
+        flex: 1;
+        margin-left: 15px;
+
+    }
+
+    .item-ft{
+        width:100px;
+        text-align: center;
+        font-size: 30px;
+        color: #6c0db9;
+    }
+
+    .ft-btn{
+        width: 100px;
+        text-align: center;
+        height: 45px;
+        line-height: 45px;
+        background: #066fa7;
+        cursor: pointer;
+        font-size: 16px;
+        color: #fff;
+
+        &.disabled{
+            background: #0a4f73;
+            cursor: not-allowed;
+        }
+    }
+
+    
 }
 
 .dividends-modal{
