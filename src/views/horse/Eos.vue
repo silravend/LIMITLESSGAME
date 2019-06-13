@@ -86,6 +86,10 @@ export default {
     },
 
     async created() {
+        this.getRecord()
+        this.getAmoutParams()
+        this.getHighRoller()
+
         const account = await eos.login()
         if (account == -1) {
             this.$error(this.$t('bf'), 10000)
@@ -96,10 +100,7 @@ export default {
         await this.getBalance()
         this.loading = false
 
-        this.getRecord()
         this.getMyRecord()
-        this.getAmoutParams()
-        this.getHighRoller()
     },
 
     async mounted () {
@@ -175,7 +176,7 @@ export default {
             let params = await ready()
             
             // 如果v的值为28，则重新请求
-            while(params.v == 128) {
+            while(params.v == 28) {
                 params = await ready()
             }
 

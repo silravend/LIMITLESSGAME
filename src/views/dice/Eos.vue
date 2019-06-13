@@ -84,7 +84,10 @@ export default {
     },
 
     async created() {
-        
+        this.getRecord()
+        this.getAmoutParams()
+        this.getHighRoller()
+
         const account = await eos.login()
         if (account == -1) {
             this.$error(this.$t('bf'), 10000)
@@ -95,10 +98,7 @@ export default {
         await this.getBalance()
         this.loading = false
 
-        this.getRecord()
-        this.getMyRecord()
-        this.getAmoutParams()
-        this.getHighRoller()
+        this.getMyRecord()  
     },
 
     async mounted () {

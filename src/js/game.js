@@ -36,8 +36,8 @@ export const calcTronReward = (amount, num) => {
  */
 
 export const calcEosReward = (amount, num) => {
-    const jackpotFee = amount >= 1 ? 0.01 : 0
-    const bankerFee = Math.max(amount * 0.01, 0.03)
+    const jackpotFee = amount >= 1 ? 0.0001 : 0
+    const bankerFee = Math.max(amount * 0.01, 0.0003)
     
     return NP.divide(NP.minus(amount, jackpotFee, bankerFee) * 100 , num)
 }
