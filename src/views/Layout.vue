@@ -115,9 +115,12 @@
                         <div style="display:none" class="multi-btn_active">1x</div>
                     </div>
 
-                    <div @click="bet" class="bet-btn" :class="{active: loading || betLoading}">
+                    <div @click="bet" class="bet-btn" :class="{active: loading || betLoading, free: freeBets > 0}">
                         <beat-loader v-if="loading || betLoading" :loading="loading || betLoading" color="rgba(255, 255, 255, .5)"></beat-loader>
-                        <span v-else>{{$t('e')}}</span>
+                        <template v-else>
+                            <span v-if="freeBets > 0">{{$t('bv', {times: freeBets})}}</span>
+                            <span v-else>{{$t('e')}}</span>
+                        </template>
                     </div>
                 </div>
             </div>
@@ -257,7 +260,7 @@
 
         <modal v-if="boxVisible" :visible.sync="boxVisible" :pretty="true" :title="$t('bq')" :btnText="$t('ad')">
             <div class="box-list">
-                <div v-for="(item, index) in boxes" :key="index" @click="openBox(item)" class="box-item">
+                <div v-for="(item, index) in boxes" :key="index" class="box-item">
                     <div class="item-hd">
                         <img class="item-hd_img" v-if="item.opened" :src="boxImgs[index].opened">
                         <img class="item-hd_img" v-else :src="boxImgs[index].default">
@@ -272,7 +275,7 @@
                         <svg v-if="item.opened" class="icon" aria-hidden="true">
                             <use xlink:href="#icon-success"></use>
                         </svg>
-                        <div v-else class="ft-btn" :class="item._state">
+                        <div v-else class="ft-btn" @click="openBox(item)" :class="item._state">
                             {{item._btnText}}                              
                         </div>
                     </div>
@@ -283,7 +286,7 @@
         <modal v-if="dividendsVisible" :visible.sync="dividendsVisible" :closeVisible="true" :footerVisible="false" :title="$t('bg')" :btnText="$t('ad')">
             <div class="dividends-modal">
                 <div>{{$t('bh')}}</div>
-                <div> 0 / 500000000</div>
+                <div>LLT : {{LLT}}</div>
                 <div class="modal-main">
                     <div class="main-title">{{$t('bi')}}</div>
                     <div class="main-symbol">0 TRX</div>
@@ -296,17 +299,17 @@
                 <div class="modal-actions">
                     <div class="actions-item">
                         <div class="actions-item_title">{{$t('bm')}}</div>
-                        <input placeholder="0 LT" class="actions-item_input" type="text">
+                        <input placeholder="0" class="actions-item_input" type="text">
                         <Btn :height="30" :font-size="16">{{$t('bn')}}</Btn>
                     </div>
                     <div class="actions-item">
                         <div class="actions-item_title">{{$t('bl')}}</div>
-                        <input placeholder="0 LT" class="actions-item_input" type="text">
+                        <input placeholder="0" class="actions-item_input" type="text">
                         <Btn :height="30" :font-size="16">{{$t('bo')}}</Btn>
                     </div>
                     <div class="actions-item">
                         <div class="actions-item_title">{{$t('bp')}}</div>
-                        <input placeholder="0 LT" class="actions-item_input" type="text">
+                        <input placeholder="0" class="actions-item_input" type="text">
                         <Btn :height="30" :font-size="16">{{$t('bl')}}</Btn>
                     </div>
                 </div>
@@ -359,7 +362,7 @@ import Confetti from "canvas-confetti"
 import Modal from "@/components/Modal.vue"
 import Btn from '@/components/Btn.vue'
 import { foldString } from '@/js/utils'
-import { getTreasureBox, openTreasureBox } from '@/api/common'
+import { getTreasureBox, openTreasureBox, getUserFreeBets, getUserPt } from '@/api/common'
 
 export default {
     name: "layout",
@@ -399,10 +402,8 @@ export default {
             aniPaused: false,
             activeIndex: -1,
             activeIndex2: -1,
-            
             power: 1,
             tabActive: 0,
-
             fairnessVisible: false,
             inviteVisible: false,
             vipVisible: false,
@@ -410,9 +411,11 @@ export default {
             langVisible: false,
             boxVisible: false,
             dividendsVisible: false,
+            freeBets: 0,
 
             lampActive: -1,
             lampTimer: null,
+            LLT: 0
         };
     },
 
@@ -489,6 +492,9 @@ export default {
             } else {
                 this.startLampAni()
             }
+        },
+        account (newVal) {
+            this.getFreeBets()
         }
     },
 
@@ -501,11 +507,25 @@ export default {
     },
 
     methods: {
+        async getUserLLT () {
+            const res = await getUserPt(this.account)
+            if (res !== null){
+                this.LLT = res.LLT
+            }
+        },
+        
+        async getFreeBets () {
+            const res = await getUserFreeBets(this.account)
+            if (res !== null) {
+                this.freeBets = res.freeBets
+            }
+        },
 
         showDividends () {
             if (!this.account) {
                 return this.$error(this.$t('as'))
             }
+            this.getUserLLT()
             this.dividendsVisible = true
         },
 
@@ -1167,6 +1187,9 @@ main {
         &.active {
             background: url(../assets/images/bet_actived.png) no-repeat;
             background-size: 100% 100%;
+        }
+        &.free {
+            font-size: 20px;
         }
     }
 }
