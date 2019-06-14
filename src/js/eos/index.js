@@ -95,6 +95,29 @@ class ScatterService {
         return ret.rows[0].jackpot / 10000
     }
 
+    async freeBet ({betMask, id, commit, commitLastBlock, r, s}) {
+        const result = await this.eos.transact({
+            actions: [{
+                account: this.name,
+                name: 'placebetfree',
+                authorization: [{
+                    actor: this.account.name,
+                    permission: 'active'
+                }],
+                data: {
+                    gambler: this.account.name,
+                    amount: 100,
+                    memo: `${betMask}-${id}-${commit}-${commitLastBlock}-${r}-${s}`
+                }
+            }]
+        }, {
+            broadcast: true,
+            blocksBehind: 3,
+            expireSeconds: 60,
+        });
+        return result
+    }
+
     async bet({betMask, id, commit, commitLastBlock, r, s}, amount) {
         const tokenDetails = {contract:'eosio.token', symbol:'EOS', memo:`${betMask}-${id}-${commit}-${commitLastBlock}-${r}-${s}`, decimals:4};
         const res = await this.scatter.requestTransfer(network, this.name, `${amount} EOS`, tokenDetails)
@@ -107,7 +130,6 @@ class ScatterService {
             this.account.name,
             "EOS"
         );
-        console.log(balance)
         return balance[0].split(" ")[0];
     }
 }

@@ -26,6 +26,7 @@
             :max="max"
             :decimal="1"
             @bet="betSubmit"
+            @freeBet="freeBet"
             @ended="betEnd"
             @addRecord="addRecord"
         >
@@ -34,7 +35,7 @@
 </template>
 
 <script>
-import { getBetParams, settleBet, getRecord, getMyRecord, getAmountParams, getHighRoller } from "@/api/dice_eos"
+import { getBetParams, settleBet, getRecord, getMyRecord, getAmountParams, getHighRoller, addGambler } from "@/api/dice_eos"
 import { sliceNumber, foldString, tryDo } from '@/js/utils'
 import Game from './Game.vue'
 import { calcEosReward, calcLossPer } from '@/js/game'
@@ -212,6 +213,27 @@ export default {
                 return false
             }
             return true
+        },
+
+        async freeBet () {
+            this.betLoading = true
+
+            const [[params, success], err] = await tryDo(Promise.all([this.getBetParams(), addGambler({address: this.account})]))
+            if (err) {
+                console.log(err)
+                this.betEnd()
+                return
+            }
+            
+            const [res, betErr] = await tryDo(eos.freeBet(params))
+
+             if (betErr) {
+                console.log(err)
+                this.betEnd()
+                return
+            }
+
+            this.settle(params.id, res.processed.block_num, res.transaction_id)
         },
 
         async betSubmit() {

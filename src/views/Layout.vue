@@ -597,8 +597,11 @@ export default {
 
         bet() {
             if (this.betLoading || this.loading) return;
-
-            this.$emit("bet")
+            if (this.freeBets > 0) {
+                this.$emit("freeBet")
+            } else {
+                this.$emit("bet")
+            }
         },
 
         decrease() {
