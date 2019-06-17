@@ -1,8 +1,9 @@
 import web3 from '@/js/web3'
 import { sliceNumber } from '@/js/utils'
-import { eth as ethAddr, ethSettle as ethSettleAddr } from '@/js/address_config'
+import { eth as ethAddr, ethSettle as ethSettleAddr, ethFree as ethFreeAddr } from '@/js/address_config'
 import ethAbi from './eth_abi'
 import backendAbi from './backend_abi'
+import freeAbi from './free_abi.js'
 /**
  * Eth 的各种服务,包含合约
  */
@@ -12,6 +13,7 @@ class EthService {
     account = ''
     contract = null
     settleContract = null
+    freeAmount = 0.0001
 
     /**
      * 
@@ -41,6 +43,7 @@ class EthService {
     initContract () {
         this.contract = new web3.eth.Contract(ethAbi, ethAddr, {from: this.account})
         this.settleContract = new web3.eth.Contract(backendAbi, ethSettleAddr, {from: this.account})
+        this.freeContract = new web3.eth.Contract(freeAbi, ethFreeAddr, {from: this.account})
     }
 
     // 获取账户
@@ -72,6 +75,27 @@ class EthService {
         const sha3Mod100 = parseInt(result[1].toString()) || 100
 
         return sha3Mod100
+    }
+
+    async freeBet (params, gas) {
+        if (this.freeContract === null) {
+            this.initContract()
+        }
+        return new Promise((resolve, reject) => {
+            this.freeContract.methods.placeBetfree(web3.utils.toWei(this.freeAmount + '', "ether"), params.betMask, params.modulo, params.commitLastBlock, params.commit, params.r, params.s).send({
+                gas: '150000',
+                gasPrice: web3.utils.toWei(gas + '', 'gwei'),
+                from: this.account
+            }).catch(err => {
+                reject(err)
+            })
+    
+            this.freeContract.once('Commit', {
+
+            }, (error, event) => {
+                resolve(event)
+            })
+        })
     }
 
     // 投注

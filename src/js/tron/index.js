@@ -1,5 +1,5 @@
 import { sliceNumber, tryDo } from '@/js/utils'
-import { tron as tronAddr, tronSettle as tronSettleAddr } from '../address_config'
+import { tron as tronAddr, tronSettle as tronSettleAddr, tronFree as tronFreeAddr } from '../address_config'
 /**
  * Tron 的各种服务,包含合约
  */
@@ -8,7 +8,9 @@ class TronService {
     account = ''
     contract = null
     settleContract = null
-
+    freeContract = null
+    freeAmount = 100000
+    freeTron = 0.1
 
     constructor () {
     }
@@ -29,9 +31,10 @@ class TronService {
 
     // 初始化合约
     async initContract () {
-        const [contract, settleContract] = await Promise.all([window.tronWeb.contract().at(tronAddr), window.tronWeb.contract().at(tronSettleAddr)])
+        const [contract, settleContract, freeContract] = await Promise.all([window.tronWeb.contract().at(tronAddr), window.tronWeb.contract().at(tronSettleAddr),  window.tronWeb.contract().at(tronFreeAddr)])
         this.contract = contract
         this.settleContract = settleContract
+        this.freeContract = freeContract
     }
 
     // 获取账户
@@ -70,6 +73,29 @@ class TronService {
         const sha3Mod100 = parseInt(result[1].toString()) || 100
         
         return sha3Mod100
+    }
+
+    //免费下注
+    async freeBet (params) {
+        if (this.freeContract === null) {
+            this.initContract()
+        }
+        return new Promise((resolve, reject) => {
+            this.freeContract.Commit().watch({filters: {commit: params.commit.slice(2)}}, (err, res) => {
+                if(err) {
+                   reject(err)
+                }
+
+                resolve(res)
+            })
+
+            this.freeContract.placeBetfree(window.tronWeb.toSun(this.freeTron), params.betMask, params.modulo, params.commitLastBlock, params.commit, params.r, params.s).send({
+                feeLimit: 100000000,
+                shouldPollResponse:true
+            }).catch(err => {
+                reject(err)
+            })
+        })
     }
 
     // 投注

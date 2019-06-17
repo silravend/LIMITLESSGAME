@@ -7,6 +7,7 @@
             :num.sync="num"
             :amount.sync="amount"
             :introVisible.sync="introVisible"
+            :isNeedUpdate.sync="isNeedUpdate"
             :minAmount="minAmount"
             :maxAmount="maxAmount"
             :amountStep="amountStep"
@@ -27,13 +28,14 @@
             @bet="betSubmit"
             @ended="betEnd"
             @addRecord="addRecord"
+            @freeBet="freeBet"
         >
         </game>
     </div>
 </template>
 
 <script>
-import { getGasPrice, getBetParams, settleBet, getRecord, getMyRecord, getAmountParams, getHighRoller } from "@/api/dice_eth"
+import { getGasPrice, getBetParams, settleBet, getRecord, getMyRecord, getAmountParams, getHighRoller, addGambler, settleBetFree } from "@/api/dice_eth"
 import { sliceNumber, foldString, tryDo } from '@/js/utils'
 import Game from './Game.vue'
 import { calcEthReward, calcLossPer } from '@/js/game'
@@ -65,7 +67,8 @@ export default {
             min:1,
             max: 97,
             debug: false,
-            introVisible: false
+            introVisible: false,
+            isNeedUpdate: false,
         };
     },
     components: {
@@ -113,6 +116,8 @@ export default {
             }
             return 
         }
+
+        eth.initContract()
 
         this.account = account
         this.getBalance()
@@ -207,16 +212,16 @@ export default {
             this.betLoading = false
         },
 
-        async getResult (id, blockHash) {
+        async getResult (id, blockHash, amount) {
             const sha3Mod100 = await eth.getResult(id, blockHash)
-            const wins = sliceNumber(calcEthReward(this.amountCache, this.numCache))
+            const wins = sliceNumber(calcEthReward(amount || this.amountCache, this.numCache))
 
             return { sha3Mod100, wins }
         },
 
         // 手动提前计算
-        async manualSettle (id, blockHash) {
-            const { sha3Mod100, wins } = await this.getResult(id, blockHash)
+        async manualSettle (id, blockHash, amount) {
+            const { sha3Mod100, wins } = await this.getResult(id, blockHash, amount)
 
             this.result = {
                 sha3Mod100: sha3Mod100,
@@ -224,7 +229,8 @@ export default {
             }
 
             this.state = 'wait'
-            
+            this.isNeedUpdate = true
+
             setTimeout(() => {
                 this.state = 'result'
             }, 5000)
@@ -246,6 +252,26 @@ export default {
                 return false
             }
             return true
+        },
+
+        async freeBet () {
+            this.betLoading = true
+            const params = await this.getBetParams()
+            
+            const [event, err] = await tryDo(eth.freeBet(params, this.gas))
+            if (err) {
+                console.log('bet err')
+                console.log(err)
+                if (err.message.indexOf('User denied') > -1) {
+                    this.$error(this.$t('au'))
+                } else {
+                    this.$error(this.$t('av'))
+                }
+                this.betLoading = false
+                return
+            }
+            settleBetFree( params.id, event.blockHash)
+            this.manualSettle(params.id, event.blockHash, eth.freeAmount)
         },
 
         async betSubmit() {

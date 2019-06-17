@@ -7,6 +7,7 @@
             :num.sync="num"
             :amount.sync="amount"
             :introVisible.sync="introVisible"
+            :isNeedUpdate.sync="isNeedUpdate"
             :minAmount="minAmount"
             :maxAmount="maxAmount"
             :amountStep="amountStep"
@@ -28,13 +29,14 @@
             @bet="betSubmit"
             @ended="betEnd"
             @addRecord="addRecord"
+            @freeBet="freeBet"
         >
         </game>
     </div>
 </template>
 
 <script>
-import { getGasPrice, getBetParams, settleBet, getRecord, getMyRecord, getAmountParams, getHighRoller } from "@/api/horseracing_eos"
+import { getGasPrice, getBetParams, settleBet, getRecord, getMyRecord, getAmountParams, getHighRoller, addGambler } from "@/api/horseracing_eos"
 import { sliceNumber, foldString, tryDo } from '@/js/utils'
 import Game from './Game.vue'
 import {calcEosReward, calcLossPer} from '@/js/game'
@@ -68,7 +70,8 @@ export default {
             max: 97,
             horseList: [95, 75, 48, 38, 18, 10],
             debug: true,
-            introVisible: false
+            introVisible: false,
+            isNeedUpdate: false
         };
     },
     components: {
@@ -176,20 +179,21 @@ export default {
             let params = await ready()
             
             // 如果v的值为28，则重新请求
-            while(params.v == 28) {
+            while(params.v == 128) {
                 params = await ready()
             }
 
             return params
         },
 
-        async settle (randomNumber,blockNumber, transaction_id) {
+        async settle (randomNumber,blockNumber, transaction_id, amount) {
             const { sha3Mod100 } = await settleBet({ randomNumber, blockNumber, transaction_id, beneficiary: this.account})
-            const wins = sliceNumber(calcEosReward(this.amountCache, this.numCache))
+            const wins = sliceNumber(calcEosReward(amount || this.amountCache, this.numCache))
             let result = {
                 sha3Mod100: sha3Mod100,
                 wins: sha3Mod100 < this.numCache ? wins : 0
             }
+            this.isNeedUpdate = true
 
             const video = await this.getVideo(result)
             result.video = video
@@ -215,6 +219,27 @@ export default {
             this.getBalance()
             this.state = 'bet'
             this.betLoading = false
+        },
+
+        async freeBet () {
+            this.betLoading = true
+
+            const [[params, success], err] = await tryDo(Promise.all([this.getBetParams(), addGambler({address: this.account})]))
+            if (err) {
+                console.log(err)
+                this.betEnd()
+                return
+            }
+            
+            const [res, betErr] = await tryDo(eos.freeBet(params))
+
+             if (betErr) {
+                console.log(err)
+                this.betEnd()
+                return
+            }
+
+            this.settle(params.id, res.processed.block_num, res.transaction_id, eos.freeAmount)
         },
 
          async betSubmit() {

@@ -7,6 +7,7 @@
             :num.sync="num"
             :amount.sync="amount"
             :introVisible.sync="introVisible"
+            :isNeedUpdate.sync="isNeedUpdate"
             :minAmount="minAmount"
             :maxAmount="maxAmount"
             :amountStep="amountStep"
@@ -26,9 +27,9 @@
             :max="max"
             :decimal="1"
             @bet="betSubmit"
-            @freeBet="freeBet"
             @ended="betEnd"
             @addRecord="addRecord"
+            @freeBet="freeBet"
         >
         </game>
     </div>
@@ -67,7 +68,8 @@ export default {
             min:1,
             max: 97,
             debug: false,
-            introVisible: false
+            introVisible: false,
+            isNeedUpdate: false
         };
     },
     components: {
@@ -187,16 +189,16 @@ export default {
             this.betLoading = false
         },
 
-        async settle (randomNumber,blockNumber, transaction_id) {
+        async settle (randomNumber,blockNumber, transaction_id, amount) {
             const { sha3Mod100 } = await settleBet({ randomNumber, blockNumber, transaction_id, beneficiary: this.account })
-            const wins = sliceNumber(calcEosReward(this.amountCache, this.numCache))
+            const wins = sliceNumber(calcEosReward(amount || this.amountCache, this.numCache))
             this.result = {
                 sha3Mod100: sha3Mod100,
                 wins: sha3Mod100 < this.numCache ? wins : 0
             }
 
             this.state = 'wait'
-            
+            this.isNeedUpdate = true
             setTimeout(() => {
                 this.state = 'result'
             }, 5000)
@@ -233,7 +235,7 @@ export default {
                 return
             }
 
-            this.settle(params.id, res.processed.block_num, res.transaction_id)
+            this.settle(params.id, res.processed.block_num, res.transaction_id, eos.freeAmount)
         },
 
         async betSubmit() {

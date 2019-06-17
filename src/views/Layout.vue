@@ -44,6 +44,7 @@
                     <span class="icon-symbol">TRON</span>
                 </a>
                 <a @click="goBySymbol('eos')" class="nav-item" :class="{active: symbol == 'EOS'}">
+                    <img class="nav-item_new" src="../assets/images/new1.png" alt="">
                     <svg class="icon" aria-hidden="true">
                         <use xlink:href="#icon-EOS"></use>
                     </svg>
@@ -461,6 +462,9 @@ export default {
         },
         introVisible: {
             default: false
+        },
+        isNeedUpdate: {
+            default: false
         }
     },
 
@@ -495,6 +499,13 @@ export default {
         },
         account (newVal) {
             this.getFreeBets()
+        },
+
+        isNeedUpdate (newVal) {
+            if (newVal) {
+                this.getFreeBets()
+                this.$emit('update:isNeedUpdate', false)
+            }
         }
     },
 
@@ -598,6 +609,7 @@ export default {
         bet() {
             if (this.betLoading || this.loading) return;
             if (this.freeBets > 0) {
+                console.log('freeBet')
                 this.$emit("freeBet")
             } else {
                 this.$emit("bet")
@@ -885,9 +897,18 @@ header {
         margin-left: 30px;
         cursor: pointer;
         text-align: center;
+        position: relative;
 
         &.active{
             color: #ffad39
+        }
+
+        .nav-item_new{
+            width: 40px;
+            position: absolute;
+            z-index: 9;
+            right:-40px;
+            top: -10px
         }
 
         .icon{

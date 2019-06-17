@@ -25,6 +25,8 @@ class ScatterService {
     scatter = null;
     account = null;
     eos = null;
+    freeAmount = 0.01;
+
     constructor({ name = "limitless125" } = {}) {
         this.name = name;
     }
@@ -106,7 +108,7 @@ class ScatterService {
                 }],
                 data: {
                     gambler: this.account.name,
-                    amount: 100,
+                    amount: this.freeAmount * 10000,
                     memo: `${betMask}-${id}-${commit}-${commitLastBlock}-${r}-${s}`
                 }
             }]

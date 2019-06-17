@@ -7,6 +7,7 @@
             :num.sync="num"
             :amount.sync="amount"
             :introVisible.sync="introVisible"
+            :isNeedUpdate.sync="isNeedUpdate"
             :minAmount="minAmount"
             :maxAmount="maxAmount"
             :amountStep="amountStep"
@@ -28,13 +29,14 @@
             @bet="betSubmit"
             @ended="betEnd"
             @addRecord="addRecord"
+            @freeBet="freeBet"
         >
         </game>
     </div>
 </template>
 
 <script>
-import { getBetParams, settleBet, getRecord, getMyRecord, getAmountParams, getHighRoller } from "@/api/horseracing_tron";
+import { getBetParams, settleBet, getRecord, getMyRecord, getAmountParams, getHighRoller, settleBetFree, addGambler } from "@/api/horseracing_tron";
 import { sliceNumber, foldString, tryDo } from '@/js/utils'
 import Game from './Game.vue'
 import { calcTronReward, calcLossPer } from '@/js/game'
@@ -69,7 +71,8 @@ export default {
             min: 1,
             max: 97,
             horseList: [95, 75, 48, 38, 18, 10],
-            introVisible: false
+            introVisible: false,
+            isNeedUpdate: false
         };
     },
     components: {
@@ -206,12 +209,13 @@ export default {
             this.betLoading = false
         },
 
-        async getResult (id, blockNumber) {
+        async getResult (id, blockNumber, amount) {
             const sha3Mod100 = await tron.getResult(id, blockNumber)
-            const wins = sliceNumber(calcTronReward(this.amountCache, this.numCache), 2)
+            const wins = sliceNumber(calcTronReward(amount || this.amountCache, this.numCache), 2)
 
             return { sha3Mod100, wins }
         },
+
 
         //获取赛马的视频地址
         async getVideo ({wins, sha3Mod100}) {
@@ -221,14 +225,14 @@ export default {
         },
 
         // 手动提前计算
-        async manualSettle (id, blockHash) {
-            const { sha3Mod100, wins } = await this.getResult(id, blockHash)
+        async manualSettle (id, blockHash, amount) {
+            const { sha3Mod100, wins } = await this.getResult(id, blockHash, amount)
 
             let result = {
                 sha3Mod100: sha3Mod100,
                 wins: sha3Mod100 < this.numCache ? wins : 0
             }
-            
+            this.isNeedUpdate = true
             const video = await this.getVideo(result)
             result.video = video
 
@@ -254,6 +258,28 @@ export default {
 
             return true
         },
+
+        async freeBet () {
+            this.betLoading = true
+            const params = await this.getBetParams()
+            
+            const [res, err] = await tryDo(tron.freeBet(params))
+            if (err) {
+                console.log(err)
+                this.$error(this.$t('av'))
+                this.betEnd()
+                return
+            }
+
+            addGambler({address: this.account})
+            settleBetFree({
+                randomNumber: params.id,
+                blockNumber: res.block
+            })
+            
+            this.manualSettle(params.id, res.block, tron.freeTron)
+        },
+
 
         async betSubmit() {
             if (!this.submitVerify()) return;

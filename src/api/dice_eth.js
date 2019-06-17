@@ -49,3 +49,9 @@ export const getAmountParams = () => {
 export const getHighRoller = () => {
     return io.get('/api/v1.0/dice/ethereum/getBetsHighRoller')
 }
+
+//添加免费的用户
+export const addGambler = ({address, amount = 100000}) => io.get('/api/v1.0/dice/ethereum/addgambler', {params:{address, amount}})
+
+//免费投注的结算
+export const settleBetFree = params => io.get('/api/v1.0/dice/ethereum/settleBetFree', { params })

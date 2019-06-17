@@ -58,3 +58,6 @@ export const getVideoUrl = ({ winner }) => {
 export const getHighRoller = () => {
     return io.get('/api/v1.0/horseracing/eos/getBetsHighRoller')
 }
+
+//添加免费的用户
+export const addGambler = ({address, amount = 100}) => io.get('/api/v1.0/horseracing/eos/addgambler', {params:{address, amount}})

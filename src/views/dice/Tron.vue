@@ -7,6 +7,7 @@
             :num.sync="num"
             :amount.sync="amount"
             :introVisible.sync="introVisible"
+            :isNeedUpdate.sync="isNeedUpdate"
             :minAmount="minAmount"
             :maxAmount="maxAmount"
             :amountStep="amountStep"
@@ -27,13 +28,14 @@
             @bet="betSubmit"
             @ended="betEnd"
             @addRecord="addRecord"
+            @freeBet="freeBet"
         >
         </game>
     </div>
 </template>
 
 <script>
-import { getBetParams, settleBet, getRecord, getMyRecord, getAmountParams, getHighRoller } from "@/api/dice_tron"
+import { getBetParams, settleBet, getRecord, getMyRecord, getAmountParams, getHighRoller, settleBetFree, addGambler } from "@/api/dice_tron"
 import { sliceNumber, foldString, tryDo } from '@/js/utils'
 import Game from './Game.vue'
 import { calcTronReward, calcLossPer } from '@/js/game'
@@ -66,7 +68,8 @@ export default {
             numCache: 0.01,
             min: 1,
             max: 97,
-            introVisible: false
+            introVisible: false,
+            isNeedUpdate: false
         };
     },
     components: {
@@ -200,22 +203,24 @@ export default {
             this.betLoading = false
         },
 
-        async getResult (id, blockNumber) {
+        async getResult (id, blockNumber, amount) {
             const sha3Mod100 = await tron.getResult(id, blockNumber)
-            const wins = sliceNumber(calcTronReward(this.amountCache, this.numCache), 2)
+            const wins = sliceNumber(calcTronReward(amount || this.amountCache, this.numCache), 2)
 
             return { sha3Mod100, wins }
         },
 
         // 手动提前计算
-        async manualSettle (id, blockNumber) {
-            const { sha3Mod100, wins } = await this.getResult(id, blockNumber)
+        async manualSettle (id, blockNumber, amount) {
+            const { sha3Mod100, wins } = await this.getResult(id, blockNumber, amount)
 
             this.result = {
                 sha3Mod100: sha3Mod100,
                 wins: sha3Mod100 < this.numCache ? wins : 0
             }
             this.state = 'wait'
+            this.isNeedUpdate = true
+
             setTimeout(() => {
                 this.state = 'result'
             }, 5000)
@@ -238,6 +243,27 @@ export default {
             }
 
             return true
+        },
+
+        async freeBet () {
+            this.betLoading = true
+            const params = await this.getBetParams()
+            
+            const [res, err] = await tryDo(tron.freeBet(params))
+            if (err) {
+                console.log(err)
+                this.$error(this.$t('av'))
+                this.betEnd()
+                return
+            }
+
+            addGambler({address: this.account})
+            settleBetFree({
+                randomNumber: params.id,
+                blockNumber: res.block
+            })
+            
+            this.manualSettle(params.id, res.block, tron.freeTron)
         },
 
         async betSubmit() {

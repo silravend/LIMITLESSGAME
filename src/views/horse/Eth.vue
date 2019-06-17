@@ -7,6 +7,7 @@
             :num.sync="num"
             :amount.sync="amount"
             :introVisible.sync="introVisible"
+            :isNeedUpdate.sync="isNeedUpdate"
             :minAmount="minAmount"
             :maxAmount="maxAmount"
             :amountStep="amountStep"
@@ -26,14 +27,15 @@
             :max="max"
             @bet="betSubmit"
             @ended="betEnd"
-            @addRecord="addRecord"
+            @addRecord="addRecord",
+            @freeBet="freeBet"
         >
         </game>
     </div>
 </template>
 
 <script>
-import { getGasPrice, getBetParams, settleBet, getRecord, getMyRecord, getAmountParams, getHighRoller } from "@/api/horseracing_eth"
+import { getGasPrice, getBetParams, settleBet, getRecord, getMyRecord, getAmountParams, getHighRoller, addGambler, settleBetFree } from "@/api/horseracing_eth"
 import { sliceNumber, foldString, tryDo } from '@/js/utils'
 import Game from './Game.vue'
 import {calcEthReward, calcLossPer} from '@/js/game'
@@ -67,7 +69,8 @@ export default {
             max: 97,
             horseList: [95, 75, 48, 38, 18, 10],
             debug: true,
-            introVisible: false
+            introVisible: false,
+            isNeedUpdate: false,
         };
     },
     components: {
@@ -114,6 +117,8 @@ export default {
             }
             return 
         }
+        
+        eth.initContract()
 
         this.account = account
         this.getBalance()
@@ -208,13 +213,13 @@ export default {
             this.betLoading = false
         },
 
-        async getResult (id, blockHash) {
-
+         async getResult (id, blockHash, amount) {
             const sha3Mod100 = await eth.getResult(id, blockHash)
-            const wins = sliceNumber(calcEthReward(this.amountCache, this.numCache))
+            const wins = sliceNumber(calcEthReward(amount || this.amountCache, this.numCache))
 
             return { sha3Mod100, wins }
         },
+
 
         //获取赛马的视频地址
         async getVideo ({wins, sha3Mod100}) {
@@ -224,14 +229,16 @@ export default {
         },
 
         // 手动提前计算
-        async manualSettle (id, blockHash) {
-            const { sha3Mod100, wins } = await this.getResult(id, blockHash)
+        async manualSettle (id, blockHash, amount) {
+            const { sha3Mod100, wins } = await this.getResult(id, blockHash, amount)
 
             let result = {
                 sha3Mod100: sha3Mod100,
                 wins: sha3Mod100 < this.numCache ? wins : 0
             }
-            
+
+            this.isNeedUpdate = true
+
             const video = await this.getVideo(result)
             result.video = video
 
@@ -257,6 +264,26 @@ export default {
             return true
         },
 
+         async freeBet () {
+            this.betLoading = true
+            const params = await this.getBetParams()
+            
+            const [event, err] = await tryDo(eth.freeBet(params, this.gas))
+            if (err) {
+                console.log('bet err')
+                console.log(err)
+                if (err.message.indexOf('User denied') > -1) {
+                    this.$error(this.$t('au'))
+                } else {
+                    this.$error(this.$t('av'))
+                }
+                this.betLoading = false
+                return
+            }
+            settleBetFree( params.id, event.blockHash)
+            this.manualSettle(params.id, event.blockHash, eth.freeAmount)
+        },
+
         async betSubmit() {
             if (!this.submitVerify()) return;
 
@@ -275,7 +302,6 @@ export default {
                 this.betLoading = false
                 return
             }
-            console.log('commit')
             this.settle( params.id, event.blockHash)
             this.manualSettle(params.id, event.blockHash)
         },
