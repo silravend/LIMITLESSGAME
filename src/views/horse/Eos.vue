@@ -36,7 +36,7 @@
 </template>
 
 <script>
-import { getGasPrice, getBetParams, settleBet, getRecord, getMyRecord, getAmountParams, getHighRoller, addGambler } from "@/api/horseracing_eos"
+import { getGasPrice, getBetParams, settleBet, getRecord, getMyRecord, getAmountParams, getHighRoller, addGambler, settleBetFree } from "@/api/horseracing_eos"
 import { sliceNumber, foldString, tryDo } from '@/js/utils'
 import Game from './Game.vue'
 import {calcEosReward, calcLossPer} from '@/js/game'
@@ -202,6 +202,22 @@ export default {
             this.state = 'result'
         },
 
+         async settleFree (randomNumber,blockNumber, transaction_id, amount) {
+            const { sha3Mod100 } = await settleBetFree({ randomNumber, blockNumber, transaction_id, beneficiary: this.account})
+            const wins = sliceNumber(calcEosReward(amount || this.amountCache, this.numCache))
+            let result = {
+                sha3Mod100: sha3Mod100,
+                wins: sha3Mod100 < this.numCache ? wins : 0
+            }
+            this.isNeedUpdate = true
+
+            const video = await this.getVideo(result)
+            result.video = video
+
+            this.result = result
+            this.state = 'result'
+        },
+
         submitVerify () {
             // if (window.ethereum.networkVersion != 1 && !this.debug) {
             //     this.$error(this.$t('ax'), 5000)
@@ -239,7 +255,7 @@ export default {
                 return
             }
 
-            this.settle(params.id, res.processed.block_num, res.transaction_id, eos.freeAmount)
+            this.settleFree(params.id, res.processed.block_num, res.transaction_id, eos.freeAmount)
         },
 
          async betSubmit() {

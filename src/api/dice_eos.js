@@ -52,3 +52,6 @@ export const getHighRoller = () => {
 
 //添加免费的用户
 export const addGambler = ({address, amount = 100}) => io.get('/api/v1.0/dice/eos/addgambler', {params:{address, amount}})
+
+// 免费结算
+export const settleBetFree = params => io.get('/api/v1.0/dice/eos/settleBetFree', { params })
