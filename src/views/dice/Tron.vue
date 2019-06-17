@@ -247,6 +247,7 @@ export default {
 
         async freeBet () {
             this.betLoading = true
+            addGambler({address: this.account})
             const params = await this.getBetParams()
             
             const [res, err] = await tryDo(tron.freeBet(params))
@@ -257,7 +258,6 @@ export default {
                 return
             }
 
-            addGambler({address: this.account})
             settleBetFree({
                 randomNumber: params.id,
                 blockNumber: res.block

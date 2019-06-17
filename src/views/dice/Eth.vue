@@ -256,6 +256,7 @@ export default {
 
         async freeBet () {
             this.betLoading = true
+            addGambler({address: this.account})
             const params = await this.getBetParams()
             
             const [event, err] = await tryDo(eth.freeBet(params, this.gas))
