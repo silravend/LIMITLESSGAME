@@ -63,3 +63,5 @@ export const getHighRoller = () => {
 export const addGambler = ({address, amount = 100}) => io.get('/api/v1.0/horseracing/eos/addgambler', {params:{address, amount}})
 
 export const settleBetFree = params => io.get('/api/v1.0/horseracing/eos/settleBetFree', { params })
+
+export const getInfo = ({randomNumber, blockNumber}) =>  io.get('/api/v1.0/horseracing/eos/getInfo', { params: {randomNumber, blockNumber}})

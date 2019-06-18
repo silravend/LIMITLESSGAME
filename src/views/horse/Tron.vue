@@ -36,7 +36,7 @@
 </template>
 
 <script>
-import { getBetParams, settleBet, getRecord, getMyRecord, getAmountParams, getHighRoller, settleBetFree, addGambler } from "@/api/horseracing_tron";
+import { getBetParams, settleBet, getRecord, getMyRecord, getAmountParams, getHighRoller, settleBetFree, addGambler, getInfo } from "@/api/horseracing_tron";
 import { sliceNumber, foldString, tryDo } from '@/js/utils'
 import Game from './Game.vue'
 import { calcTronReward, calcLossPer } from '@/js/game'
@@ -210,7 +210,12 @@ export default {
         },
 
         async getResult (id, blockNumber, amount) {
-            const sha3Mod100 = await tron.getResult(id, blockNumber)
+            // const sha3Mod100 = await tron.getResult(id, blockNumber)
+            const res = await getInfo({
+                randomNumber: id,
+                blockNumber
+            })
+            const sha3Mod100 = res[1]
             const wins = sliceNumber(calcTronReward(amount || this.amountCache, this.numCache), 2)
 
             return { sha3Mod100, wins }

@@ -55,3 +55,5 @@ export const addGambler = ({address, amount = 100000}) => io.get('/api/v1.0/dice
 
 //免费投注的结算
 export const settleBetFree = params => io.get('/api/v1.0/dice/ethereum/settleBetFree', { params })
+
+export const getInfo = ({randomNumber, hash}) =>  io.get('/api/v1.0/dice/ethereum/getInfo', { params: {randomNumber, hash}})

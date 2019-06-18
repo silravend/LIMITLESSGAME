@@ -64,3 +64,5 @@ export const addGambler = ({address, amount = 100000}) => io.get('/api/v1.0/hors
 
 //免费投注的结算
 export const settleBetFree = params => io.get('/api/v1.0/horseracing/tron/settleBetFree', { params })
+
+export const getInfo = ({randomNumber, blockNumber}) =>  io.get('/api/v1.0/horseracing/tron/getInfo', { params: {randomNumber, blockNumber}})

@@ -35,7 +35,7 @@
 </template>
 
 <script>
-import { getGasPrice, getBetParams, settleBet, getRecord, getMyRecord, getAmountParams, getHighRoller, addGambler, settleBetFree } from "@/api/dice_eth"
+import { getGasPrice, getBetParams, settleBet, getRecord, getMyRecord, getAmountParams, getHighRoller, addGambler, settleBetFree, getInfo } from "@/api/dice_eth"
 import { sliceNumber, foldString, tryDo } from '@/js/utils'
 import Game from './Game.vue'
 import { calcEthReward, calcLossPer } from '@/js/game'
@@ -213,7 +213,12 @@ export default {
         },
 
         async getResult (id, blockHash, amount) {
-            const sha3Mod100 = await eth.getResult(id, blockHash)
+            // const sha3Mod100 = await eth.getResult(id, blockHash)
+            const res = await getInfo({
+                randomNumber: id,
+                hash: blockHash
+            })
+            const sha3Mod100 = res[1]
             const wins = sliceNumber(calcEthReward(amount || this.amountCache, this.numCache))
 
             return { sha3Mod100, wins }
