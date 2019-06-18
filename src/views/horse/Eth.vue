@@ -27,7 +27,7 @@
             :max="max"
             @bet="betSubmit"
             @ended="betEnd"
-            @addRecord="addRecord",
+            @addRecord="addRecord"
             @freeBet="freeBet"
         >
         </game>
@@ -281,7 +281,10 @@ export default {
                 this.betLoading = false
                 return
             }
-            settleBetFree( params.id, event.blockHash)
+            settleBetFree({
+                randomNumber: params.id, 
+                hash: event.blockHash
+            })
             this.manualSettle(params.id, event.blockHash, eth.freeAmount)
         },
 

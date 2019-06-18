@@ -13,7 +13,7 @@ class EthService {
     account = ''
     contract = null
     settleContract = null
-    freeAmount = 0.0001
+    freeAmount = 0.001
 
     /**
      * 

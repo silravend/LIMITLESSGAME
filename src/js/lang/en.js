@@ -72,5 +72,5 @@ export default {
     bs: 'Reward',
     bt: 'Open',
     bu: 'Inactivated',
-    bv: 'Free {times} times'
+    bv: 'Free {times}'
 }

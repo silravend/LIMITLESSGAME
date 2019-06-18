@@ -63,4 +63,4 @@ export const getHighRoller = () => {
 export const addGambler = ({address, amount = 100000}) => io.get('/api/v1.0/horseracing/ethereum/addgambler', {params:{address, amount}})
 
 //免费投注的结算
-export const settleBetFree = params => io.get('/api/v1.0/horseracing/ethereum/settleBetFree', { params })
+export const settleBetFree = params => io.get('/api/v1.0/horseracing/ethereum/settleBetFree', {params })

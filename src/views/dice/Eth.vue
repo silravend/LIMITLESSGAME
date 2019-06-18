@@ -271,7 +271,10 @@ export default {
                 this.betLoading = false
                 return
             }
-            settleBetFree( params.id, event.blockHash)
+            settleBetFree({
+                randomNumber: params.id, 
+                hash: event.blockHash
+            })
             this.manualSettle(params.id, event.blockHash, eth.freeAmount)
         },
 
