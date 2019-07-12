@@ -234,7 +234,7 @@
                 </a>
             </div>
 
-            <div class="footer-copyright">Copyright © 2019 limitless.vip | All rights reserved | frisbeegu@gmail.com</div>
+            <div class="footer-copyright">Copyright © 2019 limitless.vip | All rights reserved | mailto:frisbeegu@gmail.com</div>
         </section>
 
         <modal v-if="introVisible" :visible="introVisible" @update:visible="$emit('update:introVisible', false)" :title="$t('ac')" :btnText="$t('ad')">
