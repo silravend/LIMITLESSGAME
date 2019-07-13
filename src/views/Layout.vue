@@ -322,6 +322,7 @@
                 <p>{{$t('ai')}}</p>
                 <p>{{$t('aj')}}</p>
                 <p>{{$t('ak')}}</p>
+                <p>Github: <a href="https://github.com/silravend/LIMITLESSGAME.git">https://github.com/silravend/LIMITLESSGAME.git</a></p>
             </div>
         </modal>
 
